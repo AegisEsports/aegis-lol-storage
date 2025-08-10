@@ -1,0 +1,73 @@
+{
+  "compilerOptions": {
+    /***************************************************************************
+     * Target & Module Resolution
+     ***************************************************************************/
+    // Compile to a recent ECMAScript version that current LTS Node supports natively
+    "target": "ES2022",
+    // Use native ESM imports/exports
+    "module": "node16",
+    // Match Node’s resolution strategy for both .js and .ts
+    "moduleResolution": "node16",
+    "resolveJsonModule": true,
+    "lib": [
+      "ES2022"
+    ],
+    /***************************************************************************
+     * Project Structure
+     ***************************************************************************/
+    // Root of your source files
+    "rootDir": "src",
+    // Emit compiled output here
+    "outDir": "dist",
+    /***************************************************************************
+     * Type Safety & Strictness
+     ***************************************************************************/
+    "strict": true, // enable all strict checks
+    "noImplicitAny": true, // catch untyped values
+    "strictNullChecks": true, // never assume null/undefined
+    "strictFunctionTypes": true, // function param bivariance
+    "strictBindCallApply": true, // catch bad `call`/`apply`
+    "strictPropertyInitialization": true, // initialize all props
+    "exactOptionalPropertyTypes": true, // `foo?: string` ≠ `string | undefined`
+    "noUncheckedIndexedAccess": true, // array/string index-out-of-bounds
+    "noImplicitReturns": true, // every code path must return
+    "noFallthroughCasesInSwitch": true, // switch–case safety
+    "forceConsistentCasingInFileNames": true, // cross-OS consistency
+    /***************************************************************************
+     * Performance & Build‐Hints
+     ***************************************************************************/
+    "skipLibCheck": true, // speed up by skipping @types checks
+    "incremental": true, // store metadata for faster rebuilds
+    "tsBuildInfoFile": ".tsbuildinfo",
+    /***************************************************************************
+     * Interop & Module Features
+     ***************************************************************************/
+    "esModuleInterop": true, // allow default imports from CJS
+    "allowSyntheticDefaultImports": true, // enable `import foo from 'cjs'`
+    "isolatedModules": true, // compatible with babel/ts-node
+    "allowJs": false, // only TS/TSX sources
+    /***************************************************************************
+     * Path Aliases
+     ***************************************************************************/
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ],
+  // Don’t accidentally compile tests, build‐artifacts, or deps
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage"
+  ],
+  "files.associations": {
+    "tsconfig.json": "jsonc"
+  }
+}

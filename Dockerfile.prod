@@ -1,0 +1,34 @@
+# Dockerfile
+# Build and runtime both use the same Node image (override via build-arg)
+
+ARG NODE_IMAGE=node:22
+FROM ${NODE_IMAGE} AS builder
+
+# Set working dir
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy source and build
+COPY . .
+RUN npm run build
+
+# Final stage: smaller production image
+FROM ${NODE_IMAGE}
+WORKDIR /app
+
+# Copy only needed files
+COPY --from=builder /app/dist ./dist
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm install --production
+
+# Set NODE_ENV
+ENV NODE_ENV=development
+
+# Expose port and start
+EXPOSE 3000
+CMD ["node", "dist/server.js"]

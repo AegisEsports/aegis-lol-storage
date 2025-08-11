@@ -1,0 +1,27 @@
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": false,
+      "decorators": false,
+      "dynamicImport": true
+    },
+    "target": "es2022",
+    "loose": false,
+    "keepClassNames": true,
+    "externalHelpers": false
+  },
+
+  /* Emit ESM for Node (you’re already writing imports with .js extensions) */
+  "module": {
+    "type": "es6",
+    "ignoreDynamic": false
+  },
+
+  /* Useful in prod; toggle off locally if you prefer */
+  "minify": true,
+
+  /* For stack traces & debugging */
+  "sourceMaps": true,
+  "inlineSourcesContent": true
+}

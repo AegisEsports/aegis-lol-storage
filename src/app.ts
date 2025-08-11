@@ -1,4 +1,5 @@
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, {
   type Request,
@@ -24,6 +25,7 @@ app.get('/health', (_req: Request, res: Response) => {
 // 3) Standard middleware
 app.use(helmet());
 app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
+app.use(cookieParser());
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

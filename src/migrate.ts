@@ -7,8 +7,9 @@ import {
 } from 'kysely';
 import * as path from 'path';
 
-import pool from '@/config/config';
-import { Database } from '@/database/database';
+import pool from './config/pool.js';
+import type { Database } from './database/database.js';
+import { logger } from './util/logger.js';
 
 const migrateToLatest = async () => {
   const db = new Kysely<Database>({
@@ -28,16 +29,15 @@ const migrateToLatest = async () => {
 
   results?.forEach((it) => {
     if (it.status === 'Success') {
-      console.log(`migration "${it.migrationName}" was executed successfully`);
+      logger.info(`migration "${it.migrationName}" was executed successfully`);
     } else if (it.status === 'Error') {
-      console.error(`failed to execute migration "${it.migrationName}"`);
+      logger.error(`failed to execute migration "${it.migrationName}"`);
     }
   });
 
   if (error) {
-    console.error('failed to migrate');
-    console.error(error);
-    process.exit(1);
+    logger.error('failed to migrate');
+    logger.error(error);
   }
 
   await db.destroy();

@@ -1,6 +1,6 @@
 import { Kysely, PostgresDialect } from 'kysely';
 
-import pool from '@/config/config';
+import pool from '@/config/pool.js';
 
 // Define database schema here
 export interface Database {

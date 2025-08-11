@@ -1,4 +1,4 @@
-import { ErrorCode, ErrorStatus } from './types';
+import type { ErrorCode, ErrorStatus } from './types.js';
 
 export default class ControllerError extends Error {
   readonly status: ErrorStatus;

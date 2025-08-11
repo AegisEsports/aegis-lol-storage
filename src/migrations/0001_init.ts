@@ -12,5 +12,5 @@ export const up = async (db: Kysely<any>): Promise<void> => {
 };
 
 export const down = async (db: Kysely<any>): Promise<void> => {
-  await db.schema.dropTable('league').execute();
+  await db.schema.dropTable('users').execute();
 };

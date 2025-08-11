@@ -15,8 +15,7 @@
     "docker:remove": "docker compose down -v --remove-orphans",
     "test": "mocha --timeout 5000 -r ts-node/register test/**/*.test.ts",
     "migrate:latest": "node dist/migrate-to-latest.js",
-    "lint": "eslint --ignore-path .gitignore --ext .ts src/",
-    "lint:fix": "npm run lint -- --fix",
+    "lint": "eslint .",
     "prepare": "husky"
   },
   "author": "[Aegis] Doowan",
@@ -56,6 +55,7 @@
     "eslint-plugin-n": "^17.21.3",
     "eslint-plugin-security-node": "^1.1.4",
     "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
     "mocha": "^11.7.1",
     "prettier": "^3.6.2",
     "tsx": "^4.20.3",

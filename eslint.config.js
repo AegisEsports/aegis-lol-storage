@@ -11,7 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default [
   // 1) Ignore compiled output (and any .js if necessary)
-  { ignores: ['dist/**', '*.js'] },
+  { ignores: ['dist/**', '*.js', 'node_modules/**'] },
 
   // 2) Base recommended configs
   js.configs.recommended,
@@ -120,7 +120,7 @@ export default [
 
   // 4) TS-specific overrides
   {
-    files: ['**/*.ts', '**/*.tsx'],
+    files: ['**/*.{ts,tsx}'],
     rules: {
       // Disable this for TS files; plugin-n doesn't understand tsconfig paths
       'n/no-missing-import': 'off',

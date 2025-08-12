@@ -16,7 +16,7 @@
     /***************************************************************************
      * Project Structure
      ***************************************************************************/
-    // Root of your source files
+    // Root of source files
     "rootDir": "src",
     // Emit compiled output here
     "outDir": "dist",
@@ -34,6 +34,8 @@
     "noImplicitReturns": true, // every code path must return
     "noFallthroughCasesInSwitch": true, // switch–case safety
     "forceConsistentCasingInFileNames": true, // cross-OS consistency
+    "noUnusedLocals": true, // no unused imports / locals
+    "verbatimModuleSyntax": true, // make clear of what are types
     /***************************************************************************
      * Performance & Build‐Hints
      ***************************************************************************/
@@ -58,7 +60,7 @@
     }
   },
   "include": [
-    "src"
+    "src/**/*"
   ],
   // Don’t accidentally compile tests, build‐artifacts, or deps
   "exclude": [

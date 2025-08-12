@@ -1,9 +1,16 @@
-// import { db } from '@database/database';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { Request, Response, NextFunction } from 'express';
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+
+import { CREDENTIALS, LOG_FORMAT, ORIGIN } from './config/env.js';
+import { logger, stream } from './util/logger.js';
 
 const app = express();
 
@@ -17,11 +24,12 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // 3) Standard middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
+app.use(cookieParser());
 app.use(compression());
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(morgan('combined'));
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan(LOG_FORMAT, { stream }));
 
 // 4) Mount API routes
 // app.use('/api', routes);
@@ -32,9 +40,8 @@ app.use((_req: Request, res: Response) => {
 });
 
 // 6) Centralized error handler
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-  // console.error(err); // will use winston instead
+  logger.error(err);
   const status = err.status || 500;
   res.status(status).json({
     error: {

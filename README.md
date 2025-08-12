@@ -1,22 +1,120 @@
-# An example server that uses Kysely
+# Aegis Esports Data Storage
 
-This is a simple but realistic Koa based server that shows one way to use Kysely. Since this example attempts to mimic a real world project, most of the code isn't relevant to learning how to use Kysely. The relevant parts are the repositories and how they are used. This examples is by no means the best or the right way to use Kysely, but simply one possible way.
+## Overview
 
-The server has three main levels of abstraction:
+This is simply a persistent storage microservice that provides a secure, reliable, and scalable data storage layer for the Aegis Esports LoL competition platform. It exposes a RESTful API for creating, reading, updating, and deleting competition-related data, including leagues, splits, player profiles, match data, and statistics.
 
-1. **Repository**: Repositories contain all Kysely code and provide higher level methods for dealing with the database.
+Developing this service used:
 
-2. **Service**: All business logic is implemented in the service layer. Services use repositories to interact with the database. While repositories deal with database rows and types like `UserRow` the service layer doesn't leak out those types. For example user service methods return and take `User` objects instead of `UserRow` objects.
+- Node - v22 LTS
+- [VSCode](https://code.visualstudio.com/download) - The preferred code IDE (the repo includes a .vscode directory).
+  - Recommended VSCode extensions:
+    - Git Graph
+    - ESLint
+    - GitLens (for Git blame annotations)
+    - IntelliCode
+    - Jest
+    - Prettier
+- [Docker Desktop](https://docs.docker.com/desktop/) - A local container setup for the application.
+- [pgAdmin 4](https://www.pgadmin.org/download/pgadmin-4-windows/) - GUI access to a PostgreSQL databases.
+- [Postman](https://www.postman.com/downloads/) - Platform to organize API requests.
 
-3. **Controller**: Controllers define the HTTP API. Controllers validate and convert the inputs and outputs from/to the network and call services to carry out the actual business logic.
+---
 
-## Running the example
+## Getting Started
 
-All you need to do start poking around with the code is to clone kysely, go to the example folder and run:
+### 1. Installation
+
+Once the repo is forked, run the following commands:
+
+```bash
+$ npm install
+```
+
+A directory `node_modules` will be created containing all the necessary dependencies.
+
+### 2. .env
+
+Create a new `.env` file and add it to the codebase directory.
 
 ```
-npm install
-npm test
+# NODE
+NODE_ENV = development
+
+# SERVER
+SERVER_PORT = 3000
+
+# DATABASE
+DB_USER = postgres
+DB_NAME = aegis_lol_storage
+DB_PASSWORD = password
+DB_PORT = 5432
+DB_HOST = localhost
+DB_MAX_HOSTS = 10
+
+# LOGS
+LOG_DIR = /logs
+LOG_FORMAT = dev # other options are "common", "combined", "short", "tiny"
+
+# CORS
+ORIGIN = *
+CREDENTIALS = true
 ```
 
-You need to have postgres running in the default port `5432` and the default postgres user `postgres` should exist with no password. You can modify the [test configuration](https://github.com/kysely-org/kysely/blob/master/example/test/test-config.ts) if you want to use different settings.
+### 3. Start the Service
+
+Install Docker desktop. The Makefile executes the Docker commands to create local containers. Launch the server and database through:
+
+```
+$ make up
+```
+
+### 4. Shutting Down
+
+If you install a new npm package, you need to reboot the container to see it take effect. Run the following commands to fully shutdown and remove the container.
+
+```
+$ make down
+$ make remove
+$ make clean
+```
+
+## Contributing
+
+### Jira
+
+The active JIRA board is under [AEGIS](https://aegisesports.atlassian.net/jira/software/projects/AEGIS/boards/1/backlog). Ask Doowan for permission to access.
+
+### Pushing Code
+
+`husky` Git hooks:
+
+- When _committing_ code, a pre-commit hook will run ESLint and Prettier to enforce coding practices. VSCode settings should automatically format the code upon saving. Sometimes that may not be the case and the changes can happen after committing.
+
+Though highly unadvised, the hooks can be temporarily disabled by:
+
+```
+$ HUSKY=0 git commit ... # To skip pre-commit hook
+```
+
+### Testing
+
+TBD
+
+### API Documentation
+
+TBD
+
+## Project Structure
+
+### Overview
+
+All development files are under `/src`.
+
+```
+├── config/          # Configuration files (env, db, logger)
+├── database/        # DB connection & migration scripts
+├── migrations/      # Express middlewares
+├── router/          # DB models or query builders
+├── util/            # Utility/helper functions
+```

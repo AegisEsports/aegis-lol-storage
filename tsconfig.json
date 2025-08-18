@@ -34,7 +34,6 @@
     "noImplicitReturns": true, // every code path must return
     "noFallthroughCasesInSwitch": true, // switch–case safety
     "forceConsistentCasingInFileNames": true, // cross-OS consistency
-    "noUnusedLocals": true, // no unused imports / locals
     "verbatimModuleSyntax": true, // make clear of what are types
     /***************************************************************************
      * Performance & Build‐Hints

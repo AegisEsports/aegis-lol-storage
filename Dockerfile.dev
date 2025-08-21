@@ -5,12 +5,13 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-# Install dependencies
+# Install deps first for build cache
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
-# Copy source
-COPY . .
+ENV NODE_ENV=development \
+    CHOKIDAR_USEPOLLING=1 \
+    WATCHHPACK_POLLING=true
 
 # Expose dev port
 EXPOSE 3000

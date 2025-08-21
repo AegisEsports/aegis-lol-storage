@@ -1,4 +1,12 @@
 {
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // If you use ESLint too, let it fix rules but not format:
+  "eslint.format.enable": false,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   }

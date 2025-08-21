@@ -81,8 +81,7 @@ export const up = async (db: Kysely<Database>): Promise<void> => {
           WHERE i.indrelid = r.table_oid
             AND i.indisvalid
             AND i.indisready
-            -- Leading columns must match the FK column attnums in order:
-            AND i.indkey::int[] [1:array_length(r.fk_attnums,1)] = r.fk_attnums::int[]
+            AND ((i.indkey::int2[])[1:cardinality(r.fk_attnums)]) = r.fk_attnums
         ) THEN
           idx_name := format('idx_%s_%s_fk', r.tablename, array_to_string(r.fk_cols, '_'));
           cols_sql := array_to_string(ARRAY(SELECT format('%I', c) FROM unnest(r.fk_cols) AS c), ', ');

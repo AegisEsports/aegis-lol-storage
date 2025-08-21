@@ -8,12 +8,13 @@ export const initiateInfra = async (db: Kysely<Database>) => {
   // Create auto-update modified_at on UPDATE (trigger + function)
   await sql`CREATE EXTENSION IF NOT EXISTS "pgcrypto"`.execute(db);
   await sql`
-    CREATE OR REPLACE FUNCTION ${MODIFIED_AT_TRIGGER_NAME}() RETURNS trigger AS $$
+    CREATE OR REPLACE FUNCTION ${sql.raw(MODIFIED_AT_TRIGGER_NAME)}() RETURNS trigger
+    LANGUAGE plpgsql AS $fn$
     BEGIN
       NEW.modified_at := now();
       RETURN NEW;
     END;
-    $$ LANGUAGE plpgsql;
+    $fn$;
   `.execute(db);
 };
 
@@ -21,11 +22,12 @@ const attachModifiedAtTrigger = async (
   db: Kysely<Database>,
   tableName: string,
 ): Promise<void> => {
+  const triggerName = `${tableName}_${MODIFIED_AT_TRIGGER_NAME}`;
   await sql`
-    CREATE TRIGGER ${tableName}_${MODIFIED_AT_TRIGGER_NAME}
-    BEFORE UPDATE ON ${tableName}
+    CREATE TRIGGER ${sql.raw(triggerName)}
+    BEFORE UPDATE ON ${sql.raw(tableName)}
     FOR EACH ROW
-    EXECUTE FUNCTION ${MODIFIED_AT_TRIGGER_NAME}();
+    EXECUTE FUNCTION ${sql.raw(MODIFIED_AT_TRIGGER_NAME)}();
   `.execute(db);
 };
 

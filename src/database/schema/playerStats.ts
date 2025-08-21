@@ -72,7 +72,7 @@ export const createPlayerStatsTable = async (
           .onDelete('set null')
           .onUpdate('cascade'),
       )
-      .addColumn('riot_puuid', 'uuid', (col) =>
+      .addColumn('riot_puuid', 'varchar', (col) =>
         col
           .references(`${RIOT_ACCOUNTS}.riot_puuid`)
           .onDelete('set null')

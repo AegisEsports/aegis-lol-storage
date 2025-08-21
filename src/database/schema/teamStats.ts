@@ -86,8 +86,6 @@ export const createTeamStatsTable = async (
       .addColumn('kills_at_early', 'int2')
       .addColumn('deaths_at_early', 'int2')
       .addColumn('kills_diff_early', 'int2')
-      .addColumn('deaths_at_early', 'int2')
-      .addColumn('kills_diff_early', 'int2')
       .addColumn('damage_at_early', 'int4')
       .addColumn('damage_diff_early', 'int4')
       .addColumn('total_kills', 'int2')

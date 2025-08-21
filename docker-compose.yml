@@ -21,13 +21,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-      args:
-        NODE_IMAGE: node:22-alpine
     container_name: node_server
     restart: on-failure
     env_file: .env
     ports:
-      - '3000:3000'
+      - "3000:3000"
+    volumes:
+      - ./:/app # bind‑mount your source
+      - /app/node_modules # keep container node_modules separate from host
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=1
+      - WATCHPACK_POLLING=true
     depends_on:
       db:
         condition: service_healthy

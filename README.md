@@ -69,6 +69,12 @@ Install Docker desktop. The Makefile executes the Docker commands to create loca
 $ make up
 ```
 
+To initiate the database:
+
+```
+$ npm run migrate:dev
+```
+
 ### 4. Shutting Down
 
 If you install a new npm package, you need to reboot the container to see it take effect. Run the following commands to fully shutdown and remove the container.

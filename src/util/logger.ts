@@ -9,10 +9,10 @@ import { LOG_DIR, NODE_ENV } from '@/config/env.js';
 const logRoot = join(process.cwd(), LOG_DIR || 'logs');
 const infoDir = join(logRoot, 'info');
 const errorDir = join(logRoot, 'error');
-const totalDir = join(logRoot, 'total'); // consider renaming to 'combined'
+const combinedDir = join(logRoot, 'combined');
 
 // Ensure directories exist
-for (const dir of [logRoot, infoDir, errorDir, totalDir]) {
+for (const dir of [logRoot, infoDir, errorDir, combinedDir]) {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 }
 
@@ -61,7 +61,10 @@ const consoleFormat = winston.format.combine(
 
 // ── Logger ───────────────────────────────────────────────────────────────────
 export const logger = winston.createLogger({
-  level: 'silly', // let all levels through; filters decide destination
+  level: NODE_ENV === 'production' ? 'info': 'silly',
+  format: winston.format.combine(
+    winston.format.errors({ stack: true })
+  ),
   transports: [
     // info-only file
     new DailyRotateFile({
@@ -88,7 +91,7 @@ export const logger = winston.createLogger({
 
     // everything except info & error
     new DailyRotateFile({
-      dirname: totalDir,
+      dirname: combinedDir,
       filename: '%DATE%.log',
       datePattern: 'YYYY-MM-DD',
       maxFiles: '30d',
@@ -105,9 +108,10 @@ export const logger = winston.createLogger({
       level: NODE_ENV === 'production' ? 'info' : 'silly',
       format: consoleFormat,
       handleExceptions: true,
+      handleRejections: true,
     }),
   ],
-  exitOnError: false,
+  exitOnError: true,
 });
 
 // Morgan stream (HTTP logs → info-only)

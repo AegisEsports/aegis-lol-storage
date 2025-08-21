@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "visualstudioexptteam.vscodeintellicode",
+    "eamodio.gitlens",
+    "dbaeumer.vscode-eslint",
+    "mikestead.dotenv",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}

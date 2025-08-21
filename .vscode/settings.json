@@ -9,5 +9,19 @@
   "eslint.format.enable": false,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
-  }
+  },
+  "cSpell.words": [
+    "Atakhan",
+    "Chemtech",
+    "Hextech",
+    "Insertable",
+    "kysely",
+    "Nashor",
+    "pgcrypto",
+    "plpgsql",
+    "timestamptz",
+    "Updateable",
+    "Voidgrub"
+  ],
+  "cSpell.ignorePaths": ["src/database/migrations/**"]
 }

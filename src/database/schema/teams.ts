@@ -41,6 +41,6 @@ export const createTeamsTable = async (db: Kysely<Database>): Promise<void> => {
   );
 };
 
-export type Teams = Selectable<TeamsTable>;
-export type NewTeams = Insertable<TeamsTable>;
-export type UpdateTeams = Updateable<TeamsTable>;
+export type Team = Selectable<TeamsTable>;
+export type NewTeam = Insertable<TeamsTable>;
+export type UpdateTeam = Updateable<TeamsTable>;

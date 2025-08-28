@@ -23,5 +23,5 @@
     "Updateable",
     "Voidgrub"
   ],
-  "cSpell.ignorePaths": ["src/database/migrations/**"]
+  "cSpell.ignorePaths": ["src/database/migrations/**", ".vscode/**"]
 }

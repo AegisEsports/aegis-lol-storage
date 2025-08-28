@@ -40,6 +40,6 @@ export const createLeagueBansTable = async (
   );
 };
 
-export type LeagueBans = Selectable<LeagueBansTable>;
-export type NewLeagueBans = Insertable<LeagueBansTable>;
-export type UpdateLeagueBans = Updateable<LeagueBansTable>;
+export type LeagueBan = Selectable<LeagueBansTable>;
+export type NewLeagueBan = Insertable<LeagueBansTable>;
+export type UpdateLeagueBan = Updateable<LeagueBansTable>;

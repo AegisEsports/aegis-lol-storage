@@ -24,6 +24,6 @@ export const createLeaguesTable = async (
   );
 };
 
-export type Leagues = Selectable<LeaguesTable>;
-export type NewLeagues = Insertable<LeaguesTable>;
-export type UpdateLeagues = Updateable<LeaguesTable>;
+export type League = Selectable<LeaguesTable>;
+export type NewLeague = Insertable<LeaguesTable>;
+export type UpdateLeague = Updateable<LeaguesTable>;

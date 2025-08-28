@@ -42,6 +42,6 @@ export const createRiotAccountsTable = async (
   );
 };
 
-export type RiotAccounts = Selectable<RiotAccountsTable>;
-export type NewRiotAccounts = Insertable<RiotAccountsTable>;
-export type UpdateRiotAccounts = Updateable<RiotAccountsTable>;
+export type RiotAccount = Selectable<RiotAccountsTable>;
+export type NewRiotAccount = Insertable<RiotAccountsTable>;
+export type UpdateRiotAccount = Updateable<RiotAccountsTable>;

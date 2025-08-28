@@ -1,16 +1,9 @@
 import { promises as fs } from 'fs';
-import {
-  Kysely,
-  Migrator,
-  PostgresDialect,
-  type Migration,
-  type MigrationProvider,
-} from 'kysely';
+import { Migrator, type Migration, type MigrationProvider } from 'kysely';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
-import pool from './config/pool.js';
-import type { Database } from './database/database.js';
+import { db } from './database/database.js';
 import { logger } from './util/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -40,7 +33,7 @@ class UrlAwareMigrationProvider implements MigrationProvider {
 
       if (typeof mod.up !== 'function' || typeof mod.down !== 'function') {
         throw new Error(
-          `Migration "${file}" is missing required exports: up/down.`
+          `Migration "${file}" is missing required exports: up/down.`,
         );
       }
 
@@ -53,8 +46,6 @@ class UrlAwareMigrationProvider implements MigrationProvider {
 }
 
 const migrateToLatest = async () => {
-  const db = new Kysely<Database>({ dialect: new PostgresDialect({ pool }) });
-
   // keep this as a normal filesystem path
   const migrationsPath = path.join(__dirname, 'database', 'migrations');
 
@@ -79,6 +70,6 @@ const migrateToLatest = async () => {
   }
 
   await db.destroy();
-}
+};
 
 migrateToLatest();

@@ -29,6 +29,6 @@ export const createOrganizationsTable = async (
   );
 };
 
-export type Organizations = Selectable<OrganizationsTable>;
-export type NewOrganizations = Insertable<OrganizationsTable>;
-export type UpdateOrganizations = Updateable<OrganizationsTable>;
+export type Organization = Selectable<OrganizationsTable>;
+export type NewOrganization = Insertable<OrganizationsTable>;
+export type UpdateOrganization = Updateable<OrganizationsTable>;

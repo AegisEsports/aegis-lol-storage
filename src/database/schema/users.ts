@@ -27,6 +27,6 @@ export const createUsersTable = async (db: Kysely<Database>): Promise<void> => {
   );
 };
 
-export type Users = Selectable<UsersTable>;
-export type NewUsers = Insertable<UsersTable>;
-export type UpdateUsers = Updateable<UsersTable>;
+export type User = Selectable<UsersTable>;
+export type NewUser = Insertable<UsersTable>;
+export type UpdateUser = Updateable<UsersTable>;

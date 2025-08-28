@@ -120,7 +120,6 @@ All development files are under `/src`.
 ```
 ├── config/          # Configuration files (env, db, logger)
 ├── database/        # DB connection & migration scripts
-├── migrations/      # Express middlewares
 ├── router/          # DB models or query builders
 ├── util/            # Utility/helper functions
 ```

@@ -34,6 +34,6 @@ export const createDiscordAccountsTable = async (
   );
 };
 
-export type DiscordAccount = Selectable<DiscordAccountsTable>;
-export type NewDiscordAccount = Insertable<DiscordAccountsTable>;
-export type UpdateDiscordAccount = Updateable<DiscordAccountsTable>;
+export type DiscordAccountDb = Selectable<DiscordAccountsTable>;
+export type NewDiscordAccountDb = Insertable<DiscordAccountsTable>;
+export type UpdateDiscordAccountDb = Updateable<DiscordAccountsTable>;

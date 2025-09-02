@@ -53,6 +53,6 @@ export const createGameEventsTable = async (
   );
 };
 
-export type GameEvent = Selectable<GameEventsTable>;
-export type NewGameEvent = Insertable<GameEventsTable>;
-export type UpdateGameEvent = Updateable<GameEventsTable>;
+export type GameEventDb = Selectable<GameEventsTable>;
+export type NewGameEventDb = Insertable<GameEventsTable>;
+export type UpdateGameEventDb = Updateable<GameEventsTable>;

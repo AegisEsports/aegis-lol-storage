@@ -36,6 +36,6 @@ export const createRiotMatchDataTable = async (
   );
 };
 
-export type RiotMatchData = Selectable<RiotMatchDataTable>;
-export type NewRiotMatchData = Insertable<RiotMatchDataTable>;
-export type UpdateRiotMatchData = Updateable<RiotMatchDataTable>;
+export type RiotMatchDataDb = Selectable<RiotMatchDataTable>;
+export type NewRiotMatchDataDb = Insertable<RiotMatchDataTable>;
+export type UpdateRiotMatchDataDb = Updateable<RiotMatchDataTable>;

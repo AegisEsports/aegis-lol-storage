@@ -47,6 +47,6 @@ export const createBannedChampsTable = async (
   );
 };
 
-export type BannedChamp = Selectable<BannedChampsTable>;
-export type NewBannedChamp = Insertable<BannedChampsTable>;
-export type UpdateBannedChamp = Updateable<BannedChampsTable>;
+export type BannedChampDb = Selectable<BannedChampsTable>;
+export type NewBannedChampDb = Insertable<BannedChampsTable>;
+export type UpdateBannedChampDb = Updateable<BannedChampsTable>;

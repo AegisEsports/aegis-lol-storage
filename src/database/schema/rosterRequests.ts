@@ -49,6 +49,6 @@ export const createRosterRequestsTable = async (
   );
 };
 
-export type RosterRequest = Selectable<RosterRequestsTable>;
-export type NewRosterRequest = Insertable<RosterRequestsTable>;
-export type UpdateRosterRequest = Updateable<RosterRequestsTable>;
+export type RosterRequestDb = Selectable<RosterRequestsTable>;
+export type NewRosterRequestDb = Insertable<RosterRequestsTable>;
+export type UpdateRosterRequestDb = Updateable<RosterRequestsTable>;

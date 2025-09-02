@@ -107,6 +107,6 @@ export const createTeamStatsTable = async (
   );
 };
 
-export type TeamStat = Selectable<TeamStatsTable>;
-export type NewTeamStat = Insertable<TeamStatsTable>;
-export type UpdateTeamStat = Updateable<TeamStatsTable>;
+export type TeamStatDb = Selectable<TeamStatsTable>;
+export type NewTeamStatDb = Insertable<TeamStatsTable>;
+export type UpdateTeamStatDb = Updateable<TeamStatsTable>;

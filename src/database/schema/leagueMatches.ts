@@ -57,6 +57,6 @@ export const createLeagueMatchesTable = async (
   );
 };
 
-export type LeagueMatche = Selectable<LeagueMatchesTable>;
-export type NewLeagueMatche = Insertable<LeagueMatchesTable>;
-export type UpdateLeagueMatche = Updateable<LeagueMatchesTable>;
+export type LeagueMatcheDb = Selectable<LeagueMatchesTable>;
+export type NewLeagueMatcheDb = Insertable<LeagueMatchesTable>;
+export type UpdateLeagueMatcheDb = Updateable<LeagueMatchesTable>;

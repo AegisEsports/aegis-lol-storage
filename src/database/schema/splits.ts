@@ -45,6 +45,6 @@ export const createSplitsTable = async (
   );
 };
 
-export type Split = Selectable<SplitsTable>;
-export type NewSplit = Insertable<SplitsTable>;
-export type UpdateSplit = Updateable<SplitsTable>;
+export type SplitDb = Selectable<SplitsTable>;
+export type NewSplitDb = Insertable<SplitsTable>;
+export type UpdateSplitDb = Updateable<SplitsTable>;

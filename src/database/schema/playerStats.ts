@@ -123,6 +123,6 @@ export const createPlayerStatsTable = async (
   );
 };
 
-export type PlayerStat = Selectable<PlayerStatsTable>;
-export type NewPlayerStat = Insertable<PlayerStatsTable>;
-export type UpdatePlayerStat = Updateable<PlayerStatsTable>;
+export type PlayerStatDb = Selectable<PlayerStatsTable>;
+export type NewPlayerStatDb = Insertable<PlayerStatsTable>;
+export type UpdatePlayerStatDb = Updateable<PlayerStatsTable>;

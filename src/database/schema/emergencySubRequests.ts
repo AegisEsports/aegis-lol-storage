@@ -42,6 +42,6 @@ export const createEmergencySubRequestsTable = async (
   );
 };
 
-export type EmergencySubRequest = Selectable<EmergencySubRequestsTable>;
-export type NewEmergencySubRequest = Insertable<EmergencySubRequestsTable>;
-export type UpdateEmergencySubRequest = Updateable<EmergencySubRequestsTable>;
+export type EmergencySubRequestDb = Selectable<EmergencySubRequestsTable>;
+export type NewEmergencySubRequestDb = Insertable<EmergencySubRequestsTable>;
+export type UpdateEmergencySubRequestDb = Updateable<EmergencySubRequestsTable>;

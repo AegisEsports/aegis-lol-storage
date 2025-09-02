@@ -39,6 +39,6 @@ export const createTeamRostersTable = async (
   );
 };
 
-export type TeamRoster = Selectable<TeamRostersTable>;
-export type NewTeamRoster = Insertable<TeamRostersTable>;
-export type UpdateTeamRoster = Updateable<TeamRostersTable>;
+export type TeamRosterDb = Selectable<TeamRostersTable>;
+export type NewTeamRosterDb = Insertable<TeamRostersTable>;
+export type UpdateTeamRosterDb = Updateable<TeamRostersTable>;

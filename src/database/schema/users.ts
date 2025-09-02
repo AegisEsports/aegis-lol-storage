@@ -11,7 +11,7 @@ import { createTableWithBase } from './shared/helpers.js';
 import type { UserRole } from './shared/types.js';
 
 export interface UsersTable extends TableBase {
-  name: string | null;
+  username: string | null;
   nickname: string | null;
   user_role: UserRole;
 }
@@ -21,12 +21,12 @@ export const USERS = 'users';
 export const createUsersTable = async (db: Kysely<Database>): Promise<void> => {
   await createTableWithBase(db, USERS, (t) =>
     t
-      .addColumn('name', 'varchar')
+      .addColumn('username', 'varchar')
       .addColumn('nickname', 'varchar')
       .addColumn('user_role', 'varchar'),
   );
 };
 
-export type User = Selectable<UsersTable>;
-export type NewUser = Insertable<UsersTable>;
-export type UpdateUser = Updateable<UsersTable>;
+export type UserDb = Selectable<UsersTable>;
+export type NewUserDb = Insertable<UsersTable>;
+export type UpdateUserDb = Updateable<UsersTable>;

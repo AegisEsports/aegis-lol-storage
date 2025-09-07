@@ -12,19 +12,20 @@ import { TEAMS } from './teams.js';
 import { USERS } from './users.js';
 
 export interface EmergencySubRequestsTable extends TableBase {
-  submitted_by_id: string | null;
-  user_id: string | null;
-  team_id: string | null;
+  submittedById: string | null;
+  userId: string | null;
+  teamId: string | null;
   approved: boolean | null;
-  approved_by_id: string | null;
+  reviewedById: string | null;
 }
 
-export const EMERGENCY_SUB_REQUESTS = 'emergency_sub_requests';
+export const EMERGENCY_SUB_REQUESTS = 'emergencySubRequests';
+export const EMERGENCY_SUB_REQUESTS_SNAKE_CASE = 'emergency_sub_requests';
 
 export const createEmergencySubRequestsTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, EMERGENCY_SUB_REQUESTS, (t) =>
+  await createTableWithBase(db, EMERGENCY_SUB_REQUESTS_SNAKE_CASE, (t) =>
     t
       .addColumn('submitted_by_id', 'uuid', (col) =>
         col.references(`${USERS}.id`).onDelete('set null').onUpdate('cascade'),
@@ -36,12 +37,12 @@ export const createEmergencySubRequestsTable = async (
         col.references(`${TEAMS}.id`).onDelete('set null').onUpdate('cascade'),
       )
       .addColumn('approved', 'boolean')
-      .addColumn('approved_by_id', 'uuid', (col) =>
+      .addColumn('reviewed_by_id', 'uuid', (col) =>
         col.references(`${USERS}.id`).onDelete('set null').onUpdate('cascade'),
       ),
   );
 };
 
-export type EmergencySubRequestDb = Selectable<EmergencySubRequestsTable>;
-export type NewEmergencySubRequestDb = Insertable<EmergencySubRequestsTable>;
-export type UpdateEmergencySubRequestDb = Updateable<EmergencySubRequestsTable>;
+export type EmergencySubRequestRow = Selectable<EmergencySubRequestsTable>;
+export type InsertEmergencySubRequest = Insertable<EmergencySubRequestsTable>;
+export type UpdateEmergencySubRequest = Updateable<EmergencySubRequestsTable>;

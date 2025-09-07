@@ -13,11 +13,11 @@ import { SPLITS } from './splits.js';
 
 export interface TeamsTable extends TableBase {
   name: string | null;
-  split_id: string | null;
-  organization_id: string | null;
-  team_abbreviation: string | null;
-  team_color: string | null;
-  team_logo_url: string | null;
+  splitId: string | null;
+  organizationId: string | null;
+  teamAbbreviation: string | null;
+  teamColor: string | null;
+  teamLogoUrl: string | null;
 }
 
 export const TEAMS = 'teams';
@@ -41,6 +41,6 @@ export const createTeamsTable = async (db: Kysely<Database>): Promise<void> => {
   );
 };
 
-export type TeamDb = Selectable<TeamsTable>;
-export type NewTeamDb = Insertable<TeamsTable>;
-export type UpdateTeamDb = Updateable<TeamsTable>;
+export type TeamRow = Selectable<TeamsTable>;
+export type InsertTeam = Insertable<TeamsTable>;
+export type UpdateTeam = Updateable<TeamsTable>;

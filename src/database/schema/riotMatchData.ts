@@ -6,29 +6,31 @@ import {
 } from 'kysely';
 
 import type { Database } from '@/database/database.js';
-import { LEAGUE_GAMES } from './leagueGames.js';
+import { LEAGUE_GAMES_SNAKE_CASE } from './leagueGames.js';
 import type { TableBase } from './shared/base.js';
 import { createTableWithBase } from './shared/helpers.js';
 
 export interface RiotMatchDataTable extends TableBase {
-  riot_match_id: number | null;
-  league_game_id: string | null;
-  raw_match_data: object | null;
-  raw_timeline_data: object | null;
+  riotMatchId: number;
+  leagueGameId: string;
+  rawMatchData: object | null;
+  rawTimelineData: object | null;
 }
 
-export const RIOT_MATCH_DATA = 'riot_match_data';
+export const RIOT_MATCH_DATA = 'riotMatchData';
+export const RIOT_MATCH_DATA_SNAKE_CASE = 'riot_match_data';
 
 export const createRiotMatchDataTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, RIOT_MATCH_DATA, (t) =>
+  await createTableWithBase(db, RIOT_MATCH_DATA_SNAKE_CASE, (t) =>
     t
       .addColumn('riot_match_id', 'varchar', (col) => col.notNull())
       .addColumn('league_game_id', 'uuid', (col) =>
         col
-          .references(`${LEAGUE_GAMES}.id`)
-          .onDelete('set null')
+          .notNull()
+          .references(`${LEAGUE_GAMES_SNAKE_CASE}.id`)
+          .onDelete('cascade')
           .onUpdate('cascade'),
       )
       .addColumn('raw_match_data', 'json')
@@ -36,6 +38,6 @@ export const createRiotMatchDataTable = async (
   );
 };
 
-export type RiotMatchDataDb = Selectable<RiotMatchDataTable>;
-export type NewRiotMatchDataDb = Insertable<RiotMatchDataTable>;
-export type UpdateRiotMatchDataDb = Updateable<RiotMatchDataTable>;
+export type RiotMatchDataRow = Selectable<RiotMatchDataTable>;
+export type InsertRiotMatchData = Insertable<RiotMatchDataTable>;
+export type UpdateRiotMatchData = Updateable<RiotMatchDataTable>;

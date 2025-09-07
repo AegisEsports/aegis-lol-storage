@@ -13,25 +13,26 @@ import { SPLITS } from './splits.js';
 import { TEAMS } from './teams.js';
 
 export interface LeagueMatchesTable extends TableBase {
-  home_team_id: string | null;
-  away_team_id: string | null;
-  winner_team_id: string | null;
-  loser_team_id: string | null;
-  split_id: string | null;
-  best_of: BestOf | null;
-  home_score: number | null;
-  away_score: number | null;
-  match_type: MatchType | null;
-  week_number: number | null;
-  schedule_timestamp: Date | null;
+  homeTeamId: string | null;
+  awayTeamId: string | null;
+  winnerTeamId: string | null;
+  loserTeamId: string | null;
+  splitId: string | null;
+  bestOf: BestOf | null;
+  homeScore: number | null;
+  awayScore: number | null;
+  matchType: MatchType | null;
+  weekNumber: number | null;
+  scheduleTimestamp: Date | null;
 }
 
-export const LEAGUE_MATCHES = 'league_matches';
+export const LEAGUE_MATCHES = 'leagueMatches';
+export const LEAGUE_MATCHES_SNAKE_CASE = 'league_matches';
 
 export const createLeagueMatchesTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, LEAGUE_MATCHES, (t) =>
+  await createTableWithBase(db, LEAGUE_MATCHES_SNAKE_CASE, (t) =>
     t
       .addColumn('home_team_id', 'uuid', (col) =>
         col.references(`${TEAMS}.id`).onDelete('set null').onUpdate('cascade'),
@@ -57,6 +58,6 @@ export const createLeagueMatchesTable = async (
   );
 };
 
-export type LeagueMatcheDb = Selectable<LeagueMatchesTable>;
-export type NewLeagueMatcheDb = Insertable<LeagueMatchesTable>;
-export type UpdateLeagueMatcheDb = Updateable<LeagueMatchesTable>;
+export type LeagueMatchRow = Selectable<LeagueMatchesTable>;
+export type InsertLeagueMatch = Insertable<LeagueMatchesTable>;
+export type UpdateLeagueMatch = Updateable<LeagueMatchesTable>;

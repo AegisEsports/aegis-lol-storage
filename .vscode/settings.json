@@ -21,7 +21,8 @@
     "plpgsql",
     "timestamptz",
     "Updateable",
-    "Voidgrub"
+    "Voidgrub",
+    "puuid"
   ],
   "cSpell.ignorePaths": ["src/database/migrations/**", ".vscode/**"]
 }

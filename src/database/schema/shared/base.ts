@@ -1,10 +1,10 @@
-import type { ColumnType, Generated } from 'kysely';
+import type { ColumnType, GeneratedAlways } from 'kysely';
 
 export interface TableBase {
   /** DB generates UUID */
-  id: Generated<string>;
+  id: GeneratedAlways<string>;
   /** DEFAULT now(), not settable */
-  created_at: ColumnType<Date, never, never>;
+  createdAt: ColumnType<string, never, never>;
   /** DEFAULT now(), not settable, trigger update */
-  modified_at: ColumnType<Date, never, never>;
+  modifiedAt: ColumnType<string, never, never>;
 }

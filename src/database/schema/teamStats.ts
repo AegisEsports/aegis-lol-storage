@@ -6,64 +6,65 @@ import {
 } from 'kysely';
 
 import type { Database } from '@/database/database.js';
-import { LEAGUE_GAMES } from './leagueGames.js';
+import { LEAGUE_GAMES_SNAKE_CASE } from './leagueGames.js';
 import type { TableBase } from './shared/base.js';
 import { createTableWithBase } from './shared/helpers.js';
 import type { LeagueSide } from './shared/types.js';
 import { TEAMS } from './teams.js';
 
 export interface TeamStatsTable extends TableBase {
-  league_game_id: string;
-  team_id: string | null;
+  leagueGameId: string;
+  teamId: string | null;
   side: LeagueSide | null;
   win: boolean | null;
-  dpm_dealt: number | null;
-  gold_per_minute: number | null;
-  cs_per_minute: number | null;
-  vs_per_minute: number | null;
-  first_blood: boolean | null;
-  first_tower: boolean | null;
-  gold_at_early: number | null;
-  gold_diff_early: number | null;
-  cs_at_early: number | null;
-  cs_diff_early: number | null;
-  xp_at_early: number | null;
-  xp_diff_early: number | null;
-  kills_at_early: number | null;
-  deaths_at_early: number | null;
-  kills_diff_early: number | null;
-  damage_at_early: number | null;
-  damage_diff_early: number | null;
-  total_kills: number | null;
-  total_deaths: number | null;
-  total_assists: number | null;
-  total_towers: number | null;
-  total_dragons: number | null;
-  total_voidgrubs: number | null;
-  total_heralds: number | null;
-  total_atakhans: number | null;
-  total_barons: number | null;
-  total_damage_dealt: number | null;
-  total_gold: number | null;
-  total_creep_score: number | null;
-  total_vision_score: number | null;
-  total_wards_placed: number | null;
-  total_control_wards_bought: number | null;
-  total_wards_cleared: number | null;
+  dpmDealt: number | null;
+  goldPerMinute: number | null;
+  csPerMinute: number | null;
+  vsPerMinute: number | null;
+  firstBlood: boolean | null;
+  firstTower: boolean | null;
+  goldAtEarly: number | null;
+  goldDiffEarly: number | null;
+  csAtEarly: number | null;
+  csDiffEarly: number | null;
+  xpAtEarly: number | null;
+  xpDiffEarly: number | null;
+  killsAtEarly: number | null;
+  deathsAtEarly: number | null;
+  killsDiffEarly: number | null;
+  damageAtEarly: number | null;
+  damageDiffEarly: number | null;
+  totalKills: number | null;
+  totalDeaths: number | null;
+  totalAssists: number | null;
+  totalTowers: number | null;
+  totalDragons: number | null;
+  totalVoidgrubs: number | null;
+  totalHeralds: number | null;
+  totalAtakhans: number | null;
+  totalBarons: number | null;
+  totalDamageDealt: number | null;
+  totalGold: number | null;
+  totalCreepScore: number | null;
+  totalVisionScore: number | null;
+  totalWardsPlaced: number | null;
+  totalControlWardsBought: number | null;
+  totalWardsCleared: number | null;
 }
 
-export const TEAM_STATS = 'team_stats';
+export const TEAM_STATS = 'teamStats';
+export const TEAM_STATS_SNAKE_CASE = 'team_stats';
 
 export const createTeamStatsTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, TEAM_STATS, (t) =>
+  await createTableWithBase(db, TEAM_STATS_SNAKE_CASE, (t) =>
     t
       .addColumn('league_game_id', 'uuid', (col) =>
         col
           .notNull()
-          .references(`${LEAGUE_GAMES}.id`)
-          .onDelete('set null')
+          .references(`${LEAGUE_GAMES_SNAKE_CASE}.id`)
+          .onDelete('cascade')
           .onUpdate('cascade'),
       )
       .addColumn('team_id', 'uuid', (col) =>
@@ -107,6 +108,6 @@ export const createTeamStatsTable = async (
   );
 };
 
-export type TeamStatDb = Selectable<TeamStatsTable>;
-export type NewTeamStatDb = Insertable<TeamStatsTable>;
-export type UpdateTeamStatDb = Updateable<TeamStatsTable>;
+export type TeamStatRow = Selectable<TeamStatsTable>;
+export type InsertTeamStat = Insertable<TeamStatsTable>;
+export type UpdateTeamStat = Updateable<TeamStatsTable>;

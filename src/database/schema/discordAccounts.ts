@@ -11,29 +11,30 @@ import { createTableWithBase } from './shared/helpers.js';
 import { USERS } from './users.js';
 
 export interface DiscordAccountsTable extends TableBase {
-  snowflake_id: string | null;
-  user_id: string | null;
-  user_name: string | null;
+  snowflakeId: string;
+  userId: string | null;
+  userName: string | null;
 }
 
-export const DISCORD_ACCOUNTS = 'discord_accounts';
+export const DISCORD_ACCOUNTS = 'discordAccounts';
+export const DISCORD_ACCOUNTS_SNAKE_CASE = 'discord_accounts';
 
 export const createDiscordAccountsTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, DISCORD_ACCOUNTS, (t) =>
+  await createTableWithBase(db, DISCORD_ACCOUNTS_SNAKE_CASE, (t) =>
     t
-      .addColumn('snowflake_id', 'varchar')
+      .addColumn('snowflake_id', 'varchar', (col) => col.notNull())
       .addColumn('user_id', 'uuid', (col) =>
         col.references(`${USERS}.id`).onDelete('set null').onUpdate('cascade'),
       )
       .addColumn('user_name', 'varchar')
-      .addUniqueConstraint(`uq_${DISCORD_ACCOUNTS}_snowflake_id`, [
+      .addUniqueConstraint(`uq_${DISCORD_ACCOUNTS_SNAKE_CASE}_snowflakeId`, [
         'snowflake_id',
       ]),
   );
 };
 
-export type DiscordAccountDb = Selectable<DiscordAccountsTable>;
-export type NewDiscordAccountDb = Insertable<DiscordAccountsTable>;
-export type UpdateDiscordAccountDb = Updateable<DiscordAccountsTable>;
+export type DiscordAccountRow = Selectable<DiscordAccountsTable>;
+export type InsertDiscordAccount = Insertable<DiscordAccountsTable>;
+export type UpdateDiscordAccount = Updateable<DiscordAccountsTable>;

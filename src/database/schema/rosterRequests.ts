@@ -13,22 +13,23 @@ import { TEAMS } from './teams.js';
 import { USERS } from './users.js';
 
 export interface RosterRequestsTable extends TableBase {
-  team_id: string | null;
-  submitted_by_id: string | null;
-  user_id: string | null;
-  roster_move_type: RosterMoveType | null;
-  role_new: LeagueRole | null;
-  role_former: LeagueRole | null;
+  teamId: string | null;
+  submittedById: string | null;
+  userId: string | null;
+  rosterMoveType: RosterMoveType | null;
+  roleNew: LeagueRole | null;
+  roleFormer: LeagueRole | null;
   approved: boolean | null;
-  approved_by_id: string | null;
+  reviewedById: string | null;
 }
 
-export const ROSTER_REQUESTS = 'roster_requests';
+export const ROSTER_REQUESTS = 'rosterRequests';
+export const ROSTER_REQUESTS_SNAKE_CASE = 'roster_requests';
 
 export const createRosterRequestsTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, ROSTER_REQUESTS, (t) =>
+  await createTableWithBase(db, ROSTER_REQUESTS_SNAKE_CASE, (t) =>
     t
       .addColumn('team_id', 'uuid', (col) =>
         col.references(`${TEAMS}.id`).onDelete('set null').onUpdate('cascade'),
@@ -43,12 +44,12 @@ export const createRosterRequestsTable = async (
       .addColumn('role_new', 'varchar')
       .addColumn('role_former', 'varchar')
       .addColumn('approved', 'boolean')
-      .addColumn('approved_by_id', 'uuid', (col) =>
+      .addColumn('reviewed_by_id', 'uuid', (col) =>
         col.references(`${USERS}.id`).onDelete('set null').onUpdate('cascade'),
       ),
   );
 };
 
-export type RosterRequestDb = Selectable<RosterRequestsTable>;
-export type NewRosterRequestDb = Insertable<RosterRequestsTable>;
-export type UpdateRosterRequestDb = Updateable<RosterRequestsTable>;
+export type RosterRequestRow = Selectable<RosterRequestsTable>;
+export type InsertRosterRequest = Insertable<RosterRequestsTable>;
+export type UpdateRosterRequest = Updateable<RosterRequestsTable>;

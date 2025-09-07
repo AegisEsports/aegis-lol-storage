@@ -11,22 +11,23 @@ import { createTableWithBase } from './shared/helpers.js';
 import { USERS } from './users.js';
 
 export interface RiotAccountsTable extends TableBase {
-  riot_puuid: string;
-  user_id: string | null;
-  game_name: string | null;
-  tag_line: string | null;
-  profile_icon_id: number | null;
-  summoner_level: number | null;
-  revision_date: Date | null;
-  main_account: boolean | null;
+  riotPuuid: string;
+  userId: string | null;
+  gameName: string | null;
+  tagLine: string | null;
+  profileIconId: number | null;
+  summonerLevel: number | null;
+  revisionDate: Date | null;
+  mainAccount: boolean | null;
 }
 
-export const RIOT_ACCOUNTS = 'riot_accounts';
+export const RIOT_ACCOUNTS = 'riotAccounts';
+export const RIOT_ACCOUNTS_SNAKE_CASE = 'riot_accounts';
 
 export const createRiotAccountsTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, RIOT_ACCOUNTS, (t) =>
+  await createTableWithBase(db, RIOT_ACCOUNTS_SNAKE_CASE, (t) =>
     t
       .addColumn('riot_puuid', 'varchar', (col) => col.notNull())
       .addColumn('user_id', 'uuid', (col) =>
@@ -38,10 +39,12 @@ export const createRiotAccountsTable = async (
       .addColumn('summoner_level', 'int2')
       .addColumn('revision_date', 'timestamptz')
       .addColumn('main_account', 'boolean')
-      .addUniqueConstraint(`uq_${RIOT_ACCOUNTS}_riot_puuid`, ['riot_puuid']),
+      .addUniqueConstraint(`uq_${RIOT_ACCOUNTS_SNAKE_CASE}_riot_puuid`, [
+        'riot_puuid',
+      ]),
   );
 };
 
-export type RiotAccountDb = Selectable<RiotAccountsTable>;
-export type NewRiotAccountDb = Insertable<RiotAccountsTable>;
-export type UpdateRiotAccountDb = Updateable<RiotAccountsTable>;
+export type RiotAccountRow = Selectable<RiotAccountsTable>;
+export type InsertRiotAccount = Insertable<RiotAccountsTable>;
+export type UpdateRiotAccount = Updateable<RiotAccountsTable>;

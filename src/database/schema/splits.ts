@@ -13,12 +13,12 @@ import type { LeagueRank } from './shared/types.js';
 
 export interface SplitsTable extends TableBase {
   name: string | null;
-  league_id: string | null;
-  split_abbreviation: string | null;
-  split_time: string | null;
-  split_rank: LeagueRank | null;
-  riot_tournament_id: number | null;
-  official_sheet_url: string | null;
+  leagueId: string | null;
+  splitAbbreviation: string | null;
+  splitTime: string | null;
+  splitRank: LeagueRank | null;
+  riotTournamentId: number | null;
+  officialSheetUrl: string | null;
   active: boolean | null;
 }
 
@@ -45,6 +45,6 @@ export const createSplitsTable = async (
   );
 };
 
-export type SplitDb = Selectable<SplitsTable>;
-export type NewSplitDb = Insertable<SplitsTable>;
-export type UpdateSplitDb = Updateable<SplitsTable>;
+export type SplitRow = Selectable<SplitsTable>;
+export type InsertSplit = Insertable<SplitsTable>;
+export type UpdateSplit = Updateable<SplitsTable>;

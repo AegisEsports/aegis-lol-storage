@@ -6,35 +6,37 @@ import {
 } from 'kysely';
 
 import type { Database } from '@/database/database.js';
-import { LEAGUE_GAMES } from './leagueGames.js';
+import { LEAGUE_GAMES_SNAKE_CASE } from './leagueGames.js';
 import type { TableBase } from './shared/base.js';
 import { createTableWithBase } from './shared/helpers.js';
 import type { LeagueSide } from './shared/types.js';
 import { TEAMS } from './teams.js';
 
 export interface BannedChampsTable extends TableBase {
-  league_game_id: string;
-  side_banned_by: LeagueSide | null;
-  team_id_banned: string | null;
-  team_id_against: string | null;
-  champ_id: number | null;
-  champ_name: string | null;
+  leagueGameId: string;
+  order: number | null;
+  sideBannedBy: LeagueSide | null;
+  teamIdBanned: string | null;
+  teamIdAgainst: string | null;
+  champId: number | null;
+  champName: string | null;
 }
 
-export const BANNED_CHAMPS = 'banned_champs';
+export const BANNED_CHAMPS = 'bannedChamps';
+export const BANNED_CHAMPS_SNAKE_CASE = 'banned_champs';
 
 export const createBannedChampsTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, BANNED_CHAMPS, (t) =>
+  await createTableWithBase(db, BANNED_CHAMPS_SNAKE_CASE, (t) =>
     t
       .addColumn('league_game_id', 'uuid', (col) =>
         col
           .notNull()
-          .references(`${LEAGUE_GAMES}.id`)
-          .onDelete('set null')
-          .onUpdate('cascade'),
+          .references(`${LEAGUE_GAMES_SNAKE_CASE}.id`)
+          .onDelete('cascade'),
       )
+      .addColumn('order', 'int2')
       .addColumn('side_banned_by', 'varchar')
       .addColumn('team_id_banned', 'uuid', (col) =>
         col.references(`${TEAMS}.id`).onDelete('set null').onUpdate('cascade'),
@@ -47,6 +49,6 @@ export const createBannedChampsTable = async (
   );
 };
 
-export type BannedChampDb = Selectable<BannedChampsTable>;
-export type NewBannedChampDb = Insertable<BannedChampsTable>;
-export type UpdateBannedChampDb = Updateable<BannedChampsTable>;
+export type BannedChampRow = Selectable<BannedChampsTable>;
+export type InsertBannedChamp = Insertable<BannedChampsTable>;
+export type UpdateBannedChamp = Updateable<BannedChampsTable>;

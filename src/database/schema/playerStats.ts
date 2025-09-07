@@ -6,75 +6,76 @@ import {
 } from 'kysely';
 
 import type { Database } from '@/database/database.js';
-import { LEAGUE_GAMES } from './leagueGames.js';
-import { RIOT_ACCOUNTS } from './riotAccounts.js';
+import { LEAGUE_GAMES_SNAKE_CASE } from './leagueGames.js';
+import { RIOT_ACCOUNTS_SNAKE_CASE } from './riotAccounts.js';
 import type { TableBase } from './shared/base.js';
 import { createTableWithBase } from './shared/helpers.js';
 import type { LeagueRole, LeagueSide } from './shared/types.js';
 import { TEAMS } from './teams.js';
 
 export interface PlayerStatsTable extends TableBase {
-  league_game_id: string;
-  riot_puuid: string | null;
-  team_id: string | null;
-  player_role: LeagueRole | null;
+  leagueGameId: string;
+  riotPuuid: string | null;
+  teamId: string | null;
+  playerRole: LeagueRole | null;
   side: LeagueSide | null;
-  champ_id: number | null;
-  champ_name: string | null;
+  champId: number | null;
+  champName: string | null;
   win: boolean | null;
   kills: number | null;
   deaths: number | null;
   assists: number | null;
-  dpm_dealt: number | null;
-  dpm_diff: number | null;
-  cs_per_minute: number | null;
-  gold_per_minute: number | null;
-  vs_per_minute: number | null;
-  first_blood_kill: boolean | null;
-  first_blood_assist: boolean | null;
-  first_tower: boolean | null;
-  kills_at_early: number | null;
-  deaths_at_early: number | null;
-  assists_at_early: number | null;
-  cs_at_early: number | null;
-  cs_diff_early: number | null;
-  gold_at_early: number | null;
-  gold_diff_early: number | null;
-  xp_at_early: number | null;
-  xp_diff_early: number | null;
-  damage_at_early: number | null;
-  damage_diff_early: number | null;
-  damage_dealt: number | null;
+  dpmDealt: number | null;
+  dpmDiff: number | null;
+  csPerMinute: number | null;
+  goldPerMinute: number | null;
+  vsPerMinute: number | null;
+  firstBloodKill: boolean | null;
+  firstBloodAssist: boolean | null;
+  firstTower: boolean | null;
+  killsAtEarly: number | null;
+  deathsAtEarly: number | null;
+  assistsAtEarly: number | null;
+  csAtEarly: number | null;
+  csDiffEarly: number | null;
+  goldAtEarly: number | null;
+  goldDiffEarly: number | null;
+  xpAtEarly: number | null;
+  xpDiffEarly: number | null;
+  damageAtEarly: number | null;
+  damageDiffEarly: number | null;
+  damageDealt: number | null;
   gold: number | null;
-  creep_score: number | null;
-  vision_score: number | null;
-  wards_placed: number | null;
-  control_wards_bought: number | null;
-  wards_cleared: number | null;
-  solo_kills: number | null;
-  double_kills: number | null;
-  triple_kills: number | null;
-  quadra_kills: number | null;
-  penta_kills: number | null;
+  creepScore: number | null;
+  visionScore: number | null;
+  wardsPlaced: number | null;
+  controlWardsBought: number | null;
+  wardsCleared: number | null;
+  soloKills: number | null;
+  doubleKills: number | null;
+  tripleKills: number | null;
+  quadraKills: number | null;
+  pentaKills: number | null;
 }
 
-export const PLAYER_STATS = 'player_stats';
+export const PLAYER_STATS = 'playerStats';
+export const PLAYER_STATS_SNAKE_CASE = 'player_stats';
 
 export const createPlayerStatsTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, PLAYER_STATS, (t) =>
+  await createTableWithBase(db, PLAYER_STATS_SNAKE_CASE, (t) =>
     t
       .addColumn('league_game_id', 'uuid', (col) =>
         col
           .notNull()
-          .references(`${LEAGUE_GAMES}.id`)
-          .onDelete('set null')
+          .references(`${LEAGUE_GAMES_SNAKE_CASE}.id`)
+          .onDelete('cascade')
           .onUpdate('cascade'),
       )
       .addColumn('riot_puuid', 'varchar', (col) =>
         col
-          .references(`${RIOT_ACCOUNTS}.riot_puuid`)
+          .references(`${RIOT_ACCOUNTS_SNAKE_CASE}.riot_puuid`)
           .onDelete('set null')
           .onUpdate('cascade'),
       )
@@ -123,6 +124,6 @@ export const createPlayerStatsTable = async (
   );
 };
 
-export type PlayerStatDb = Selectable<PlayerStatsTable>;
-export type NewPlayerStatDb = Insertable<PlayerStatsTable>;
-export type UpdatePlayerStatDb = Updateable<PlayerStatsTable>;
+export type PlayerStatRow = Selectable<PlayerStatsTable>;
+export type InsertPlayerStat = Insertable<PlayerStatsTable>;
+export type UpdatePlayerStat = Updateable<PlayerStatsTable>;

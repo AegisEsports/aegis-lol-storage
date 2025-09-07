@@ -13,17 +13,18 @@ import { TEAMS } from './teams.js';
 import { USERS } from './users.js';
 
 export interface LeagueBansTable extends TableBase {
-  league_id: string | null;
-  team_id_banned: string | null;
-  user_id_banned: string | null;
+  leagueId: string | null;
+  teamIdBanned: string | null;
+  userIdBanned: string | null;
 }
 
-export const LEAGUE_BANS = 'league_bans';
+export const LEAGUE_BANS = 'leagueBans';
+export const LEAGUE_BANS_SNAKE_CASE = 'league_bans';
 
 export const createLeagueBansTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, LEAGUE_BANS, (t) =>
+  await createTableWithBase(db, LEAGUE_BANS_SNAKE_CASE, (t) =>
     t
       .addColumn('league_id', 'uuid', (col) =>
         col
@@ -40,6 +41,6 @@ export const createLeagueBansTable = async (
   );
 };
 
-export type LeagueBanDb = Selectable<LeagueBansTable>;
-export type NewLeagueBanDb = Insertable<LeagueBansTable>;
-export type UpdateLeagueBanDb = Updateable<LeagueBansTable>;
+export type LeagueBanRow = Selectable<LeagueBansTable>;
+export type InsertLeagueBan = Insertable<LeagueBansTable>;
+export type UpdateLeagueBan = Updateable<LeagueBansTable>;

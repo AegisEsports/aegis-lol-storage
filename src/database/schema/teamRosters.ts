@@ -13,23 +13,24 @@ import { TEAMS } from './teams.js';
 import { USERS } from './users.js';
 
 export interface TeamRostersTable extends TableBase {
-  team_id: string;
-  user_id: string | null;
+  teamId: string;
+  userId: string | null;
   role: RosterRole;
 }
 
-export const TEAM_ROSTERS = 'team_rosters';
+export const TEAM_ROSTERS = 'teamRosters';
+export const TEAM_ROSTERS_SNAKE_CASE = 'team_rosters';
 
 export const createTeamRostersTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, TEAM_ROSTERS, (t) =>
+  await createTableWithBase(db, TEAM_ROSTERS_SNAKE_CASE, (t) =>
     t
       .addColumn('team_id', 'uuid', (col) =>
         col
           .notNull()
           .references(`${TEAMS}.id`)
-          .onDelete('cascade')
+          .onDelete('set null')
           .onUpdate('cascade'),
       )
       .addColumn('user_id', 'uuid', (col) =>
@@ -39,6 +40,6 @@ export const createTeamRostersTable = async (
   );
 };
 
-export type TeamRosterDb = Selectable<TeamRostersTable>;
-export type NewTeamRosterDb = Insertable<TeamRostersTable>;
-export type UpdateTeamRosterDb = Updateable<TeamRostersTable>;
+export type TeamRosterRow = Selectable<TeamRostersTable>;
+export type InsertTeamRoster = Insertable<TeamRostersTable>;
+export type UpdateTeamRoster = Updateable<TeamRostersTable>;

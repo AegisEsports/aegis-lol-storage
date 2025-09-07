@@ -6,33 +6,34 @@ import {
 } from 'kysely';
 
 import type { Database } from '@/database/database.js';
-import { LEAGUE_MATCHES } from './leagueMatches.js';
+import { LEAGUE_MATCHES_SNAKE_CASE } from './leagueMatches.js';
 import type { TableBase } from './shared/base.js';
 import { createTableWithBase } from './shared/helpers.js';
 import { TEAMS } from './teams.js';
 
 export interface LeagueGamesTable extends TableBase {
-  league_match_id: string | null;
+  leagueMatchId: string | null;
   invalidated: boolean | null;
   patch: string | null;
-  blue_team_id: string | null;
-  red_team_id: string | null;
-  winner_team_id: string | null;
-  loser_team_id: string | null;
+  blueTeamId: string | null;
+  redTeamId: string | null;
+  winnerTeamId: string | null;
+  loserTeamId: string | null;
   duration: number | null;
-  timestamp_start: Date | null;
+  timestampStart: Date | null;
 }
 
-export const LEAGUE_GAMES = 'league_games';
+export const LEAGUE_GAMES = 'leagueGames';
+export const LEAGUE_GAMES_SNAKE_CASE = 'league_games';
 
 export const createLeagueGamesTable = async (
   db: Kysely<Database>,
 ): Promise<void> => {
-  await createTableWithBase(db, LEAGUE_GAMES, (t) =>
+  await createTableWithBase(db, LEAGUE_GAMES_SNAKE_CASE, (t) =>
     t
       .addColumn('league_match_id', 'uuid', (col) =>
         col
-          .references(`${LEAGUE_MATCHES}.id`)
+          .references(`${LEAGUE_MATCHES_SNAKE_CASE}.id`)
           .onDelete('set null')
           .onUpdate('cascade'),
       )
@@ -57,6 +58,6 @@ export const createLeagueGamesTable = async (
   );
 };
 
-export type LeagueGameDb = Selectable<LeagueGamesTable>;
-export type NewLeagueGameDb = Insertable<LeagueGamesTable>;
-export type UpdateLeagueGameDb = Updateable<LeagueGamesTable>;
+export type LeagueGameRow = Selectable<LeagueGamesTable>;
+export type InsertLeagueGame = Insertable<LeagueGamesTable>;
+export type UpdateLeagueGame = Updateable<LeagueGamesTable>;

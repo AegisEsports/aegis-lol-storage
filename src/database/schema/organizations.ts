@@ -12,7 +12,7 @@ import { USERS } from './users.js';
 
 export interface OrganizationsTable extends TableBase {
   name: string | null;
-  owner_id: string | null;
+  ownerId: string | null;
 }
 
 export const ORGANIZATIONS = 'organizations';
@@ -29,6 +29,6 @@ export const createOrganizationsTable = async (
   );
 };
 
-export type OrganizationDb = Selectable<OrganizationsTable>;
-export type NewOrganizationDb = Insertable<OrganizationsTable>;
-export type UpdateOrganizationDb = Updateable<OrganizationsTable>;
+export type OrganizationRow = Selectable<OrganizationsTable>;
+export type InsertOrganization = Insertable<OrganizationsTable>;
+export type UpdateOrganization = Updateable<OrganizationsTable>;

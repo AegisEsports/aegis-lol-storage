@@ -11,7 +11,7 @@ import { createTableWithBase } from './shared/helpers.js';
 
 export interface LeaguesTable extends TableBase {
   name: string | null;
-  riot_provider_id: number | null;
+  riotProviderId: number | null;
 }
 
 export const LEAGUES = 'leagues';
@@ -24,6 +24,6 @@ export const createLeaguesTable = async (
   );
 };
 
-export type LeagueDb = Selectable<LeaguesTable>;
-export type NewLeagueDb = Insertable<LeaguesTable>;
-export type UpdateLeagueDb = Updateable<LeaguesTable>;
+export type LeagueRow = Selectable<LeaguesTable>;
+export type InsertLeague = Insertable<LeaguesTable>;
+export type UpdateLeague = Updateable<LeaguesTable>;

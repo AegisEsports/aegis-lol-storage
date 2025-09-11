@@ -3,10 +3,10 @@ export type AuthenticationErrors =
   | 'InvalidAuthorizationHeader'
   | 'InvalidAuthToken'
   | 'ExpiredAuthToken'
-  | 'UserMismatch'
+  | 'Mismatch'
   | 'UserOrRefreshTokenNotFound';
 
-export type UserApiErrors = 'InvalidUser' | 'UserNotFound';
+export type ApiErrors = 'NoIdParameter' | 'InvalidInput' | 'NotFound';
 
 export type SignInMethodApiErrors =
   | 'InvalidSignInMethod'
@@ -20,7 +20,7 @@ export type SignInMethodApiErrors =
 export type ErrorCode =
   | 'UnknownError'
   | AuthenticationErrors
-  | UserApiErrors
+  | ApiErrors
   | SignInMethodApiErrors;
 
 export type ErrorStatus = 400 | 401 | 403 | 404 | 409 | 500;

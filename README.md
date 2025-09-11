@@ -16,8 +16,8 @@ Developing this service used:
     - Jest
     - Prettier
 - [Docker Desktop](https://docs.docker.com/desktop/) - A local container setup for the application.
-- [pgAdmin 4](https://www.pgadmin.org/download/pgadmin-4-windows/) - GUI access to a PostgreSQL databases.
 - [Postman](https://www.postman.com/downloads/) - Platform to organize API requests.
+- (Optional) [pgAdmin 4](https://www.pgadmin.org/download/pgadmin-4-windows/) - GUI access to a PostgreSQL databases.
 
 ---
 
@@ -63,10 +63,16 @@ CREDENTIALS = true
 
 ### 3. Start the Service
 
-Install Docker desktop. The Makefile executes the Docker commands to create local containers. Launch the server and database through:
+Install Docker desktop. The Makefile executes the Docker commands to create local containers. Launch the server and database through
 
-```
+```bash
 $ make up
+```
+
+Alternatively, if you are using Windows Powershell, you can use
+
+```powershell
+> npm run make:up
 ```
 
 To initiate the database:
@@ -75,14 +81,42 @@ To initiate the database:
 $ npm run migrate:dev
 ```
 
-### 4. Shutting Down
+### 4. Access the Database
+
+Once Docker has both the server and database running, you can access the database through some commands.
+
+```bash
+$ docker ps
+$ docker exec -it postgres psql -U postgres -d aegis_lol_storage
+```
+
+This should connect you to the postgresql database. To list the tables, you can use the following commands.
+
+```pgsql
+# \c aegis_lol_storage
+# \dt
+```
+
+From there, you should refer to [postgresql's documentation](https://www.postgresql.org/docs/17/app-psql.html) for any other commands/meta-commands you wish to use.
+
+Alternatively, you can use pgAdmin4 for a straightforward GUI to access the database.
+
+### 5. Shutting Down
 
 If you install a new npm package, you need to reboot the container to see it take effect. Run the following commands to fully shutdown and remove the container.
 
-```
+```bash
 $ make down
 $ make remove
 $ make clean
+```
+
+If you are using Windows Powershell, you can use the npm scripts instead.
+
+```powershell
+> npm run make:down
+> npm run make:remove
+> npm run make:clean
 ```
 
 ## Contributing

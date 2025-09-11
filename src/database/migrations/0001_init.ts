@@ -1,25 +1,27 @@
 import { sql, type Kysely } from 'kysely';
 
 import type { Database } from '@/database/database.js';
-import { createBannedChampsTable } from '@/database/schema/bannedChamps.js';
-import { createDiscordAccountsTable } from '@/database/schema/discordAccounts.js';
-import { createEmergencySubRequestsTable } from '@/database/schema/emergencySubRequests.js';
-import { createGameEventsTable } from '@/database/schema/gameEvents.js';
-import { createLeagueBansTable } from '@/database/schema/leagueBans.js';
-import { createLeagueGamesTable } from '@/database/schema/leagueGames.js';
-import { createLeagueMatchesTable } from '@/database/schema/leagueMatches.js';
-import { createLeaguesTable } from '@/database/schema/leagues.js';
-import { createOrganizationsTable } from '@/database/schema/organizations.js';
-import { createPlayerStatsTable } from '@/database/schema/playerStats.js';
-import { createRiotAccountsTable } from '@/database/schema/riotAccounts.js';
-import { createRiotMatchDataTable } from '@/database/schema/riotMatchData.js';
-import { createRosterRequestsTable } from '@/database/schema/rosterRequests.js';
-import { initiateInfra } from '@/database/schema/shared/helpers.js';
-import { createSplitsTable } from '@/database/schema/splits.js';
-import { createTeamRostersTable } from '@/database/schema/teamRosters.js';
-import { createTeamsTable } from '@/database/schema/teams.js';
-import { createTeamStatsTable } from '@/database/schema/teamStats.js';
-import { createUsersTable } from '@/database/schema/users.js';
+import {
+  createBannedChampsTable,
+  createDiscordAccountsTable,
+  createEmergencySubRequestsTable,
+  createGameEventsTable,
+  createLeagueBansTable,
+  createLeagueGamesTable,
+  createLeagueMatchesTable,
+  createLeaguesTable,
+  createOrganizationsTable,
+  createPlayerStatsTable,
+  createRiotAccountsTable,
+  createRiotMatchDataTable,
+  createRosterRequestsTable,
+  createSplitsTable,
+  createTeamRostersTable,
+  createTeamsTable,
+  createTeamStatsTable,
+  createUsersTable,
+} from '@/database/schema.js';
+import { initiateInfra } from '@/database/shared.js';
 
 export const up = async (db: Kysely<Database>): Promise<void> => {
   // Create auto-update modified_at on UPDATE (trigger + function)

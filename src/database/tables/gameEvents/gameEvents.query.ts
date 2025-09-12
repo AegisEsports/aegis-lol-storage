@@ -1,10 +1,6 @@
 import { GAME_EVENTS } from '@/database/const.js';
 import { db } from '@/database/database.js';
-import {
-  type InsertGameEvent,
-  type GameEventRow,
-  type UpdateGameEvent,
-} from '@/database/schema.js';
+import { type InsertGameEvent, type GameEventRow } from '@/database/schema.js';
 
 export class GameEventsQuery {
   // -- INSERT
@@ -27,19 +23,7 @@ export class GameEventsQuery {
       .executeTakeFirst();
   }
 
-  // -- UPDATE
-
-  static updateById(
-    id: string,
-    update: UpdateGameEvent,
-  ): Promise<GameEventRow | undefined> {
-    return db
-      .updateTable(GAME_EVENTS)
-      .set(update)
-      .where('id', '=', id)
-      .returningAll()
-      .executeTakeFirst();
-  }
+  // -- UPDATE (Not updateable)
 
   // -- DELETE
 

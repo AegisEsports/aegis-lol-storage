@@ -11,17 +11,22 @@ import {
   USERS_SNAKE_CASE,
 } from '@/database/const.js';
 import type { Database } from '@/database/database.js';
-import { createTableWithBase, type TableBase } from '@/database/shared.js';
+import {
+  createTableWithBase,
+  type MarkNonUpdateable,
+  type TableBase,
+} from '@/database/shared.js';
 
 export const discordAccountRowSchema = z.strictObject({
   snowflakeId: z.string(),
   userId: z.uuid().nullable(),
-  userName: z.string().nullable(),
+  username: z.string().min(1).toLowerCase().nullable(),
 });
 
 type DiscordAccountFields = z.infer<typeof discordAccountRowSchema>;
 
-export interface DiscordAccountsTable extends DiscordAccountFields, TableBase {}
+export type DiscordAccountsTable = TableBase &
+  MarkNonUpdateable<DiscordAccountFields, 'snowflakeId'>;
 
 export const createDiscordAccountsTable = async (
   db: Kysely<Database>,
@@ -35,8 +40,8 @@ export const createDiscordAccountsTable = async (
           .onDelete('set null')
           .onUpdate('cascade'),
       )
-      .addColumn('user_name', 'varchar')
-      .addUniqueConstraint(`uq_${DISCORD_ACCOUNTS_SNAKE_CASE}_snowflakeId`, [
+      .addColumn('username', 'varchar')
+      .addUniqueConstraint(`uq_${DISCORD_ACCOUNTS_SNAKE_CASE}_snowflake_id`, [
         'snowflake_id',
       ]),
   );

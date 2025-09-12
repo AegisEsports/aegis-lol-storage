@@ -40,7 +40,7 @@ export const UsersController = {
   createUser: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const {
-        user: { userRole, username = null, nickname = null },
+        user: { userRole, username, nickname = null },
         riotAccounts = [],
         discordAccounts = [],
       } = req.body as CreateUserBody;
@@ -128,12 +128,7 @@ export const UsersController = {
    */
   read: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userId } = req.params;
-      if (!userId) {
-        throw new ControllerError(400, 'NoIdParameter', 'No id provided', {
-          userId,
-        });
-      }
+      const { userId } = req.params as { userId: string };
       const getUser = await UsersQuery.selectById(userId);
       if (!getUser) {
         throw new ControllerError(404, 'NotFound', 'User not found', {
@@ -172,13 +167,8 @@ export const UsersController = {
     try {
       const { userId } = req.params;
       const { user } = req.body as UpdateUserBody;
-      if (!userId) {
-        throw new ControllerError(400, 'NoIdParameter', 'No id provided', {
-          userId,
-        });
-      }
       const updatedUser = await UsersQuery.updateById(
-        userId,
+        userId!,
         user satisfies UpdateUser,
       );
       if (!updatedUser) {
@@ -207,13 +197,8 @@ export const UsersController = {
     try {
       const { riotAccountId } = req.params;
       const { riotAccount } = req.body as UpdateRiotAccountBody;
-      if (!riotAccountId) {
-        throw new ControllerError(400, 'NoIdParameter', 'No id provided', {
-          riotAccountId,
-        });
-      }
       const updatedAccount = await RiotAccountsQuery.updateById(
-        riotAccountId,
+        riotAccountId!,
         riotAccount satisfies UpdateRiotAccount,
       );
       if (!updatedAccount) {
@@ -242,13 +227,8 @@ export const UsersController = {
     try {
       const { discordAccountId } = req.params;
       const { discordAccount } = req.body as UpdateDiscordAccountBody;
-      if (!discordAccountId) {
-        throw new ControllerError(400, 'NoIdParameter', 'No id provided', {
-          discordAccountId,
-        });
-      }
       const updatedAccount = await DiscordAccountsQuery.updateById(
-        discordAccountId,
+        discordAccountId!,
         discordAccount satisfies UpdateDiscordAccount,
       );
       if (!updatedAccount) {
@@ -280,20 +260,9 @@ export const UsersController = {
   ) => {
     try {
       const { riotAccountId, userId } = req.params;
-      if (!riotAccountId || !userId) {
-        throw new ControllerError(
-          400,
-          'NoIdParameter',
-          'Ids were not provided.',
-          {
-            riotAccountId,
-            userId,
-          },
-        );
-      }
       const patchedRiotAccount = await RiotAccountsQuery.patchWithUserId(
-        riotAccountId,
-        userId,
+        riotAccountId!,
+        userId!,
       );
       if (!patchedRiotAccount) {
         throw new ControllerError(404, 'NotFound', 'Riot account not found', {
@@ -319,20 +288,9 @@ export const UsersController = {
   ) => {
     try {
       const { discordAccountId, userId } = req.params;
-      if (!discordAccountId || !userId) {
-        throw new ControllerError(
-          400,
-          'NoIdParameter',
-          'Ids were not provided.',
-          {
-            discordAccountId,
-            userId,
-          },
-        );
-      }
       const patchedDiscordAccount = await DiscordAccountsQuery.patchWithUserId(
-        discordAccountId,
-        userId,
+        discordAccountId!,
+        userId!,
       );
       if (!patchedDiscordAccount) {
         throw new ControllerError(
@@ -359,17 +317,7 @@ export const UsersController = {
   deleteUser: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { userId } = req.params;
-      if (!userId) {
-        throw new ControllerError(
-          400,
-          'NoIdParameter',
-          'Ids were not provided.',
-          {
-            userId,
-          },
-        );
-      }
-      const deleted = await UsersQuery.deleteById(userId);
+      const deleted = await UsersQuery.deleteById(userId!);
 
       res.status(200).json(deleted);
     } catch (err) {

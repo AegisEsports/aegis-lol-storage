@@ -11,6 +11,7 @@ import {
   postUserBody,
   putDiscordAccountBody,
   putDiscordAccountParams,
+  putRiotAccountBody,
   putRiotAccountParams,
   putUserBody,
   putUserParams,
@@ -34,12 +35,13 @@ userRouter.get('/:userId', validateParams(getUserParams), UsersController.read);
 userRouter.put(
   '/:userId',
   validateParams(putUserParams),
+  validateBody(putUserBody),
   UsersController.updateUser,
 );
 userRouter.put(
   '/riot-account/:riotAccountId',
   validateParams(putRiotAccountParams),
-  validateBody(putUserBody),
+  validateBody(putRiotAccountBody),
   UsersController.updateRiotAccount,
 );
 userRouter.put(

@@ -1,3 +1,5 @@
+export type ErrorStatus = 400 | 401 | 403 | 404 | 409 | 500 | 503;
+
 export type AuthenticationErrors =
   | 'NoUserIdParameter'
   | 'InvalidAuthorizationHeader'
@@ -22,5 +24,3 @@ export type ErrorCode =
   | AuthenticationErrors
   | ApiErrors
   | SignInMethodApiErrors;
-
-export type ErrorStatus = 400 | 401 | 403 | 404 | 409 | 500;

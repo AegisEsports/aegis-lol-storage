@@ -30,7 +30,7 @@ const dropExceptions = winston.format((info) =>
 
 const fileLine = winston.format.printf(
   ({ timestamp, level, message, stack, ...meta }) => {
-    const isException = (meta as any).exception === true;
+    const isException = meta.exception === true;
     if (isException && typeof stack === 'string') {
       return `${timestamp} ${level}: ${stack}`;
     }
@@ -72,35 +72,6 @@ export const logger = winston.createLogger({
   level: NODE_ENV === 'production' ? 'info' : 'silly',
   format: winston.format.combine(winston.format.errors({ stack: true })),
 
-  // route exceptions to their own transports
-  exceptionHandlers: [
-    new DailyRotateFile({
-      dirname: errorDir,
-      filename: 'exceptions-%DATE%.log',
-      datePattern: 'YYYY-MM-DD',
-      maxFiles: '30d',
-      zippedArchive: true,
-      format: fileFormat, // uses the one-line stack-only rule above
-    }),
-    new winston.transports.Console({
-      // optional: also show exceptions on console
-      format: consoleFormat,
-    }),
-  ],
-
-  // route unhandled rejections
-  rejectionHandlers: [
-    new DailyRotateFile({
-      dirname: errorDir,
-      filename: 'rejections-%DATE%.log',
-      datePattern: 'YYYY-MM-DD',
-      maxFiles: '30d',
-      zippedArchive: true,
-      format: fileFormat,
-    }),
-    new winston.transports.Console({ format: consoleFormat }),
-  ],
-
   transports: [
     // info-only file
     new DailyRotateFile({
@@ -125,11 +96,8 @@ export const logger = winston.createLogger({
       maxFiles: '30d',
       zippedArchive: true,
       level: 'error',
-      format: winston.format.combine(
-        dropExceptions,
-        filterOnly('error'),
-        fileFormat,
-      ),
+      handleExceptions: true,
+      format: winston.format.combine(filterOnly('error'), fileFormat),
     }),
 
     // everything except info & error

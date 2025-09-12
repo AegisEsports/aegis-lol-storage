@@ -15,7 +15,7 @@ import {
 } from '@/database/shared.js';
 
 export const userRowSchema = z.strictObject({
-  username: z.string().min(1).nullable(),
+  username: z.string().min(1).toLowerCase(),
   nickname: z.string().min(1).nullable(),
   userRole: z.enum(USER_ROLES).default('Player'),
 });
@@ -29,7 +29,8 @@ export const createUsersTable = async (db: Kysely<Database>): Promise<void> => {
     t
       .addColumn('username', 'varchar')
       .addColumn('nickname', 'varchar')
-      .addColumn('user_role', 'varchar', (col) => col.defaultTo('Player')),
+      .addColumn('user_role', 'varchar', (col) => col.defaultTo('Player'))
+      .addUniqueConstraint(`uq_${USERS_SNAKE_CASE}_username`, ['username']),
   );
 };
 

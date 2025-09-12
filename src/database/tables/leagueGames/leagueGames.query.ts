@@ -41,6 +41,7 @@ export class LeagueGamesQuery {
       .selectFrom(`${PLAYER_STATS} as ps`)
       .innerJoin(`${RIOT_ACCOUNTS} as ra`, 'ra.riotPuuid', 'ps.riotPuuid') // puuid belongs to exactly one user
       .innerJoin(`${LEAGUE_GAMES} as g`, 'g.id', 'ps.leagueGameId')
+      .where('ra.userId', '=', userId)
       // e-sub (approved) on the same match for this user
       .leftJoin(`${EMERGENCY_SUB_REQUESTS} as es`, (join) =>
         join
@@ -55,11 +56,9 @@ export class LeagueGamesQuery {
       .select((eb) =>
         eb
           .case()
-          .when(
-            db.dynamic.ref('ps.teamId'),
-            '=',
-            db.dynamic.ref('g.winnerTeamId'),
-          )
+          .when(eb.ref('g.sideWin'), 'is', null)
+          .then(null)
+          .when(eb.ref('ps.side'), '=', eb.ref('g.sideWin'))
           .then(true)
           .else(false)
           .end()
@@ -69,13 +68,13 @@ export class LeagueGamesQuery {
       .select((eb) =>
         eb
           .case()
-          .when('es.id', 'is', null)
+          .when(eb.ref('es.id'), 'is', null)
           .then(false)
           .else(true)
           .end()
           .as('eSubbed'),
       )
-      .orderBy('g.timestampStart', 'desc')
+      .orderBy('g.startedAt', 'desc')
       .execute();
   }
 

@@ -3,7 +3,6 @@ import { db } from '@/database/database.js';
 import {
   type InsertBannedChamp,
   type BannedChampRow,
-  type UpdateBannedChamp,
 } from '@/database/schema.js';
 
 export class BannedChampsQuery {
@@ -27,19 +26,7 @@ export class BannedChampsQuery {
       .executeTakeFirst();
   }
 
-  // -- UPDATE
-
-  static updateById(
-    id: string,
-    update: UpdateBannedChamp,
-  ): Promise<BannedChampRow | undefined> {
-    return db
-      .updateTable(BANNED_CHAMPS)
-      .set(update)
-      .where('id', '=', id)
-      .returningAll()
-      .executeTakeFirst();
-  }
+  // -- UPDATE (updateable)
 
   // -- DELETE
 

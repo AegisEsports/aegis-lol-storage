@@ -16,6 +16,7 @@ import {
   createTableWithBase,
   LEAGUE_ROLES,
   ROSTER_MOVE_TYPES,
+  type MarkNonUpdateable,
   type TableBase,
 } from '@/database/shared.js';
 
@@ -33,7 +34,8 @@ export const rosterRequestRowSchema = z.strictObject({
 
 type RosterRequestFields = z.infer<typeof rosterRequestRowSchema>;
 
-export interface RosterRequestsTable extends RosterRequestFields, TableBase {}
+export type RosterRequestsTable = TableBase &
+  MarkNonUpdateable<RosterRequestFields, 'teamId' | 'submittedById' | 'userId'>;
 
 export const createRosterRequestsTable = async (
   db: Kysely<Database>,

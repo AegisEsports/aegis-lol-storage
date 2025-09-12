@@ -26,7 +26,7 @@ export const teamRosterRowSchema = z.strictObject({
 
 type TeamRosterFields = z.infer<typeof teamRosterRowSchema>;
 
-export interface TeamRostersTable extends TeamRosterFields, TableBase {}
+export type TeamRostersTable = TableBase & TeamRosterFields;
 
 export const createTeamRostersTable = async (
   db: Kysely<Database>,
@@ -37,7 +37,7 @@ export const createTeamRostersTable = async (
         col
           .notNull()
           .references(`${TEAMS_SNAKE_CASE}.id`)
-          .onDelete('set null')
+          .onDelete('cascade')
           .onUpdate('cascade'),
       )
       .addColumn('user_id', 'uuid', (col) =>
@@ -46,7 +46,11 @@ export const createTeamRostersTable = async (
           .onDelete('set null')
           .onUpdate('cascade'),
       )
-      .addColumn('role', 'varchar', (col) => col.notNull()),
+      .addColumn('role', 'varchar', (col) => col.notNull())
+      .addUniqueConstraint(`${TEAM_ROSTERS_SNAKE_CASE}_team_id_role_uniq`, [
+        'team_id',
+        'role',
+      ]),
   );
 };
 

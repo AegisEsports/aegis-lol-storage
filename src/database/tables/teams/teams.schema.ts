@@ -25,7 +25,7 @@ export const teamRowSchema = z.strictObject({
 
 type TeamFields = z.infer<typeof teamRowSchema>;
 
-export interface TeamsTable extends TeamFields, TableBase {}
+export type TeamsTable = TableBase & TeamFields;
 
 export const createTeamsTable = async (db: Kysely<Database>): Promise<void> => {
   await createTableWithBase(db, TEAMS_SNAKE_CASE, (t) =>

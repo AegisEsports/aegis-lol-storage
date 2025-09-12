@@ -27,7 +27,7 @@ export const splitRowSchema = z.strictObject({
 
 type SplitFields = z.infer<typeof splitRowSchema>;
 
-export interface SplitsTable extends SplitFields, TableBase {}
+export type SplitsTable = TableBase & SplitFields;
 
 export const createSplitsTable = async (
   db: Kysely<Database>,

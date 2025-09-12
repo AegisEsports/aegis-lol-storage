@@ -33,7 +33,7 @@ export const leagueMatchRowSchema = z.strictObject({
 
 type LeagueMatchFields = z.infer<typeof leagueMatchRowSchema>;
 
-export interface LeagueMatchesTable extends LeagueMatchFields, TableBase {}
+export type LeagueMatchesTable = TableBase & LeagueMatchFields;
 
 export const createLeagueMatchesTable = async (
   db: Kysely<Database>,

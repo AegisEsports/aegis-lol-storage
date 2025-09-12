@@ -3,7 +3,6 @@ import { db } from '@/database/database.js';
 import {
   type InsertPlayerStat,
   type PlayerStatRow,
-  type UpdatePlayerStat,
 } from '@/database/schema.js';
 
 export class PlayerStatsQuery {
@@ -27,19 +26,7 @@ export class PlayerStatsQuery {
       .executeTakeFirst();
   }
 
-  // -- UPDATE
-
-  static updateById(
-    id: string,
-    update: UpdatePlayerStat,
-  ): Promise<PlayerStatRow | undefined> {
-    return db
-      .updateTable(PLAYER_STATS)
-      .set(update)
-      .where('id', '=', id)
-      .returningAll()
-      .executeTakeFirst();
-  }
+  // -- UPDATE (not updateable)
 
   // -- DELETE
 

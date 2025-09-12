@@ -54,7 +54,7 @@ export type TeamPlayedInDto = TeamRow & {
 export type GamesPlayedInDto = LeagueGameRow & {
   side: LeagueSide | null;
   role: LeagueRole | null;
-  win: boolean;
+  win: boolean | null;
   eSubbed: boolean;
 };
 export type UserDto = {
@@ -78,18 +78,19 @@ export type UpdateUserBody = z.infer<typeof putUserBody>;
 export const putRiotAccountParams = z.strictObject({
   riotAccountId: z.uuid(),
 });
-export const putRiotAccountBody = postRiotAccountBody.clone();
+export const putRiotAccountBody = z.strictObject({
+  riotAccount: riotAccountRowSchema.omit({ riotPuuid: true }),
+});
 export type UpdateRiotAccountBody = z.infer<typeof putRiotAccountBody>;
 
 // PUT - /discord-account/{discordAccountId}
 export const putDiscordAccountParams = z.strictObject({
   discordAccountId: z.uuid(),
 });
-export const putDiscordAccountBody = postDiscordAccountBody.clone();
-export type UpdateDiscordAccountBody = z.infer<
-  // It's the same as POST but we'll make a different one as needed.
-  typeof putDiscordAccountBody
->;
+export const putDiscordAccountBody = z.strictObject({
+  discordAccount: discordAccountRowSchema.omit({ snowflakeId: true }),
+});
+export type UpdateDiscordAccountBody = z.infer<typeof putDiscordAccountBody>;
 
 // PATCH - /riot-account/{riotAccountId}/{userId}
 export const patchRiotAccountParams = z.strictObject({

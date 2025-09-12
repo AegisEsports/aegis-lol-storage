@@ -1,10 +1,6 @@
 import { TEAM_STATS } from '@/database/const.js';
 import { db } from '@/database/database.js';
-import {
-  type InsertTeamStat,
-  type TeamStatRow,
-  type UpdateTeamStat,
-} from '@/database/schema.js';
+import { type InsertTeamStat, type TeamStatRow } from '@/database/schema.js';
 
 export class TeamStatsQuery {
   // -- INSERT
@@ -27,19 +23,7 @@ export class TeamStatsQuery {
       .executeTakeFirst();
   }
 
-  // -- UPDATE
-
-  static updateById(
-    id: string,
-    update: UpdateTeamStat,
-  ): Promise<TeamStatRow | undefined> {
-    return db
-      .updateTable(TEAM_STATS)
-      .set(update)
-      .where('id', '=', id)
-      .returningAll()
-      .executeTakeFirst();
-  }
+  // -- UPDATE (not updateable)
 
   // -- DELETE
 

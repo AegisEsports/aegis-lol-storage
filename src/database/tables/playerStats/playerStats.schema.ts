@@ -67,7 +67,7 @@ export const playerStatRowSchema = z.strictObject({
 
 type PlayerStatFields = z.infer<typeof playerStatRowSchema>;
 
-export interface PlayerStatsTable extends PlayerStatFields, TableBase {}
+export type PlayerStatsTable = TableBase & PlayerStatFields;
 
 export const createPlayerStatsTable = async (
   db: Kysely<Database>,

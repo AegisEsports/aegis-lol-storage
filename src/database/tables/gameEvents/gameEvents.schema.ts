@@ -33,7 +33,7 @@ export const gameEventRowSchema = z.strictObject({
 
 type GameEventFields = z.infer<typeof gameEventRowSchema>;
 
-export interface GameEventsTable extends GameEventFields, TableBase {}
+export type GameEventsTable = TableBase & GameEventFields;
 
 export const createGameEventsTable = async (
   db: Kysely<Database>,

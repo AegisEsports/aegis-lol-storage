@@ -3,7 +3,6 @@ import { db } from '@/database/database.js';
 import {
   type InsertRiotMatchData,
   type RiotMatchDataRow,
-  type UpdateRiotMatchData,
 } from '@/database/schema.js';
 
 export class RiotMatchDataQuery {
@@ -27,19 +26,7 @@ export class RiotMatchDataQuery {
       .executeTakeFirst();
   }
 
-  // -- UPDATE
-
-  static updateById(
-    id: string,
-    update: UpdateRiotMatchData,
-  ): Promise<RiotMatchDataRow | undefined> {
-    return db
-      .updateTable(RIOT_MATCH_DATA)
-      .set(update)
-      .where('id', '=', id)
-      .returningAll()
-      .executeTakeFirst();
-  }
+  // -- UPDATE (not updateable)
 
   // -- DELETE
 

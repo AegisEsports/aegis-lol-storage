@@ -60,7 +60,7 @@ export const teamStatRowSchema = z.strictObject({
 
 type TeamStatFields = z.infer<typeof teamStatRowSchema>;
 
-export interface TeamStatsTable extends TeamStatFields, TableBase {}
+export type TeamStatsTable = TableBase & TeamStatFields;
 
 export const createTeamStatsTable = async (
   db: Kysely<Database>,

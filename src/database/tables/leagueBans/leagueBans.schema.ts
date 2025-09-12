@@ -24,7 +24,7 @@ export const leagueBanRowSchema = z.strictObject({
 
 type LeagueBanFields = z.infer<typeof leagueBanRowSchema>;
 
-export interface LeagueBansTable extends LeagueBanFields, TableBase {}
+export type LeagueBansTable = TableBase & LeagueBanFields;
 
 export const createLeagueBansTable = async (
   db: Kysely<Database>,

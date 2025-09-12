@@ -22,7 +22,7 @@ export const riotMatchDataRowSchema = z.strictObject({
 
 type RiotMatchDataFields = z.infer<typeof riotMatchDataRowSchema>;
 
-export interface RiotMatchDataTable extends RiotMatchDataFields, TableBase {}
+export type RiotMatchDataTable = TableBase & RiotMatchDataFields;
 
 export const createRiotMatchDataTable = async (
   db: Kysely<Database>,

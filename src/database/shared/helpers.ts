@@ -4,6 +4,11 @@ import type { Database } from '@/database/database.js';
 
 const MODIFIED_AT_TRIGGER_NAME = 'set_modified_at';
 
+/**
+ * Initiates the database infrastructure before creation of tables.
+ * It currently does the following:
+ * - Create auto-update modified_at on UPDATE (trigger + function)
+ */
 export const initiateInfra = async (db: Kysely<Database>) => {
   // Create auto-update modified_at on UPDATE (trigger + function)
   await sql`CREATE EXTENSION IF NOT EXISTS "pgcrypto"`.execute(db);
@@ -54,6 +59,7 @@ export const createTableWithBase = async <TB extends string>(
   table: TB,
   build: (
     t: CreateTableBuilder<TB, 'id' | 'created_at' | 'modified_at'>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => CreateTableBuilder<TB, any>,
 ) => {
   await build(withBaseColumns(db.schema.createTable(table))).execute();

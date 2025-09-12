@@ -20,7 +20,7 @@ export const organizationRowSchema = z.strictObject({
 
 type OrganizationFields = z.infer<typeof organizationRowSchema>;
 
-export interface OrganizationsTable extends OrganizationFields, TableBase {}
+export type OrganizationsTable = TableBase & OrganizationFields;
 
 export const createOrganizationsTable = async (
   db: Kysely<Database>,

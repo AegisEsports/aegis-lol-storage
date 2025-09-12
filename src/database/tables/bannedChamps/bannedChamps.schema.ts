@@ -30,7 +30,7 @@ export const bannedChampRowSchema = z.strictObject({
 
 type BannedChampFields = z.infer<typeof bannedChampRowSchema>;
 
-export interface BannedChampsTable extends BannedChampFields, TableBase {}
+export type BannedChampsTable = TableBase & BannedChampFields;
 
 export const createBannedChampsTable = async (
   db: Kysely<Database>,

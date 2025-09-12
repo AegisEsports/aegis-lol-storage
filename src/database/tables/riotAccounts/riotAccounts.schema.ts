@@ -11,7 +11,11 @@ import {
   USERS_SNAKE_CASE,
 } from '@/database/const.js';
 import type { Database } from '@/database/database.js';
-import { createTableWithBase, type TableBase } from '@/database/shared.js';
+import {
+  createTableWithBase,
+  type MarkNonUpdateable,
+  type TableBase,
+} from '@/database/shared.js';
 
 export const riotAccountRowSchema = z.strictObject({
   riotPuuid: z.string(),
@@ -26,7 +30,8 @@ export const riotAccountRowSchema = z.strictObject({
 
 type RiotAccountFields = z.infer<typeof riotAccountRowSchema>;
 
-export interface RiotAccountsTable extends RiotAccountFields, TableBase {}
+export type RiotAccountsTable = TableBase &
+  MarkNonUpdateable<RiotAccountFields, 'riotPuuid'>;
 
 export const createRiotAccountsTable = async (
   db: Kysely<Database>,

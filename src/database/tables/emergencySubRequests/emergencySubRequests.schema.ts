@@ -13,7 +13,11 @@ import {
   USERS_SNAKE_CASE,
 } from '@/database/const.js';
 import type { Database } from '@/database/database.js';
-import { createTableWithBase, type TableBase } from '@/database/shared.js';
+import {
+  createTableWithBase,
+  type MarkNonUpdateable,
+  type TableBase,
+} from '@/database/shared.js';
 
 export const emergencySubRequestRowSchema = z.strictObject({
   submittedById: z.uuid().nullable(),
@@ -27,9 +31,11 @@ export const emergencySubRequestRowSchema = z.strictObject({
 
 type EmergencySubRequestFields = z.infer<typeof emergencySubRequestRowSchema>;
 
-export interface EmergencySubRequestsTable
-  extends EmergencySubRequestFields,
-    TableBase {}
+export type EmergencySubRequestsTable = TableBase &
+  MarkNonUpdateable<
+    EmergencySubRequestFields,
+    'submittedById' | 'userId' | 'teamId' | 'leagueMatchId'
+  >;
 
 export const createEmergencySubRequestsTable = async (
   db: Kysely<Database>,

@@ -31,9 +31,7 @@ export const rosterRequestRowSchema = z.strictObject({
   approvedAt: z.iso.date().nullable(),
   reviewedById: z.uuid().nullable(),
 });
-
 type RosterRequestFields = z.infer<typeof rosterRequestRowSchema>;
-
 export type RosterRequestsTable = TableBase &
   MarkNonUpdateable<RosterRequestFields, 'teamId' | 'submittedById' | 'userId'>;
 

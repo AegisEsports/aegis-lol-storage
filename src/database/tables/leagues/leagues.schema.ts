@@ -14,9 +14,7 @@ export const leagueRowSchema = z.strictObject({
   name: z.string().nullable(),
   riotProviderId: z.coerce.number().int().nullable(),
 });
-
 type LeagueRowFields = z.infer<typeof leagueRowSchema>;
-
 export type LeaguesTable = TableBase & LeagueRowFields;
 
 export const createLeaguesTable = async (

@@ -23,9 +23,7 @@ export const teamRosterRowSchema = z.strictObject({
   userId: z.uuid().nullable(),
   role: z.enum(ROSTER_ROLES),
 });
-
 type TeamRosterFields = z.infer<typeof teamRosterRowSchema>;
-
 export type TeamRostersTable = TableBase & TeamRosterFields;
 
 export const createTeamRostersTable = async (

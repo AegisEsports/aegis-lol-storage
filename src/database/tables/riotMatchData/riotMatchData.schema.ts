@@ -19,9 +19,7 @@ export const riotMatchDataRowSchema = z.strictObject({
   rawMatchData: z.record(z.string(), z.unknown()).nullable(),
   rawTimelineData: z.record(z.string(), z.unknown()).nullable(),
 });
-
 type RiotMatchDataFields = z.infer<typeof riotMatchDataRowSchema>;
-
 export type RiotMatchDataTable = TableBase & RiotMatchDataFields;
 
 export const createRiotMatchDataTable = async (

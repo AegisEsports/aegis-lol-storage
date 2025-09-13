@@ -17,9 +17,7 @@ export const organizationRowSchema = z.strictObject({
   name: z.string().nullable(),
   ownerId: z.uuid().nullable(),
 });
-
 type OrganizationFields = z.infer<typeof organizationRowSchema>;
-
 export type OrganizationsTable = TableBase & OrganizationFields;
 
 export const createOrganizationsTable = async (

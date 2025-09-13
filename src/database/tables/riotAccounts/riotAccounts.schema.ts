@@ -27,9 +27,7 @@ export const riotAccountRowSchema = z.strictObject({
   revisionDate: z.iso.date().nullable(),
   mainAccount: z.coerce.boolean(),
 });
-
 type RiotAccountFields = z.infer<typeof riotAccountRowSchema>;
-
 export type RiotAccountsTable = TableBase &
   MarkNonUpdateable<RiotAccountFields, 'riotPuuid'>;
 

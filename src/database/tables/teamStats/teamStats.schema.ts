@@ -57,9 +57,7 @@ export const teamStatRowSchema = z.strictObject({
   totalControlWardsBought: z.coerce.number().int().nullable(),
   totalWardsCleared: z.coerce.number().int().nullable(),
 });
-
 type TeamStatFields = z.infer<typeof teamStatRowSchema>;
-
 export type TeamStatsTable = TableBase & TeamStatFields;
 
 export const createTeamStatsTable = async (

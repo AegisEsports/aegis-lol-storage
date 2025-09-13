@@ -22,9 +22,7 @@ export const teamRowSchema = z.strictObject({
   teamColor: z.string().nullable(),
   teamLogoUrl: z.string().nullable(),
 });
-
 type TeamFields = z.infer<typeof teamRowSchema>;
-
 export type TeamsTable = TableBase & TeamFields;
 
 export const createTeamsTable = async (db: Kysely<Database>): Promise<void> => {

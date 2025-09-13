@@ -28,9 +28,7 @@ export const emergencySubRequestRowSchema = z.strictObject({
   approvedAt: z.iso.date().nullable(),
   reviewedById: z.uuid().nullable(),
 });
-
 type EmergencySubRequestFields = z.infer<typeof emergencySubRequestRowSchema>;
-
 export type EmergencySubRequestsTable = TableBase &
   MarkNonUpdateable<
     EmergencySubRequestFields,

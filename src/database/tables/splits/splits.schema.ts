@@ -24,9 +24,7 @@ export const splitRowSchema = z.strictObject({
   officialSheetUrl: z.string().nullable(),
   active: z.coerce.boolean().nullable(),
 });
-
 type SplitFields = z.infer<typeof splitRowSchema>;
-
 export type SplitsTable = TableBase & SplitFields;
 
 export const createSplitsTable = async (

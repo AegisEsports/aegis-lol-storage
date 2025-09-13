@@ -30,7 +30,7 @@ import type {
   UserDto,
 } from './user.dto.js';
 
-export const UsersController = {
+export const UserController = {
   /**
    * POST - /
    *
@@ -126,7 +126,7 @@ export const UsersController = {
    *
    * Retrieves a singular entry of a user.
    */
-  read: async (req: Request, res: Response, next: NextFunction) => {
+  readUser: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { userId } = req.params as { userId: string };
       const getUser = await UsersQuery.selectById(userId);

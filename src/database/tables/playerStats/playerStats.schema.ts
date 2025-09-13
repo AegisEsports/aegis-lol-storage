@@ -64,9 +64,7 @@ export const playerStatRowSchema = z.strictObject({
   quadraKills: z.coerce.number().int().nullable(),
   pentaKills: z.coerce.number().int().nullable(),
 });
-
 type PlayerStatFields = z.infer<typeof playerStatRowSchema>;
-
 export type PlayerStatsTable = TableBase & PlayerStatFields;
 
 export const createPlayerStatsTable = async (

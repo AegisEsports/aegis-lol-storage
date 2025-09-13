@@ -22,9 +22,7 @@ export const discordAccountRowSchema = z.strictObject({
   userId: z.uuid().nullable(),
   username: z.string().min(1).toLowerCase().nullable(),
 });
-
 type DiscordAccountFields = z.infer<typeof discordAccountRowSchema>;
-
 export type DiscordAccountsTable = TableBase &
   MarkNonUpdateable<DiscordAccountFields, 'snowflakeId'>;
 

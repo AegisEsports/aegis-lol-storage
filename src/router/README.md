@@ -4,15 +4,55 @@
 
 ## DTO
 
+```typescript
+import z from 'zod';
+
+// POST - /
+export const postNameBody = z.strictObject({});
+export type CreateNameBody = z.infer<typeof postNameBody>;
+
+// GET - /{nameId}
+export const getNameParams = z.strictObject({
+  nameId: z.uuid(),
+});
+export type NameDto = {};
+
+// PUT - /{nameId}
+export const putNameParams = getNameParams.clone();
+export const putNameBody = z.strictObject({
+  user: userRowSchema,
+});
+export type UpdateNameBody = z.infer<typeof putNameBody>;
+
+// DELETE - /{userId}
+export const deleteNameParams = getNameParams.clone();
+```
+
 ## Route
+
+```typescript
+import { Router } from 'express';
+
+export const nameRouter = Router();
+
+nameRouter.post('/', validateBody(), NameController.createName);
+nameRouter.get('/:nameId', validateParams(), NameController.readName);
+nameRouter.put(
+  '/:nameId',
+  validateParams(),
+  validateBody(),
+  NameController.updateName,
+);
+nameRouter.delete('/:nameId', validateParams(), NameController.deleteName);
+```
 
 ## Controller
 
 ```typescript
 import type { NextFunction, Request, Response } from 'express';
 
-export const UsersController = {
-  create: async (req: Request, res: Response, next: NextFunction) => {
+export const NameController = {
+  createName: async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.status(201).json();
     } catch (err) {
@@ -20,7 +60,7 @@ export const UsersController = {
     }
   },
 
-  read: async (req: Request, res: Response, next: NextFunction) => {
+  readName: async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.status(200).json();
     } catch (err) {
@@ -28,7 +68,7 @@ export const UsersController = {
     }
   },
 
-  update: async (req: Request, res: Response, next: NextFunction) => {
+  updateName: async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.status(200).json();
     } catch (err) {
@@ -36,7 +76,7 @@ export const UsersController = {
     }
   },
 
-  delete: async (req: Request, res: Response, next: NextFunction) => {
+  deleteName: async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.status(200).json();
     } catch (err) {

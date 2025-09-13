@@ -21,9 +21,7 @@ export const leagueBanRowSchema = z.strictObject({
   userIdBanned: z.uuid().nullable(),
   bannedAt: z.iso.date().nullable(),
 });
-
 type LeagueBanFields = z.infer<typeof leagueBanRowSchema>;
-
 export type LeagueBansTable = TableBase & LeagueBanFields;
 
 export const createLeagueBansTable = async (

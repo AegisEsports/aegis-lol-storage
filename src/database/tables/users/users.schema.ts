@@ -19,10 +19,8 @@ export const userRowSchema = z.strictObject({
   nickname: z.string().min(1).nullable(),
   userRole: z.enum(USER_ROLES).default('Player'),
 });
-
 type UserFields = z.infer<typeof userRowSchema>;
-
-export interface UsersTable extends UserFields, TableBase {}
+export type UsersTable = TableBase & UserFields;
 
 export const createUsersTable = async (db: Kysely<Database>): Promise<void> => {
   await createTableWithBase(db, USERS_SNAKE_CASE, (t) =>

@@ -30,9 +30,7 @@ export const gameEventRowSchema = z.strictObject({
   victimId: z.uuid().nullable(),
   baronPowerPlay: z.coerce.number().int().nullable(),
 });
-
 type GameEventFields = z.infer<typeof gameEventRowSchema>;
-
 export type GameEventsTable = TableBase & GameEventFields;
 
 export const createGameEventsTable = async (

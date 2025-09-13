@@ -28,9 +28,7 @@ export const leagueGameRowSchema = z.strictObject({
   duration: z.coerce.number().int().nullable(),
   startedAt: z.iso.date().nullable(),
 });
-
 type LeagueGameFields = z.infer<typeof leagueGameRowSchema>;
-
 export type LeagueGamesTable = TableBase & LeagueGameFields;
 
 export const createLeagueGamesTable = async (

@@ -27,9 +27,7 @@ export const bannedChampRowSchema = z.strictObject({
   champId: z.coerce.number().int().nullable(),
   champName: z.string().min(1).nullable(),
 });
-
 type BannedChampFields = z.infer<typeof bannedChampRowSchema>;
-
 export type BannedChampsTable = TableBase & BannedChampFields;
 
 export const createBannedChampsTable = async (

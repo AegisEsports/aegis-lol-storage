@@ -30,9 +30,7 @@ export const leagueMatchRowSchema = z.strictObject({
   weekNumber: z.coerce.number().int().nullable(),
   scheduledAt: z.iso.date().nullable(),
 });
-
 type LeagueMatchFields = z.infer<typeof leagueMatchRowSchema>;
-
 export type LeagueMatchesTable = TableBase & LeagueMatchFields;
 
 export const createLeagueMatchesTable = async (

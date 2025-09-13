@@ -1,15 +1,21 @@
 {
+  // Prettier settings
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-
-  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-
-  // If you use ESLint too, let it fix rules but not format:
   "eslint.format.enable": false,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // Import rules should not use relative
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifierEnding": "auto",
+  "javascript.preferences.importModuleSpecifierEnding": "auto",
+
+  // cSpell
   "cSpell.words": [
     "Atakhan",
     "Chemtech",
@@ -19,9 +25,11 @@
     "Nashor",
     "pgcrypto",
     "plpgsql",
+    "puuid",
+    "puuids",
     "timestamptz",
     "Updateable",
     "Voidgrub"
   ],
-  "cSpell.ignorePaths": ["src/database/migrations/**"]
+  "cSpell.ignorePaths": ["src/database/migrations/**", ".vscode/**"]
 }

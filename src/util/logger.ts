@@ -24,8 +24,16 @@ const filterExcept = (levels: string[]) =>
   winston.format((info) => (levels.includes(info.level) ? false : info))();
 
 // ── Formats ──────────────────────────────────────────────────────────────────
+const dropExceptions = winston.format((info) =>
+  info.exception ? false : info,
+)();
+
 const fileLine = winston.format.printf(
   ({ timestamp, level, message, stack, ...meta }) => {
+    const isException = meta.exception === true;
+    if (isException && typeof stack === 'string') {
+      return `${timestamp} ${level}: ${stack}`;
+    }
     const rest = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
     return stack
       ? `${timestamp} ${level}: ${message}\n${stack}${rest}`
@@ -61,10 +69,9 @@ const consoleFormat = winston.format.combine(
 
 // ── Logger ───────────────────────────────────────────────────────────────────
 export const logger = winston.createLogger({
-  level: NODE_ENV === 'production' ? 'info': 'silly',
-  format: winston.format.combine(
-    winston.format.errors({ stack: true })
-  ),
+  level: NODE_ENV === 'production' ? 'info' : 'silly',
+  format: winston.format.combine(winston.format.errors({ stack: true })),
+
   transports: [
     // info-only file
     new DailyRotateFile({
@@ -74,7 +81,11 @@ export const logger = winston.createLogger({
       maxFiles: '30d',
       zippedArchive: true,
       level: 'info',
-      format: winston.format.combine(filterOnly('info'), fileFormat),
+      format: winston.format.combine(
+        dropExceptions,
+        filterOnly('info'),
+        fileFormat,
+      ),
     }),
 
     // error-only file (no ANSI color in files)
@@ -98,6 +109,7 @@ export const logger = winston.createLogger({
       zippedArchive: true,
       level: 'silly',
       format: winston.format.combine(
+        dropExceptions,
         filterExcept(['info', 'error']),
         fileFormat,
       ),
@@ -107,8 +119,6 @@ export const logger = winston.createLogger({
     new winston.transports.Console({
       level: NODE_ENV === 'production' ? 'info' : 'silly',
       format: consoleFormat,
-      handleExceptions: true,
-      handleRejections: true,
     }),
   ],
   exitOnError: true,

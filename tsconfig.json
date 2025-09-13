@@ -10,9 +10,7 @@
     // Match Node’s resolution strategy for both .js and .ts
     "moduleResolution": "node16",
     "resolveJsonModule": true,
-    "lib": [
-      "ES2022"
-    ],
+    "lib": ["ES2022"],
     /***************************************************************************
      * Project Structure
      ***************************************************************************/
@@ -53,21 +51,12 @@
      ***************************************************************************/
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     }
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   // Don’t accidentally compile tests, build‐artifacts, or deps
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    "coverage"
-  ],
+  "exclude": ["node_modules", "logs", "dist", "build", "coverage"],
   "files.associations": {
     "tsconfig.json": "jsonc"
   }

@@ -5,13 +5,13 @@ export default class ControllerError extends Error {
 
   readonly code: ErrorCode;
 
-  readonly data?: any;
+  readonly data?: unknown;
 
   constructor(
     status: ErrorStatus,
     code: ErrorCode,
     message: string,
-    data?: any,
+    data?: unknown,
   ) {
     super(message);
     this.status = status;
@@ -21,7 +21,9 @@ export default class ControllerError extends Error {
 
   toJSON() {
     return {
-      error: { code: this.code, message: this.message },
+      code: this.code,
+      message: this.message,
+      data: this.data,
     };
   }
 }

@@ -84,7 +84,16 @@ export default [
           patterns: [
             {
               group: ['../*', '../**'],
-              message: 'Use @/* alias instead',
+              message:
+                'Do not use relative paths (unless parallel). Use "@/*" alias instead',
+            },
+            {
+              group: [
+                '@/database/tables/**',
+                '@/database/shared/**',
+                '@/database/migrations/**',
+              ],
+              message: 'Use the "@/database/*" aliases instead',
             },
           ],
         },

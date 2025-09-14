@@ -27,12 +27,18 @@ export const postRiotAccountBody = z.strictObject({
   riotAccount: riotAccountRowSchema,
 });
 export type CreateRiotAccountBody = z.infer<typeof postRiotAccountBody>;
+export type RiotAccountDto = {
+  riotAccount: RiotAccountRow;
+};
 
 // POST - /discord-account
 export const postDiscordAccountBody = z.strictObject({
   discordAccount: discordAccountRowSchema,
 });
 export type CreateDiscordAccountBody = z.infer<typeof postDiscordAccountBody>;
+export type DiscordAccountDto = {
+  discordAccount: DiscordAccountRow;
+};
 
 // GET - /{userId}
 export const getUserParams = z.strictObject({
@@ -59,12 +65,6 @@ export type UserDto = {
   discordAccounts: DiscordAccountRow[];
   organizationsOwn: OrganizationRow[];
   leagueBans: LeagueBanRow[];
-};
-export type DiscordAccountDto = {
-  discordAccount: DiscordAccountRow;
-};
-export type RiotAccountDto = {
-  riotAccount: RiotAccountRow;
 };
 
 // PUT - /{userId}

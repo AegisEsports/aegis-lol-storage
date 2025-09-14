@@ -2,6 +2,7 @@
 
 import { Router } from 'express';
 
+import { leagueRouter } from '@/router/league/v1/league.route.js';
 import { userRouter } from '@/router/user/v1/user.route.js';
 
 export const api = Router();
@@ -9,6 +10,7 @@ export const api = Router();
 // Group by version
 const v1 = Router();
 v1.use('/user/v1', userRouter);
+v1.use('/league/v1', leagueRouter);
 api.use(v1);
 
 // Health check

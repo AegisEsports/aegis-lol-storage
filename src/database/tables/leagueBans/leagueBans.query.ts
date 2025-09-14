@@ -1,10 +1,11 @@
-import { LEAGUE_BANS } from '@/database/const.js';
+import { LEAGUE_BANS, USERS } from '@/database/const.js';
 import { db } from '@/database/database.js';
 import {
   type InsertLeagueBan,
   type LeagueBanRow,
   type UpdateLeagueBan,
 } from '@/database/schema.js';
+import type { UsersBannedInLeagueDto } from '@/router/league/v1/league.dto.js';
 
 export class LeagueBansQuery {
   // -- INSERT
@@ -32,6 +33,18 @@ export class LeagueBansQuery {
       .selectFrom(LEAGUE_BANS)
       .selectAll()
       .where('userIdBanned', '=', userId)
+      .execute();
+  }
+
+  static listByLeagueId(leagueId: string): Promise<UsersBannedInLeagueDto[]> {
+    return db
+      .selectFrom(`${LEAGUE_BANS} as lb`)
+      .innerJoin(`${USERS} as u`, 'u.id', 'lb.userIdBanned')
+      .where('lb.leagueId', '=', leagueId)
+      .where('lb.userIdBanned', 'is not', null)
+      .selectAll('lb')
+      .select(['u.username as username'])
+      .orderBy('lb.bannedDate', 'desc')
       .execute();
   }
 

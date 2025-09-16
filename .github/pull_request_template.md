@@ -20,4 +20,5 @@
 - [ ] Code follows project style guidelines
 - [ ] Self-reviewed changes
 - [ ] Tested locally
+- [ ] Updated Postman team workspace (if applicable)
 - [ ] Updated documentation (if applicable)

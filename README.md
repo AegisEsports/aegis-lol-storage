@@ -139,6 +139,10 @@ Though highly unadvised, the hooks can be temporarily disabled by:
 $ HUSKY=0 git commit ... # To skip pre-commit hook
 ```
 
+### Postman
+
+There is a Postman team workspaces that you will need to ask Doowan for an invite. It contains all the requests built so far and helpful scripts that make running scripts relatively seamless. When making changes to the server, make sure the Postman team workspace is also updated.
+
 ### Testing
 
 TBD

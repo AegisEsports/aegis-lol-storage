@@ -103,20 +103,22 @@ Alternatively, you can use pgAdmin4 for a straightforward GUI to access the data
 
 ### 5. Shutting Down
 
-If you install a new npm package, you need to reboot the container to see it take effect. Run the following commands to fully shutdown and remove the container.
+To simply shut down the containers, run:
 
 ```bash
 $ make down
-$ make remove
-$ make clean
 ```
 
-If you are using Windows Powershell, you can use the npm scripts instead.
+If you install a new npm package or update the database schema, you need to remove the volumes for the new changes to take effect.
 
-```powershell
-> npm run make:down
-> npm run make:remove
-> npm run make:clean
+```bash
+$ make wipe
+```
+
+You can also use the Windows Powershell command to simply reset the containers.
+
+```bash
+$ npm run docker:reset
 ```
 
 ## Contributing
@@ -136,6 +138,10 @@ Though highly unadvised, the hooks can be temporarily disabled by:
 ```
 $ HUSKY=0 git commit ... # To skip pre-commit hook
 ```
+
+### Postman
+
+There is a Postman team workspaces that you will need to ask Doowan for an invite. It contains all the requests built so far and helpful scripts that make running scripts relatively seamless. When making changes to the server, make sure the Postman team workspace is also updated.
 
 ### Testing
 

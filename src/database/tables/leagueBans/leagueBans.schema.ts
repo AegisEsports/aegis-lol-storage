@@ -19,7 +19,7 @@ export const leagueBanRowSchema = z.strictObject({
   leagueId: z.uuid().nullable(),
   teamIdBanned: z.uuid().nullable(),
   userIdBanned: z.uuid().nullable(),
-  bannedAt: z.iso.date().nullable(),
+  bannedDate: z.iso.date().nullable(),
 });
 type LeagueBanFields = z.infer<typeof leagueBanRowSchema>;
 export type LeagueBansTable = TableBase & LeagueBanFields;
@@ -47,7 +47,7 @@ export const createLeagueBansTable = async (
           .onDelete('set null')
           .onUpdate('cascade'),
       )
-      .addColumn('banned_at', 'timestamptz'),
+      .addColumn('banned_date', 'timestamptz'),
   );
 };
 

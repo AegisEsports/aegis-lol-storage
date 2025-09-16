@@ -1,6 +1,6 @@
 # Overview
 
-# Route Setup
+# Route Setup Template
 
 ## DTO
 
@@ -20,11 +20,11 @@ export type NameDto = {};
 // PUT - /{nameId}
 export const putNameParams = getNameParams.clone();
 export const putNameBody = z.strictObject({
-  user: userRowSchema,
+  name: nameRowSchema,
 });
 export type UpdateNameBody = z.infer<typeof putNameBody>;
 
-// DELETE - /{userId}
+// DELETE - /{nameId}
 export const deleteNameParams = getNameParams.clone();
 ```
 
@@ -52,6 +52,11 @@ nameRouter.delete('/:nameId', validateParams(), NameController.deleteName);
 import type { NextFunction, Request, Response } from 'express';
 
 export const NameController = {
+  /**
+   * POST - /
+   *
+   *
+   */
   createName: async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.status(201).json();
@@ -60,6 +65,11 @@ export const NameController = {
     }
   },
 
+  /**
+   * GET - /{nameId}
+   *
+   *
+   */
   readName: async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.status(200).json();
@@ -68,6 +78,11 @@ export const NameController = {
     }
   },
 
+  /**
+   * PUT - /{nameId}
+   *
+   *
+   */
   updateName: async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.status(200).json();
@@ -76,6 +91,11 @@ export const NameController = {
     }
   },
 
+  /**
+   * DELETE - /{nameId}
+   *
+   *
+   */
   deleteName: async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.status(200).json();

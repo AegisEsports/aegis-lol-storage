@@ -27,6 +27,14 @@ export class SplitsQuery {
       .executeTakeFirst();
   }
 
+  static listByLeagueId(leagueId: string): Promise<SplitRow[]> {
+    return db
+      .selectFrom(SPLITS)
+      .selectAll()
+      .where('leagueId', '=', leagueId)
+      .execute();
+  }
+
   // -- UPDATE
 
   static updateById(

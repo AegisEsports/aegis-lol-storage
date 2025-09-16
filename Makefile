@@ -14,16 +14,9 @@ up:
 down:
 	$(DC) down --remove-orphans
 
-## Clean: remove images created for this project (does NOT touch others)
+## Clean: remove images created for this project (the artifacts)
 clean:
 	$(DC) down --rmi local --remove-orphans
 
-## Remove: delete volumes created by this project (safe-scoped)
-remove: down
-	@vols=$$(docker volume ls -q --filter label=com.docker.compose.project=$(PROJECT)); \
-	if [ -n "$$vols" ]; then \
-		echo "Removing volumes: $$vols"; \
-		docker volume rm $$vols; \
-	else \
-		echo "No project volumes to remove."; \
-	fi
+## Remove: delete volumes created by this project (the data mounted)
+wipe: down -v --remove-orphans

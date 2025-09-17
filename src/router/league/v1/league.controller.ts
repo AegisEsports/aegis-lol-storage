@@ -6,14 +6,13 @@ import {
   SplitsQuery,
 } from '@/database/query.js';
 import type { UpdateLeague, UpdateLeagueBan } from '@/database/schema.js';
+import type { LeagueBanDto, LeagueDto } from '@/router/league/v1/league.dto.js';
 import type {
   CreateLeagueBanBody,
   CreateLeagueBody,
-  LeagueBanDto,
-  LeagueDto,
   UpdateLeagueBanBody,
   UpdateLeagueBody,
-} from '@/router/league/v1/league.dto.js';
+} from '@/router/league/v1/league.zod.js';
 import ControllerError from '@/util/errors/controllerError.js';
 
 export const LeagueController = {

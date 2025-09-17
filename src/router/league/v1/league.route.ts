@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { LeagueController } from '@/router/league/v1/league.controller.js';
+import { validateBody, validateParams } from '@/util/validate.js';
 import {
   deleteLeagueBanParams,
   // deleteLeagueParams,
@@ -11,8 +12,7 @@ import {
   putLeagueBanParams,
   putLeagueBody,
   putLeagueParams,
-} from '@/router/league/v1/league.dto.js';
-import { validateBody, validateParams } from '@/util/validate.js';
+} from './league.zod.js';
 
 export const leagueRouter = Router();
 

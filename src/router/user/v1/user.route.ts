@@ -15,7 +15,7 @@ import {
   putRiotAccountParams,
   putUserBody,
   putUserParams,
-} from '@/router/user/v1/user.dto.js';
+} from '@/router/user/v1/user.zod.js';
 import { validateBody, validateParams } from '@/util/validate.js';
 
 export const userRouter = Router();

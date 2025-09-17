@@ -5,6 +5,13 @@
 ## DTO
 
 ```typescript
+// NameDto
+export type NameDto = {};
+```
+
+## Zod
+
+```typescript
 import z from 'zod';
 
 // POST - /
@@ -15,7 +22,6 @@ export type CreateNameBody = z.infer<typeof postNameBody>;
 export const getNameParams = z.strictObject({
   nameId: z.uuid(),
 });
-export type NameDto = {};
 
 // PUT - /{nameId}
 export const putNameParams = getNameParams.clone();

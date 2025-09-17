@@ -18,17 +18,15 @@ import type {
   UpdateUser,
 } from '@/database/schema.js';
 import ControllerError from '@/util/errors/controllerError.js';
+import type { DiscordAccountDto, RiotAccountDto, UserDto } from './user.dto.js';
 import type {
   CreateDiscordAccountBody,
   CreateRiotAccountBody,
   CreateUserBody,
-  DiscordAccountDto,
-  RiotAccountDto,
   UpdateDiscordAccountBody,
   UpdateRiotAccountBody,
   UpdateUserBody,
-  UserDto,
-} from './user.dto.js';
+} from './user.zod.js';
 
 export const UserController = {
   /**

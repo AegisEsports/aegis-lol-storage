@@ -1,4 +1,4 @@
-import { EMERGENCY_SUB_REQUESTS } from '@/database/const.js';
+import { EMERGENCY_SUB_REQUESTS, TEAMS } from '@/database/const.js';
 import { db } from '@/database/database.js';
 import {
   type InsertEmergencySubRequest,
@@ -27,6 +27,16 @@ export class EmergencySubRequestsQuery {
       .selectAll()
       .where('id', '=', id)
       .executeTakeFirst();
+  }
+
+  static listBySplitId(splitId: string): Promise<EmergencySubRequestRow[]> {
+    return db
+      .selectFrom(`${EMERGENCY_SUB_REQUESTS} as esb`)
+      .innerJoin(`${TEAMS} as t`, 't.id', 'esb.teamId')
+      .where('t.splitId', '=', splitId)
+      .selectAll('esb')
+      .orderBy('esb.createdAt', 'desc')
+      .execute();
   }
 
   // -- UPDATE

@@ -16,12 +16,12 @@ import {
 
 export const splitRowSchema = z.strictObject({
   name: z.string().nullable(),
-  leagueId: z.uuid().nullable(),
+  leagueId: z.uuid(),
   splitAbbreviation: z.string().nullable(),
   splitTime: z.string().nullable(),
   splitRank: z.enum(LEAGUE_RANKS).nullable(),
   riotTournamentId: z.coerce.number().int().nullable(),
-  officialSheetUrl: z.string().nullable(),
+  officialSheetUrl: z.url().nullable(),
   active: z.coerce.boolean().nullable(),
 });
 type SplitFields = z.infer<typeof splitRowSchema>;
@@ -36,7 +36,7 @@ export const createSplitsTable = async (
       .addColumn('league_id', 'uuid', (col) =>
         col
           .references(`${LEAGUES_SNAKE_CASE}.id`)
-          .onDelete('set null')
+          .onDelete('cascade')
           .onUpdate('cascade'),
       )
       .addColumn('split_abbreviation', 'varchar')

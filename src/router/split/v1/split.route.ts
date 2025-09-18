@@ -16,7 +16,7 @@ splitRouter.post('/', validateBody(postSplitBody), SplitController.createSplit);
 splitRouter.get(
   '/:splitId',
   validateParams(getSplitParams),
-  SplitController.getSplit,
+  SplitController.readSplit,
 );
 splitRouter.put(
   '/:splitId',

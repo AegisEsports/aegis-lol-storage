@@ -58,7 +58,7 @@ nameRouter.post('/', validateBody(postNameBody), NameController.createName);
 nameRouter.get(
   '/:nameId',
   validateParams(getNameParams),
-  NameController.getName,
+  NameController.readName,
 );
 nameRouter.put(
   '/:nameId',
@@ -105,7 +105,7 @@ export class NameController {
   /**
    * GET - /{nameId}
    */
-  public static getName: RequestHandler = async (
+  public static readName: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -131,7 +131,7 @@ export class NameController {
       const { nameId } = req.params;
       const { name } = req.body as UpdateNameBody;
 
-      res.status(200).json(await NameService.updateById(nameId!, name));
+      res.status(200).json(await NameService.replaceById(nameId!, name));
     } catch (err) {
       next(err);
     }
@@ -164,11 +164,11 @@ import type { InsertName, UpdateName } from '@/database/schema.js';
 import type { NameDto, NameTableDto } from '@/router/name/v1/name.dto.js';
 import ControllerError from '@/util/errors/controllerError.js';
 
-export const NameService = {
+export class NameService {
   /**
    * Creates a singular entry of a name.
    */
-  create: async (nameData: InsertName): Promise<NameDto> => {
+  public static create = async (nameData: InsertName): Promise<NameDto> => {
     const insertedName = await NamesQuery.insert(nameData);
 
     return {
@@ -179,7 +179,7 @@ export const NameService = {
   /**
    * Retrieves a singular entry of a name.
    */
-  read: async (nameId: string): Promise<NameDto> => {
+  public static findById = async (nameId: string): Promise<NameDto> => {
     const getName = await NamesQuery.selectById(nameId);
     if (!getName) {
       throw new ControllerError(404, 'NotFound', 'Name not found', {
@@ -195,7 +195,7 @@ export const NameService = {
   /**
    * Updates a singular entry of a name.
    */
-  update: async (
+  public static replaceById = async (
     nameId: string,
     nameData: UpdateName,
   ): Promise<NameTableDto> => {
@@ -214,7 +214,7 @@ export const NameService = {
   /**
    * Deletes a singular entry of a name.
    */
-  delete: async (nameId: string): Promise<NameTableDto> => {
+  public static removeById = async (nameId: string): Promise<NameTableDto> => {
     const deletedName = await NamesQuery.deleteById(nameId);
     if (!deletedName) {
       throw new ControllerError(404, 'NotFound', 'Name not found', {

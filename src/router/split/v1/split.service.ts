@@ -64,7 +64,7 @@ export class SplitService {
   /**
    * Updates a singular entry of a split.
    */
-  public static updateById = async (
+  public static replaceById = async (
     splitId: string,
     splitData: UpdateSplit,
   ): Promise<SplitTableDto> => {

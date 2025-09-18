@@ -27,7 +27,7 @@ export class SplitController {
   /**
    * GET - /{splitId}
    */
-  public static getSplit: RequestHandler = async (
+  public static readSplit: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -53,7 +53,7 @@ export class SplitController {
       const { splitId } = req.params;
       const { split } = req.body as UpdateSplitBody;
 
-      res.status(200).json(await SplitService.updateById(splitId!, split));
+      res.status(200).json(await SplitService.replaceById(splitId!, split));
     } catch (err) {
       next(err);
     }

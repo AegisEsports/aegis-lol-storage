@@ -14,6 +14,11 @@ export type LeagueDto = {
   usersBanned: UsersBannedInLeagueDto[];
 };
 
+// LeagueTableDto
+export type LeagueTableDto = {
+  league: LeagueRow;
+};
+
 // LeagueBanDto
 export type LeagueBanDto = {
   leagueBan: LeagueBanRow;

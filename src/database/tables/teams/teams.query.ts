@@ -34,6 +34,14 @@ export class TeamsQuery {
       .executeTakeFirst();
   }
 
+  static listBySplitId(splitId: string): Promise<TeamRow[]> {
+    return db
+      .selectFrom(`${TEAMS}`)
+      .selectAll()
+      .where('splitId', '=', splitId)
+      .execute();
+  }
+
   static async listPlayedInByUserId(
     userId: string,
   ): Promise<TeamPlayedInDto[]> {

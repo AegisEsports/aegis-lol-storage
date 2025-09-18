@@ -1,4 +1,4 @@
-import { ROSTER_REQUESTS } from '@/database/const.js';
+import { ROSTER_REQUESTS, TEAMS } from '@/database/const.js';
 import { db } from '@/database/database.js';
 import {
   type InsertRosterRequest,
@@ -25,6 +25,16 @@ export class RosterRequestsQuery {
       .selectAll()
       .where('id', '=', id)
       .executeTakeFirst();
+  }
+
+  static listBySplitId(splitId: string): Promise<RosterRequestRow[]> {
+    return db
+      .selectFrom(`${ROSTER_REQUESTS} as rr`)
+      .innerJoin(`${TEAMS} as t`, 't.id', 'rr.teamId')
+      .where('t.splitId', '=', splitId)
+      .selectAll('rr')
+      .orderBy('rr.createdAt', 'desc')
+      .execute();
   }
 
   // -- UPDATE

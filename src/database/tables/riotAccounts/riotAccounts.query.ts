@@ -53,7 +53,7 @@ export class RiotAccountsQuery {
       .executeTakeFirst();
   }
 
-  static patchWithUserId(
+  static setWithUserId(
     riotAccountId: string,
     userId: string,
   ): Promise<RiotAccountRow | undefined> {

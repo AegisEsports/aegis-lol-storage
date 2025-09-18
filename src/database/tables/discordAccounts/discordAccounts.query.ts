@@ -53,7 +53,7 @@ export class DiscordAccountsQuery {
       .executeTakeFirst();
   }
 
-  static patchWithUserId(
+  static setWithUserId(
     discordAccountId: string,
     userId: string,
   ): Promise<DiscordAccountRow | undefined> {

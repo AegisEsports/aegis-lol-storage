@@ -33,6 +33,11 @@ export type UserDto = {
   leagueBans: LeagueBanRow[];
 };
 
+// UserTableDto
+export type UserTableDto = {
+  user: UserRow;
+};
+
 // RiotAccountDto
 export type RiotAccountDto = {
   riotAccount: RiotAccountRow;

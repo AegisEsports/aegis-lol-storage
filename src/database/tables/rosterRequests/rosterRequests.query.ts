@@ -37,6 +37,14 @@ export class RosterRequestsQuery {
       .execute();
   }
 
+  static listByTeamId(teamId: string): Promise<RosterRequestRow[]> {
+    return db
+      .selectFrom(ROSTER_REQUESTS)
+      .selectAll()
+      .where('teamId', '=', teamId)
+      .execute();
+  }
+
   // -- UPDATE
 
   static updateById(

@@ -16,7 +16,7 @@ import {
   putTeamParams,
   putTeamRosterBody,
   putTeamRosterParams,
-} from '@/router/team/v1/team.dto.js';
+} from '@/router/team/v1/team.zod.js';
 import { validateBody, validateParams } from '@/util/validate.js';
 
 export const teamRouter = Router();

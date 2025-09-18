@@ -12,15 +12,39 @@ import {
   TEAMS_SNAKE_CASE,
 } from '@/database/const.js';
 import type { Database } from '@/database/database.js';
-import { createTableWithBase, type TableBase } from '@/database/shared.js';
+import {
+  createTableWithBase,
+  IMAGE_EXTENSIONS,
+  type TableBase,
+} from '@/database/shared.js';
 
 export const teamRowSchema = z.strictObject({
   name: z.string().nullable(),
-  splitId: z.uuid().nullable(),
+  splitId: z.uuid(),
   organizationId: z.uuid().nullable(),
   teamAbbreviation: z.string().nullable(),
-  teamColor: z.string().nullable(),
-  teamLogoUrl: z.string().nullable(),
+  teamColor: z
+    .string()
+    .regex(/^#/, { error: `must start with '#'` })
+    .nullable(),
+  teamLogoUrl: z
+    .url()
+    .refine(
+      (s) => {
+        try {
+          const { pathname } = new URL(s);
+          return IMAGE_EXTENSIONS.some((ext) =>
+            pathname.toLowerCase().endsWith(ext),
+          );
+        } catch {
+          return false;
+        }
+      },
+      {
+        error: `URL must point to an image file (${IMAGE_EXTENSIONS.toString()})`,
+      },
+    )
+    .nullable(),
 });
 type TeamFields = z.infer<typeof teamRowSchema>;
 export type TeamsTable = TableBase & TeamFields;
@@ -32,7 +56,7 @@ export const createTeamsTable = async (db: Kysely<Database>): Promise<void> => {
       .addColumn('split_id', 'uuid', (col) =>
         col
           .references(`${SPLITS_SNAKE_CASE}.id`)
-          .onDelete('set null')
+          .onDelete('cascade')
           .onUpdate('cascade'),
       )
       .addColumn('organization_id', 'uuid', (col) =>

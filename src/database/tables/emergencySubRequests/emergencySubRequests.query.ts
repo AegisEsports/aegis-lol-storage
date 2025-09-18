@@ -39,6 +39,14 @@ export class EmergencySubRequestsQuery {
       .execute();
   }
 
+  static listByTeamId(teamId: string): Promise<EmergencySubRequestRow[]> {
+    return db
+      .selectFrom(EMERGENCY_SUB_REQUESTS)
+      .selectAll()
+      .where('teamId', '=', teamId)
+      .execute();
+  }
+
   // -- UPDATE
 
   static updateById(

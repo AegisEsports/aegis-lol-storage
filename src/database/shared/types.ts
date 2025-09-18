@@ -81,3 +81,16 @@ export const EVENT_TYPES = [
   'Atakhan',
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
+
+export const IMAGE_EXTENSIONS = [
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp',
+  '.svg',
+  '.bmp',
+  '.tiff',
+  '.avif',
+] as const;
+export type ImageExtensions = (typeof IMAGE_EXTENSIONS)[number];

@@ -25,7 +25,7 @@ export const emergencySubRequestRowSchema = z.strictObject({
   teamId: z.uuid().nullable(),
   leagueMatchId: z.uuid().nullable(),
   approved: z.coerce.boolean().nullable(),
-  approvedAt: z.iso.date().nullable(),
+  reviewedAt: z.iso.date().nullable(),
   reviewedById: z.uuid().nullable(),
 });
 type EmergencySubRequestFields = z.infer<typeof emergencySubRequestRowSchema>;
@@ -65,6 +65,7 @@ export const createEmergencySubRequestsTable = async (
           .onUpdate('cascade'),
       )
       .addColumn('approved', 'boolean')
+      .addColumn('reviewed_at', 'timestamptz')
       .addColumn('reviewed_by_id', 'uuid', (col) =>
         col
           .references(`${USERS_SNAKE_CASE}.id`)

@@ -4,6 +4,7 @@ import {
   type RiotAccountRow,
   type RosterRequestRow,
   type SplitRow,
+  type TeamRosterRow,
   type TeamRow,
   type UserRow,
 } from '@/database/schema.js';
@@ -24,6 +25,11 @@ export type TeamDto = {
   emergencySubRequests: EmergencySubRequestRow[];
 };
 
+// TeamTableDto
+export type TeamTableDto = {
+  team: TeamRow;
+};
+
 // RosterRequestDto
 export type RosterRequestDto = {
   rosterRequest: RosterRequestRow;
@@ -31,10 +37,10 @@ export type RosterRequestDto = {
 
 // EmergencySubRequestDto
 export type EmergencySubRequestDto = {
-  emergencySubRequest: EmergencySubRequestDto;
+  emergencySubRequest: EmergencySubRequestRow;
 };
 
 // TeamRosterDto
 export type TeamRosterDto = {
-  teamRoster: TeamRosterDto;
+  teamRoster: TeamRosterRow;
 };

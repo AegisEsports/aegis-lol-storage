@@ -61,6 +61,23 @@ export class EmergencySubRequestsQuery {
       .executeTakeFirst();
   }
 
+  static setApproval(
+    approved: boolean,
+    emergencySubRequestId: string,
+    userReviewedById: string,
+  ): Promise<EmergencySubRequestRow | undefined> {
+    return db
+      .updateTable(EMERGENCY_SUB_REQUESTS)
+      .set({
+        approved,
+        reviewedAt: new Date().toISOString(),
+        reviewedById: userReviewedById,
+      })
+      .where('id', '=', emergencySubRequestId)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
   // -- DELETE
 
   static deleteById(id: string): Promise<EmergencySubRequestRow | undefined> {

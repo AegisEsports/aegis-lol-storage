@@ -13,6 +13,7 @@ export const postTeamBody = z.strictObject({
   roster: z.array(teamRosterRowSchema.omit({ teamId: true })).default([]),
 });
 export type CreateTeamBody = z.infer<typeof postTeamBody>;
+export type CreateTeamRoster = z.infer<typeof postTeamBody>['roster'];
 
 // POST - /roster-request
 export const postRosterRequestBody = z.strictObject({

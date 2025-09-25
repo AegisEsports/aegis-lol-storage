@@ -1,77 +1,23 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import {
-  DiscordAccountsQuery,
-  RiotAccountsQuery,
-  SplitsQuery,
-  TeamRostersQuery,
-  TeamsQuery,
-  UsersQuery,
-} from '@/database/query.js';
-import { ROSTER_ROLES, type RosterRole } from '@/database/shared.js';
-import type { PlayerDto, TeamDto } from '@/router/team/v1/team.dto.js';
-import type { CreateTeamBody } from '@/router/team/v1/team.zod.js';
+import { TeamService } from '@/router/team/v1/team.service.js';
+import type {
+  CreateEmergencySubRequestBody,
+  CreateRosterRequestBody,
+  CreateTeamBody,
+  UpdateTeamBody,
+  UpdateTeamRosterBody,
+} from '@/router/team/v1/team.zod.js';
 
 export const TeamController = {
   /**
    * POST - /
-   *
-   * Creates a singular entry of a team competing in a split and its team
-   *   rosters (if no user is present, team roster will be initialized as null).
    */
   createTeam: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { team, roster } = req.body as CreateTeamBody;
-      const insertedTeam = await TeamsQuery.insert(team);
-      const getSplit = await SplitsQuery.selectById(team.splitId);
-      // For the roles not listed in 'roster', create default ones.
-      const unfulfilledRoles = (() => {
-        const used = new Set<RosterRole>(roster?.map((r) => r.role));
-        return ROSTER_ROLES.filter((r) => !used.has(r)) as RosterRole[];
-      })();
-      unfulfilledRoles.forEach(async (role) => {
-        roster.push({ userId: null, role });
-      });
-      const insertedRoster = await Promise.all(
-        roster.map(async (r) => {
-          return await TeamRostersQuery.insert({
-            teamId: insertedTeam.id,
-            userId: r.userId,
-            role: r.role,
-          });
-        }),
-      );
-      const playerEntries = await Promise.all(
-        insertedRoster.map(async (r) => {
-          const [user, riotAccounts, discordAccounts] = r.userId
-            ? await Promise.all([
-                UsersQuery.selectById(r.userId),
-                RiotAccountsQuery.listByUserId(r.userId),
-                DiscordAccountsQuery.listByUserId(r.userId),
-              ])
-            : [null, [], []];
-          const playerDto: PlayerDto = {
-            role: r.role,
-            user: user ?? null,
-            riotAccounts,
-            discordAccounts,
-          };
-          return [r.role, playerDto] as const;
-        }),
-      );
-      const rosterRecord = Object.fromEntries(playerEntries) as Record<
-        RosterRole,
-        PlayerDto
-      >;
 
-      const dto: TeamDto = {
-        team: insertedTeam,
-        split: getSplit!,
-        roster: rosterRecord,
-        rosterRequests: [],
-        emergencySubRequests: [],
-      };
-      res.status(201).json(dto);
+      res.status(201).json(await TeamService.create(team, roster));
     } catch (err) {
       next(err);
     }
@@ -79,8 +25,6 @@ export const TeamController = {
 
   /**
    * POST - /roster-request
-   *
-   * Creates a singular entry of a roster request from a team.
    */
   createRosterRequest: async (
     req: Request,
@@ -88,7 +32,11 @@ export const TeamController = {
     next: NextFunction,
   ) => {
     try {
-      res.status(201).json();
+      const { rosterRequest } = req.body as CreateRosterRequestBody;
+
+      res
+        .status(201)
+        .json(await TeamService.createRosterRequest(rosterRequest));
     } catch (err) {
       next(err);
     }
@@ -96,8 +44,6 @@ export const TeamController = {
 
   /**
    * POST - /emergency-sub-request
-   *
-   * Creates a singular entry of an emergency sub request from a team.
    */
   createEmergencySubRequest: async (
     req: Request,
@@ -105,7 +51,11 @@ export const TeamController = {
     next: NextFunction,
   ) => {
     try {
-      res.status(201).json();
+      const { emergencySubRequest } = req.body as CreateEmergencySubRequestBody;
+
+      res
+        .status(201)
+        .json(await TeamService.createEmergencySubRequest(emergencySubRequest));
     } catch (err) {
       next(err);
     }
@@ -118,7 +68,9 @@ export const TeamController = {
    */
   readTeam: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.status(200).json();
+      const { teamId } = req.params;
+
+      res.status(200).json(await TeamService.findById(teamId!));
     } catch (err) {
       next(err);
     }
@@ -126,12 +78,13 @@ export const TeamController = {
 
   /**
    * PUT - /{teamId}
-   *
-   * Updates a singular entry of a team.
    */
   updateTeam: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.status(200).json();
+      const { teamId } = req.params;
+      const { team } = req.body as UpdateTeamBody;
+
+      res.status(200).json(await TeamService.replaceById(teamId!, team));
     } catch (err) {
       next(err);
     }
@@ -139,12 +92,17 @@ export const TeamController = {
 
   /**
    * PUT - /team-roster/{teamId}
-   *
-   * Updates a singular entry of the team’s roster.
    */
   updateTeamRoster: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.status(200).json();
+      const { teamRosterId } = req.params;
+      const { teamRoster } = req.body as UpdateTeamRosterBody;
+
+      res
+        .status(200)
+        .json(
+          await TeamService.replaceTeamRosterById(teamRosterId!, teamRoster),
+        );
     } catch (err) {
       next(err);
     }
@@ -152,8 +110,6 @@ export const TeamController = {
 
   /**
    * PATCH - /{teamId}/{organizationId}
-   *
-   * Assigns an organization to the team.
    */
   assignOrganizationToTeam: async (
     req: Request,
@@ -170,7 +126,7 @@ export const TeamController = {
   /**
    * PATCH - /roster-request/approve/{teamRosterId}/{reviewedUserId}
    *
-   * Approves a roster request by a user (typically an admin).
+   * Approves a roster request by a user (by an admin).
    */
   approveRosterRequest: async (
     req: Request,
@@ -187,7 +143,7 @@ export const TeamController = {
   /**
    * PATCH - /roster-request/deny/{teamRosterId}/{reviewedUserId}
    *
-   * Denies a roster request by a user (typically an admin).
+   * Denies a roster request by a user (by an admin).
    */
   denyRosterRequest: async (
     req: Request,
@@ -204,7 +160,7 @@ export const TeamController = {
   /**
    * PATCH - /emergency-sub-request/approve/{teamRosterId}/{reviewedUserId}
    *
-   * Approves an emergency sub request by a user (typically an admin).
+   * Approves an emergency sub request by a user (by an admin).
    */
   approveEmergencySubRequest: async (
     req: Request,
@@ -221,7 +177,7 @@ export const TeamController = {
   /**
    * PATCH - /emergency-sub-request/deny/{teamRosterId}/{reviewedUserId}
    *
-   * Denies an emergency sub request by a user (typically an admin).
+   * Denies an emergency sub request by a user (by an admin).
    */
   denyEmergencySubRequest: async (
     req: Request,

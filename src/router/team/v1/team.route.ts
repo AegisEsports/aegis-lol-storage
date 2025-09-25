@@ -55,22 +55,22 @@ teamRouter.patch(
   TeamController.assignOrganizationToTeam,
 );
 teamRouter.patch(
-  '/roster-request/approve/:teamRosterId/:reviewedUserId',
+  '/roster-request/approve/:rosterRequestId/:reviewedUserId',
   validateParams(patchApproveRosterRequestParams),
   TeamController.approveRosterRequest,
 );
 teamRouter.patch(
-  '/roster-request/deny/:teamRosterId/:reviewedUserId',
+  '/roster-request/deny/:rosterRequestId/:reviewedUserId',
   validateParams(patchDenyRosterRequestParams),
   TeamController.denyRosterRequest,
 );
 teamRouter.patch(
-  '/emergency-sub-request/approve/:teamRosterId/:reviewedUserId',
+  '/emergency-sub-request/approve/:emergencySubRequestId/:reviewedUserId',
   validateParams(patchApproveEmergencySubRequestParams),
   TeamController.approveEmergencySubRequest,
 );
 teamRouter.patch(
-  '/emergency-sub-request/deny/:teamRosterId/:reviewedUserId',
+  '/emergency-sub-request/deny/:emergencySubRequestId/:reviewedUserId',
   validateParams(patchDenyEmergencySubRequestParams),
   TeamController.denyEmergencySubRequest,
 );

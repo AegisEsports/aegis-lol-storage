@@ -199,7 +199,7 @@ export class NameService {
     nameId: string,
     nameData: UpdateName,
   ): Promise<NameTableDto> => {
-    const updatedName = await NamesQuery.updateById(nameId!, nameData);
+    const updatedName = await NamesQuery.updateById(nameId, nameData);
     if (!updatedName) {
       throw new ControllerError(404, 'NotFound', 'Name not found', {
         nameId,

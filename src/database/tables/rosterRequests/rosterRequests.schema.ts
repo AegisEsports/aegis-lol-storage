@@ -28,7 +28,7 @@ export const rosterRequestRowSchema = z.strictObject({
   roleNew: z.enum(LEAGUE_ROLES).nullable(),
   roleFormer: z.enum(LEAGUE_ROLES).nullable(),
   approved: z.coerce.boolean().nullable(),
-  approvedAt: z.iso.date().nullable(),
+  reviewedAt: z.iso.date().nullable(),
   reviewedById: z.uuid().nullable(),
 });
 type RosterRequestFields = z.infer<typeof rosterRequestRowSchema>;
@@ -62,7 +62,7 @@ export const createRosterRequestsTable = async (
       .addColumn('role_new', 'varchar')
       .addColumn('role_former', 'varchar')
       .addColumn('approved', 'boolean')
-      .addColumn('approved_at', 'timestamptz')
+      .addColumn('reviewed_at', 'timestamptz')
       .addColumn('reviewed_by_id', 'uuid', (col) =>
         col
           .references(`${USERS_SNAKE_CASE}.id`)

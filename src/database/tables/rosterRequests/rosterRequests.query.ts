@@ -59,6 +59,23 @@ export class RosterRequestsQuery {
       .executeTakeFirst();
   }
 
+  static setApproval(
+    approved: boolean,
+    rosterRequestId: string,
+    userReviewedById: string,
+  ): Promise<RosterRequestRow | undefined> {
+    return db
+      .updateTable(ROSTER_REQUESTS)
+      .set({
+        approved,
+        reviewedAt: new Date().toISOString(),
+        reviewedById: userReviewedById,
+      })
+      .where('id', '=', rosterRequestId)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
   // -- DELETE
 
   static deleteById(id: string): Promise<RosterRequestRow | undefined> {

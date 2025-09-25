@@ -117,16 +117,20 @@ export const TeamController = {
     next: NextFunction,
   ) => {
     try {
-      res.status(200).json();
+      const { teamId, organizationId } = req.params;
+
+      res
+        .status(200)
+        .json(
+          await TeamService.updateOrganizationById(teamId!, organizationId!),
+        );
     } catch (err) {
       next(err);
     }
   },
 
   /**
-   * PATCH - /roster-request/approve/{teamRosterId}/{reviewedUserId}
-   *
-   * Approves a roster request by a user (by an admin).
+   * PATCH - /roster-request/approve/{rosterRequestId}/{reviewedUserId}
    */
   approveRosterRequest: async (
     req: Request,
@@ -134,16 +138,24 @@ export const TeamController = {
     next: NextFunction,
   ) => {
     try {
-      res.status(200).json();
+      const { rosterRequestId, reviewedUserId } = req.params;
+
+      res
+        .status(200)
+        .json(
+          await TeamService.updateApprovalInRosterRequest(
+            true,
+            rosterRequestId!,
+            reviewedUserId!,
+          ),
+        );
     } catch (err) {
       next(err);
     }
   },
 
   /**
-   * PATCH - /roster-request/deny/{teamRosterId}/{reviewedUserId}
-   *
-   * Denies a roster request by a user (by an admin).
+   * PATCH - /roster-request/deny/{rosterRequestId}/{reviewedUserId}
    */
   denyRosterRequest: async (
     req: Request,
@@ -151,16 +163,24 @@ export const TeamController = {
     next: NextFunction,
   ) => {
     try {
-      res.status(200).json();
+      const { rosterRequestId, reviewedUserId } = req.params;
+
+      res
+        .status(200)
+        .json(
+          await TeamService.updateApprovalInRosterRequest(
+            false,
+            rosterRequestId!,
+            reviewedUserId!,
+          ),
+        );
     } catch (err) {
       next(err);
     }
   },
 
   /**
-   * PATCH - /emergency-sub-request/approve/{teamRosterId}/{reviewedUserId}
-   *
-   * Approves an emergency sub request by a user (by an admin).
+   * PATCH - /emergency-sub-request/approve/{emergencySubRequestId}/{reviewedUserId}
    */
   approveEmergencySubRequest: async (
     req: Request,
@@ -168,16 +188,24 @@ export const TeamController = {
     next: NextFunction,
   ) => {
     try {
-      res.status(200).json();
+      const { emergencySubRequestId, reviewedUserId } = req.params;
+
+      res
+        .status(200)
+        .json(
+          await TeamService.updateApprovalInEmergencySubRequest(
+            true,
+            emergencySubRequestId!,
+            reviewedUserId!,
+          ),
+        );
     } catch (err) {
       next(err);
     }
   },
 
   /**
-   * PATCH - /emergency-sub-request/deny/{teamRosterId}/{reviewedUserId}
-   *
-   * Denies an emergency sub request by a user (by an admin).
+   * PATCH - /emergency-sub-request/deny/{emergencySubRequestId}/{reviewedUserId}
    */
   denyEmergencySubRequest: async (
     req: Request,
@@ -185,7 +213,17 @@ export const TeamController = {
     next: NextFunction,
   ) => {
     try {
-      res.status(200).json();
+      const { emergencySubRequestId, reviewedUserId } = req.params;
+
+      res
+        .status(200)
+        .json(
+          await TeamService.updateApprovalInEmergencySubRequest(
+            false,
+            emergencySubRequestId!,
+            reviewedUserId!,
+          ),
+        );
     } catch (err) {
       next(err);
     }
@@ -198,7 +236,9 @@ export const TeamController = {
    */
   deleteTeam: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.status(501).json();
+      const { teamId } = req.params;
+
+      res.status(200).json(await TeamService.removeById(teamId!));
     } catch (err) {
       next(err);
     }

@@ -56,23 +56,25 @@ export const patchTeamOrganizationParams = z.strictObject({
   organizationId: z.uuid(),
 });
 
-// PATCH - /roster-request/approve/{teamRosterId}/{reviewedUserId}
+// PATCH - /roster-request/approve/{rosterRequestId}/{reviewedUserId}
 export const patchApproveRosterRequestParams = z.strictObject({
-  teamRosterId: z.uuid(),
+  rosterRequestId: z.uuid(),
   reviewedUserId: z.uuid(),
 });
 
-// PATCH - /roster-request/deny/{teamRosterId}/{reviewedUserId}
+// PATCH - /roster-request/deny/{rosterRequestId}/{reviewedUserId}
 export const patchDenyRosterRequestParams =
   patchApproveRosterRequestParams.clone();
 
-// PATCH - /emergency-sub-request/approve/{teamRosterId}/{reviewedUserId}
-export const patchApproveEmergencySubRequestParams =
-  patchApproveRosterRequestParams.clone();
+// PATCH - /emergency-sub-request/approve/{emergencySubRequestId}/{reviewedUserId}
+export const patchApproveEmergencySubRequestParams = z.strictObject({
+  emergencySubRequestId: z.uuid(),
+  reviewedUserId: z.uuid(),
+});
 
-// PATCH - /emergency-sub-request/deny/{teamRosterId}/{reviewedUserId}
+// PATCH - /emergency-sub-request/deny/{emergencySubRequestId}/{reviewedUserId}
 export const patchDenyEmergencySubRequestParams =
-  patchApproveRosterRequestParams.clone();
+  patchApproveEmergencySubRequestParams.clone();
 
 // DELETE - /{teamId}
 export const deleteTeamParams = getTeamParams.clone();

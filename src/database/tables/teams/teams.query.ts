@@ -59,7 +59,7 @@ export class TeamsQuery {
       .where('rr.approved', '=', true)
       .where('rr.rosterMoveType', '=', 'Add')
       .select(['rr.teamId', 'rr.userId'])
-      .select((eb) => eb.fn.min('rr.approvedAt').as('startDate'))
+      .select((eb) => eb.fn.min('rr.reviewedAt').as('startDate'))
       .groupBy(['rr.teamId', 'rr.userId'])
       .as('aa');
 
@@ -69,7 +69,7 @@ export class TeamsQuery {
       .where('rr.approved', '=', true)
       .where('rr.rosterMoveType', '=', 'Drop')
       .select(['rr.teamId', 'rr.userId'])
-      .select((eb) => eb.fn.max('rr.approvedAt').as('endDate'))
+      .select((eb) => eb.fn.max('rr.reviewedAt').as('endDate'))
       .groupBy(['rr.teamId', 'rr.userId'])
       .as('da');
 
@@ -154,6 +154,18 @@ export class TeamsQuery {
       .updateTable(TEAMS)
       .set(update)
       .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
+  static setOrganizationId(
+    teamId: string,
+    organizationId: string,
+  ): Promise<TeamRow | undefined> {
+    return db
+      .updateTable(TEAMS)
+      .set({ organizationId })
+      .where('id', '=', teamId)
       .returningAll()
       .executeTakeFirst();
   }

@@ -39,6 +39,14 @@ export class EmergencySubRequestsQuery {
       .execute();
   }
 
+  static listByTeamId(teamId: string): Promise<EmergencySubRequestRow[]> {
+    return db
+      .selectFrom(EMERGENCY_SUB_REQUESTS)
+      .selectAll()
+      .where('teamId', '=', teamId)
+      .execute();
+  }
+
   // -- UPDATE
 
   static updateById(
@@ -49,6 +57,23 @@ export class EmergencySubRequestsQuery {
       .updateTable(EMERGENCY_SUB_REQUESTS)
       .set(update)
       .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
+  static setApproval(
+    approved: boolean,
+    emergencySubRequestId: string,
+    userReviewedById: string,
+  ): Promise<EmergencySubRequestRow | undefined> {
+    return db
+      .updateTable(EMERGENCY_SUB_REQUESTS)
+      .set({
+        approved,
+        reviewedAt: new Date().toISOString(),
+        reviewedById: userReviewedById,
+      })
+      .where('id', '=', emergencySubRequestId)
       .returningAll()
       .executeTakeFirst();
   }

@@ -37,6 +37,14 @@ export class RosterRequestsQuery {
       .execute();
   }
 
+  static listByTeamId(teamId: string): Promise<RosterRequestRow[]> {
+    return db
+      .selectFrom(ROSTER_REQUESTS)
+      .selectAll()
+      .where('teamId', '=', teamId)
+      .execute();
+  }
+
   // -- UPDATE
 
   static updateById(
@@ -47,6 +55,23 @@ export class RosterRequestsQuery {
       .updateTable(ROSTER_REQUESTS)
       .set(update)
       .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
+  static setApproval(
+    approved: boolean,
+    rosterRequestId: string,
+    userReviewedById: string,
+  ): Promise<RosterRequestRow | undefined> {
+    return db
+      .updateTable(ROSTER_REQUESTS)
+      .set({
+        approved,
+        reviewedAt: new Date().toISOString(),
+        reviewedById: userReviewedById,
+      })
+      .where('id', '=', rosterRequestId)
       .returningAll()
       .executeTakeFirst();
   }

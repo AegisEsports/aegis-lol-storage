@@ -174,7 +174,7 @@ export class NameService {
     return {
       name: insertedName,
     };
-  },
+  };
 
   /**
    * Retrieves a singular entry of a name.
@@ -190,7 +190,7 @@ export class NameService {
     return {
       name: getName,
     };
-  },
+  };
 
   /**
    * Updates a singular entry of a name.
@@ -209,7 +209,7 @@ export class NameService {
     return {
       name: updatedName,
     };
-  },
+  };
 
   /**
    * Deletes a singular entry of a name.
@@ -225,6 +225,6 @@ export class NameService {
     return {
       name: deletedName,
     };
-  },
-};
+  };
+}
 ```

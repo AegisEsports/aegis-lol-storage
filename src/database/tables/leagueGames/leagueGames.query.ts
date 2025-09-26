@@ -78,6 +78,14 @@ export class LeagueGamesQuery {
       .execute();
   }
 
+  static listByMatchId(matchId: string): Promise<LeagueGameRow[]> {
+    return db
+      .selectFrom(LEAGUE_GAMES)
+      .selectAll()
+      .where('leagueMatchId', '=', matchId)
+      .execute();
+  }
+
   // -- UPDATE
 
   static updateById(

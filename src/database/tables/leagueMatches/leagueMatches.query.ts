@@ -41,6 +41,30 @@ export class LeagueMatchesQuery {
       .executeTakeFirst();
   }
 
+  static setHomeTeamId(
+    matchId: string,
+    teamId: string,
+  ): Promise<LeagueMatchRow | undefined> {
+    return db
+      .updateTable(LEAGUE_MATCHES)
+      .set({ homeTeamId: teamId })
+      .where('id', '=', matchId)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
+  static setAwayTeamId(
+    matchId: string,
+    teamId: string,
+  ): Promise<LeagueMatchRow | undefined> {
+    return db
+      .updateTable(LEAGUE_MATCHES)
+      .set({ awayTeamId: teamId })
+      .where('id', '=', matchId)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
   // -- DELETE
 
   static deleteById(id: string): Promise<LeagueMatchRow | undefined> {

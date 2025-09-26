@@ -57,6 +57,9 @@ export type LeagueLane = (typeof LEAGUE_LANES)[number];
 export const LEAGUE_SIDES = ['Blue', 'Red'] as const;
 export type LeagueSide = (typeof LEAGUE_SIDES)[number];
 
+export const MATCH_SIDES = ['Away', 'Home'] as const;
+export type MatchSide = (typeof MATCH_SIDES)[number];
+
 export const BEST_OFS = [1, 3, 5] as const;
 export type BestOf = (typeof BEST_OFS)[number];
 

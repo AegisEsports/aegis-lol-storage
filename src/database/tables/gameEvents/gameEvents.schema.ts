@@ -9,8 +9,8 @@ import z from 'zod';
 import {
   GAME_EVENTS_SNAKE_CASE,
   LEAGUE_GAMES_SNAKE_CASE,
+  RIOT_ACCOUNTS_SNAKE_CASE,
   TEAMS_SNAKE_CASE,
-  USERS_SNAKE_CASE,
 } from '@/database/const.js';
 import type { Database } from '@/database/database.js';
 import {
@@ -22,12 +22,14 @@ import {
 
 export const gameEventRowSchema = z.strictObject({
   leagueGameId: z.uuid(),
+  riotPuuidKiller: z.uuid().nullable(),
   teamId: z.uuid().nullable(),
   eventType: z.enum(EVENT_TYPES).nullable(),
   gameTimestamp: z.coerce.number().int().nullable(),
   lane: z.enum(LEAGUE_LANES).nullable(),
-  killerId: z.uuid().nullable(),
-  victimId: z.uuid().nullable(),
+  positionX: z.coerce.number().int().nullable(),
+  positionY: z.coerce.number().int().nullable(),
+  riotPuuidVictim: z.uuid().nullable(),
   baronPowerPlay: z.coerce.number().int().nullable(),
 });
 type GameEventFields = z.infer<typeof gameEventRowSchema>;
@@ -45,6 +47,12 @@ export const createGameEventsTable = async (
           .onDelete('cascade')
           .onUpdate('cascade'),
       )
+      .addColumn('riot_puuid_killer', 'varchar', (col) =>
+        col
+          .references(`${RIOT_ACCOUNTS_SNAKE_CASE}.riot_puuid`)
+          .onDelete('set null')
+          .onUpdate('cascade'),
+      )
       .addColumn('team_id', 'uuid', (col) =>
         col
           .references(`${TEAMS_SNAKE_CASE}.id`)
@@ -52,17 +60,13 @@ export const createGameEventsTable = async (
           .onUpdate('cascade'),
       )
       .addColumn('event_type', 'varchar')
-      .addColumn('game_timestamp', 'int2')
+      .addColumn('game_timestamp', 'int4')
       .addColumn('lane', 'varchar')
-      .addColumn('killer_id', 'uuid', (col) =>
+      .addColumn('position_x', 'int2')
+      .addColumn('position_y', 'int2')
+      .addColumn('riot_puuid_victim', 'varchar', (col) =>
         col
-          .references(`${USERS_SNAKE_CASE}.id`)
-          .onDelete('set null')
-          .onUpdate('cascade'),
-      )
-      .addColumn('victim_id', 'uuid', (col) =>
-        col
-          .references(`${USERS_SNAKE_CASE}.id`)
+          .references(`${RIOT_ACCOUNTS_SNAKE_CASE}.riot_puuid`)
           .onDelete('set null')
           .onUpdate('cascade'),
       )

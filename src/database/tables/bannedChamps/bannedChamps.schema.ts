@@ -25,7 +25,6 @@ export const bannedChampRowSchema = z.strictObject({
   teamIdBanned: z.uuid().nullable(),
   teamIdAgainst: z.uuid().nullable(),
   champId: z.coerce.number().int().nullable(),
-  champName: z.string().min(1).nullable(),
 });
 type BannedChampFields = z.infer<typeof bannedChampRowSchema>;
 export type BannedChampsTable = TableBase & BannedChampFields;
@@ -55,8 +54,7 @@ export const createBannedChampsTable = async (
           .onDelete('set null')
           .onUpdate('cascade'),
       )
-      .addColumn('champ_id', 'int2')
-      .addColumn('champ_name', 'varchar'),
+      .addColumn('champ_id', 'int2'),
   );
 };
 

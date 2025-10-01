@@ -30,6 +30,7 @@ export const LEAGUE_ROLES = [
   'Middle',
   'Bottom',
   'Support',
+  'Unknown',
 ] as const;
 export type LeagueRole = (typeof LEAGUE_ROLES)[number];
 
@@ -67,23 +68,35 @@ export const MATCH_TYPES = ['RegularSeason', 'Playoffs', 'PlayIn'] as const;
 export type MatchType = (typeof MATCH_TYPES)[number];
 
 export const EVENT_TYPES = [
-  'Tower',
+  'Outer_Tower',
+  'Inner_Tower',
+  'Base_Tower',
+  'Nexus_Tower',
   'Inhibitor',
-  'ChemtechDrake',
-  'CloudDrake',
-  'HextechDrake',
-  'InfernalDrake',
-  'MountainDrake',
-  'OceanDrake',
-  'ElderDragon',
-  'BaronNashor',
-  'RiftHerald',
-  'Kills',
-  'TurretPlate',
+  'Chemtech_Drake',
+  'Cloud_Drake',
+  'Hextech_Drake',
+  'Infernal_Drake',
+  'Mountain_Drake',
+  'Ocean_Drake',
+  'Elder_Dragon',
+  'Baron_Nashor',
+  'Rift_Herald',
+  'Kill',
+  'Turret_Plate',
   'Voidgrub',
   'Atakhan',
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
+
+export const SKILL_SLOTS = ['Q', 'W', 'E', 'R'];
+export type SkillSlots = (typeof SKILL_SLOTS)[number];
+
+export const SKILL_LEVEL_UP_TYPE = ['Normal', 'Evolve'];
+export type SkillLevelUpTypes = (typeof SKILL_LEVEL_UP_TYPE)[number];
+
+export const STORE_ACTION_TYPES = ['Purchase', 'Sell'];
+export type StoreActionTypes = (typeof STORE_ACTION_TYPES)[number];
 
 export const IMAGE_EXTENSIONS = [
   '.png',

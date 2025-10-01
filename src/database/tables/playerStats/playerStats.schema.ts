@@ -22,7 +22,9 @@ import {
 
 export const playerStatRowSchema = z.strictObject({
   leagueGameId: z.uuid(),
+  participantId: z.coerce.number(),
   riotPuuid: z.string().nullable(),
+  riotIgn: z.string().nullable(),
   teamId: z.uuid().nullable(),
   playerRole: z.enum(LEAGUE_ROLES).nullable(),
   side: z.enum(LEAGUE_SIDES).nullable(),
@@ -40,17 +42,25 @@ export const playerStatRowSchema = z.strictObject({
   firstBloodKill: z.coerce.boolean().nullable(),
   firstBloodAssist: z.coerce.boolean().nullable(),
   firstTower: z.coerce.boolean().nullable(),
-  killsAtEarly: z.coerce.number().int().nullable(),
-  deathsAtEarly: z.coerce.number().int().nullable(),
-  assistsAtEarly: z.coerce.number().int().nullable(),
-  csAtEarly: z.coerce.number().int().nullable(),
-  csDiffEarly: z.coerce.number().int().nullable(),
-  goldAtEarly: z.coerce.number().int().nullable(),
-  goldDiffEarly: z.coerce.number().int().nullable(),
-  xpAtEarly: z.coerce.number().int().nullable(),
-  xpDiffEarly: z.coerce.number().int().nullable(),
-  damageAtEarly: z.coerce.number().int().nullable(),
-  damageDiffEarly: z.coerce.number().int().nullable(),
+  killsAt15: z.coerce.number().int().nullable(),
+  deathsAt15: z.coerce.number().int().nullable(),
+  assistsAt15: z.coerce.number().int().nullable(),
+  csAt15: z.coerce.number().int().nullable(),
+  csDiff15: z.coerce.number().int().nullable(),
+  goldAt15: z.coerce.number().int().nullable(),
+  goldDiff15: z.coerce.number().int().nullable(),
+  xpAt15: z.coerce.number().int().nullable(),
+  xpDiff15: z.coerce.number().int().nullable(),
+  damageAt15: z.coerce.number().int().nullable(),
+  damageDiff15: z.coerce.number().int().nullable(),
+  wardsPlacedAt10: z.coerce.number().int().nullable(),
+  wardsPlacedAt15: z.coerce.number().int().nullable(),
+  wardsPlacedDiff10: z.coerce.number().int().nullable(),
+  wardsPlacedDiff15: z.coerce.number().int().nullable(),
+  wardsClearedAt10: z.coerce.number().int().nullable(),
+  wardsClearedAt15: z.coerce.number().int().nullable(),
+  wardsClearedDiff10: z.coerce.number().int().nullable(),
+  wardsClearedDiff15: z.coerce.number().int().nullable(),
   damageDealt: z.coerce.number().int().nullable(),
   gold: z.coerce.number().int().nullable(),
   creepScore: z.coerce.number().int().nullable(),
@@ -63,6 +73,16 @@ export const playerStatRowSchema = z.strictObject({
   tripleKills: z.coerce.number().int().nullable(),
   quadraKills: z.coerce.number().int().nullable(),
   pentaKills: z.coerce.number().int().nullable(),
+  pingsAllIn: z.coerce.number().int().nullable(),
+  pingsAssistMe: z.coerce.number().int().nullable(),
+  pingsEnemyMissing: z.coerce.number().int().nullable(),
+  pingsEnemyVision: z.coerce.number().int().nullable(),
+  pingsHold: z.coerce.number().int().nullable(),
+  pingsGetBack: z.coerce.number().int().nullable(),
+  pingsNeedVision: z.coerce.number().int().nullable(),
+  pingsOnMyWay: z.coerce.number().int().nullable(),
+  pingsPush: z.coerce.number().int().nullable(),
+  pingsVisionCleared: z.coerce.number().int().nullable(),
 });
 type PlayerStatFields = z.infer<typeof playerStatRowSchema>;
 export type PlayerStatsTable = TableBase & PlayerStatFields;
@@ -79,12 +99,14 @@ export const createPlayerStatsTable = async (
           .onDelete('cascade')
           .onUpdate('cascade'),
       )
+      .addColumn('participant_id', 'smallint')
       .addColumn('riot_puuid', 'varchar', (col) =>
         col
           .references(`${RIOT_ACCOUNTS_SNAKE_CASE}.riot_puuid`)
           .onDelete('set null')
           .onUpdate('cascade'),
       )
+      .addColumn('riot_ign', 'varchar')
       .addColumn('team_id', 'uuid', (col) =>
         col
           .references(`${TEAMS_SNAKE_CASE}.id`)
@@ -107,29 +129,59 @@ export const createPlayerStatsTable = async (
       .addColumn('first_blood_kill', 'boolean')
       .addColumn('first_blood_assist', 'boolean')
       .addColumn('first_tower', 'boolean')
-      .addColumn('kills_at_early', 'int2')
-      .addColumn('deaths_at_early', 'int2')
-      .addColumn('assists_at_early', 'int2')
-      .addColumn('cs_at_early', 'int2')
-      .addColumn('cs_diff_early', 'int2')
-      .addColumn('gold_at_early', 'int2')
-      .addColumn('gold_diff_early', 'int2')
-      .addColumn('xp_at_early', 'int2')
-      .addColumn('xp_diff_early', 'int2')
-      .addColumn('damage_at_early', 'int4')
-      .addColumn('damage_diff_early', 'int4')
+      .addColumn('kills_at_10', 'int2')
+      .addColumn('kills_at_15', 'int2')
+      .addColumn('deaths_at_10', 'int2')
+      .addColumn('deaths_at_15', 'int2')
+      .addColumn('assists_at_10', 'int2')
+      .addColumn('assists_at_15', 'int2')
+      .addColumn('cs_at_10', 'int2')
+      .addColumn('cs_at_15', 'int2')
+      .addColumn('cs_diff_10', 'int2')
+      .addColumn('cs_diff_15', 'int2')
+      .addColumn('gold_at_10', 'int2')
+      .addColumn('gold_at_15', 'int2')
+      .addColumn('gold_diff_10', 'int2')
+      .addColumn('gold_diff_15', 'int2')
+      .addColumn('xp_at_10', 'int2')
+      .addColumn('xp_at_15', 'int2')
+      .addColumn('xp_diff_10', 'int2')
+      .addColumn('xp_diff_15', 'int2')
+      .addColumn('damage_at_10', 'int4')
+      .addColumn('damage_at_15', 'int4')
+      .addColumn('damage_diff_10', 'int4')
+      .addColumn('damage_diff_15', 'int4')
+      .addColumn('wards_placed_at_10', 'int2')
+      .addColumn('wards_placed_at_15', 'int2')
+      .addColumn('wards_placed_diff_10', 'int2')
+      .addColumn('wards_placed_diff_15', 'int2')
+      .addColumn('wards_cleared_at_10', 'int2')
+      .addColumn('wards_cleared_at_15', 'int2')
+      .addColumn('wards_cleared_diff_10', 'int2')
+      .addColumn('wards_cleared_diff_15', 'int2')
       .addColumn('damage_dealt', 'int4')
       .addColumn('gold', 'int2')
       .addColumn('creep_score', 'int2')
       .addColumn('vision_score', 'int2')
       .addColumn('wards_placed', 'int2')
-      .addColumn('control_wards_bought', 'int2')
+      .addColumn('control_wards_placed', 'int2')
       .addColumn('wards_cleared', 'int2')
       .addColumn('solo_kills', 'int2')
       .addColumn('double_kills', 'int2')
       .addColumn('triple_kills', 'int2')
       .addColumn('quadra_kills', 'int2')
-      .addColumn('penta_kills', 'int2'),
+      .addColumn('penta_kills', 'int2')
+      .addColumn('pings_all_in', 'int2')
+      .addColumn('pings_assist_me', 'int2')
+      .addColumn('pings_command', 'int2')
+      .addColumn('pings_enemy_missing', 'int2')
+      .addColumn('pings_enemy_vision', 'int2')
+      .addColumn('pings_hold', 'int2')
+      .addColumn('pings_get_back', 'int2')
+      .addColumn('pings_need_vision', 'int2')
+      .addColumn('pings_on_my_way', 'int2')
+      .addColumn('pings_push', 'int2')
+      .addColumn('pings_vision_cleared', 'int2'),
   );
 };
 

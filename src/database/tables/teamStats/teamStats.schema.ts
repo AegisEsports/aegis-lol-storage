@@ -29,17 +29,36 @@ export const teamStatRowSchema = z.strictObject({
   vsPerMinute: z.coerce.number().nullable(),
   firstBlood: z.coerce.boolean().nullable(),
   firstTower: z.coerce.boolean().nullable(),
-  goldAtEarly: z.coerce.number().int().nullable(),
-  goldDiffEarly: z.coerce.number().int().nullable(),
-  csAtEarly: z.coerce.number().int().nullable(),
-  csDiffEarly: z.coerce.number().int().nullable(),
-  xpAtEarly: z.coerce.number().int().nullable(),
-  xpDiffEarly: z.coerce.number().int().nullable(),
-  killsAtEarly: z.coerce.number().int().nullable(),
-  deathsAtEarly: z.coerce.number().int().nullable(),
-  killsDiffEarly: z.coerce.number().int().nullable(),
-  damageAtEarly: z.coerce.number().int().nullable(),
-  damageDiffEarly: z.coerce.number().int().nullable(),
+  goldAt10: z.coerce.number().int().nullable(),
+  goldAt15: z.coerce.number().int().nullable(),
+  goldDiff10: z.coerce.number().int().nullable(),
+  goldDiff15: z.coerce.number().int().nullable(),
+  csAt10: z.coerce.number().int().nullable(),
+  csAt15: z.coerce.number().int().nullable(),
+  csDiff10: z.coerce.number().int().nullable(),
+  csDiff15: z.coerce.number().int().nullable(),
+  xpAt10: z.coerce.number().int().nullable(),
+  xpAt15: z.coerce.number().int().nullable(),
+  xpDiff10: z.coerce.number().int().nullable(),
+  xpDiff15: z.coerce.number().int().nullable(),
+  killsAt10: z.coerce.number().int().nullable(),
+  killsAt15: z.coerce.number().int().nullable(),
+  deathsAt10: z.coerce.number().int().nullable(),
+  deathsAt15: z.coerce.number().int().nullable(),
+  killsDiff10: z.coerce.number().int().nullable(),
+  killsDiff15: z.coerce.number().int().nullable(),
+  damageAt10: z.coerce.number().int().nullable(),
+  damageAt15: z.coerce.number().int().nullable(),
+  damageDiff10: z.coerce.number().int().nullable(),
+  damageDiff15: z.coerce.number().int().nullable(),
+  wardsPlacedAt10: z.coerce.number().int().nullable(),
+  wardsPlacedAt15: z.coerce.number().int().nullable(),
+  wardsPlacedDiff10: z.coerce.number().int().nullable(),
+  wardsPlacedDiff15: z.coerce.number().int().nullable(),
+  wardsClearedAt10: z.coerce.number().int().nullable(),
+  wardsClearedAt15: z.coerce.number().int().nullable(),
+  wardsClearedDiff10: z.coerce.number().int().nullable(),
+  wardsClearedDiff15: z.coerce.number().int().nullable(),
   totalKills: z.coerce.number().int().nullable(),
   totalDeaths: z.coerce.number().int().nullable(),
   totalAssists: z.coerce.number().int().nullable(),
@@ -86,17 +105,36 @@ export const createTeamStatsTable = async (
       .addColumn('vs_per_minute', 'float4')
       .addColumn('first_blood', 'boolean')
       .addColumn('first_tower', 'boolean')
-      .addColumn('gold_at_early', 'int4')
-      .addColumn('gold_diff_early', 'int4')
-      .addColumn('cs_at_early', 'int2')
-      .addColumn('cs_diff_early', 'int2')
-      .addColumn('xp_at_early', 'int4')
-      .addColumn('xp_diff_early', 'int4')
-      .addColumn('kills_at_early', 'int2')
-      .addColumn('deaths_at_early', 'int2')
-      .addColumn('kills_diff_early', 'int2')
-      .addColumn('damage_at_early', 'int4')
-      .addColumn('damage_diff_early', 'int4')
+      .addColumn('gold_at_10', 'int4')
+      .addColumn('gold_at_15', 'int4')
+      .addColumn('gold_diff_10', 'int4')
+      .addColumn('gold_diff_15', 'int4')
+      .addColumn('cs_at_10', 'int2')
+      .addColumn('cs_at_15', 'int2')
+      .addColumn('cs_diff_10', 'int2')
+      .addColumn('cs_diff_15', 'int2')
+      .addColumn('xp_at_10', 'int4')
+      .addColumn('xp_at_15', 'int4')
+      .addColumn('xp_diff_10', 'int4')
+      .addColumn('xp_diff_15', 'int4')
+      .addColumn('kills_at_10', 'int2')
+      .addColumn('kills_at_15', 'int2')
+      .addColumn('deaths_at_10', 'int2')
+      .addColumn('deaths_at_15', 'int2')
+      .addColumn('kills_diff_10', 'int2')
+      .addColumn('kills_diff_15', 'int2')
+      .addColumn('damage_at_10', 'int4')
+      .addColumn('damage_at_15', 'int4')
+      .addColumn('damage_diff_10', 'int4')
+      .addColumn('damage_diff_15', 'int4')
+      .addColumn('wards_placed_at_10', 'int2')
+      .addColumn('wards_placed_at_15', 'int2')
+      .addColumn('wards_placed_diff_10', 'int2')
+      .addColumn('wards_placed_diff_15', 'int2')
+      .addColumn('wards_cleared_at_10', 'int2')
+      .addColumn('wards_cleared_at_15', 'int2')
+      .addColumn('wards_cleared_diff_10', 'int2')
+      .addColumn('wards_cleared_diff_15', 'int2')
       .addColumn('total_kills', 'int2')
       .addColumn('total_deaths', 'int2')
       .addColumn('total_assists', 'int2')
@@ -111,7 +149,7 @@ export const createTeamStatsTable = async (
       .addColumn('total_creep_score', 'int2')
       .addColumn('total_vision_score', 'int2')
       .addColumn('total_wards_placed', 'int2')
-      .addColumn('total_control_wards_bought', 'int2')
+      .addColumn('total_control_wards_placed', 'int2')
       .addColumn('total_wards_cleared', 'int2'),
   );
 };

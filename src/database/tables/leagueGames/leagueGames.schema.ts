@@ -58,7 +58,7 @@ export const createLeagueGamesTable = async (
           .onDelete('set null')
           .onUpdate('cascade'),
       )
-      .addColumn('side_win', 'varchar')
+      .addColumn('side_win', 'varchar(4)')
       .addColumn('duration', 'int2')
       .addColumn('started_at', 'timestamptz'),
   );

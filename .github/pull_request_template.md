@@ -1,6 +1,6 @@
 ## Jira Ticket
 
-- [AEGIS-](https://aegisesports.atlassian.net/browse/AEGIS-###)
+- [AEGIS-](https://aegisesports.atlassian.net/browse/AEGIS-)
 
 ## Description
 

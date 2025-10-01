@@ -100,6 +100,18 @@ export class LeagueGamesQuery {
       .executeTakeFirst();
   }
 
+  static setMatchId(
+    gameId: string,
+    matchId: string,
+  ): Promise<LeagueGameRow | undefined> {
+    return db
+      .updateTable(LEAGUE_GAMES)
+      .set({ leagueMatchId: matchId })
+      .where('id', '=', gameId)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
   // -- DELETE
 
   static deleteById(id: string): Promise<LeagueGameRow | undefined> {

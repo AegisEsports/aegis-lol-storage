@@ -6,6 +6,9 @@ import type {
   DISCORD_ACCOUNTS,
   EMERGENCY_SUB_REQUESTS,
   GAME_EVENTS,
+  GAME_SKILL_LEVEL_UPS,
+  GAME_STORE_ACTIONS,
+  GAME_TEAM_GOLDS,
   LEAGUE_BANS,
   LEAGUE_GAMES,
   LEAGUE_MATCHES,
@@ -13,7 +16,6 @@ import type {
   ORGANIZATIONS,
   PLAYER_STATS,
   RIOT_ACCOUNTS,
-  RIOT_MATCH_DATA,
   ROSTER_REQUESTS,
   SPLITS,
   TEAM_ROSTERS,
@@ -26,6 +28,9 @@ import type {
   DiscordAccountsTable,
   EmergencySubRequestsTable,
   GameEventsTable,
+  GameSkillLevelUpsTable,
+  GameStoreActionsTable,
+  GameTeamGoldsTable,
   LeagueBansTable,
   LeagueGamesTable,
   LeagueMatchesTable,
@@ -33,7 +38,6 @@ import type {
   OrganizationsTable,
   PlayerStatsTable,
   RiotAccountsTable,
-  RiotMatchDataTable,
   RosterRequestsTable,
   SplitsTable,
   TeamRostersTable,
@@ -57,7 +61,9 @@ export type Database = {
   [EMERGENCY_SUB_REQUESTS]: EmergencySubRequestsTable;
   [LEAGUE_GAMES]: LeagueGamesTable;
   [GAME_EVENTS]: GameEventsTable;
-  [RIOT_MATCH_DATA]: RiotMatchDataTable;
+  [GAME_SKILL_LEVEL_UPS]: GameSkillLevelUpsTable;
+  [GAME_STORE_ACTIONS]: GameStoreActionsTable;
+  [GAME_TEAM_GOLDS]: GameTeamGoldsTable;
   [PLAYER_STATS]: PlayerStatsTable;
   [TEAM_STATS]: TeamStatsTable;
   [BANNED_CHAMPS]: BannedChampsTable;

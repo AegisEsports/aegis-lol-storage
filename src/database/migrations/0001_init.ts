@@ -13,7 +13,6 @@ import {
   createOrganizationsTable,
   createPlayerStatsTable,
   createRiotAccountsTable,
-  createRiotMatchDataTable,
   createRosterRequestsTable,
   createSplitsTable,
   createTeamRostersTable,
@@ -42,7 +41,6 @@ export const up = async (db: Kysely<Database>): Promise<void> => {
   await createEmergencySubRequestsTable(db);
   await createLeagueGamesTable(db);
   await createGameEventsTable(db);
-  await createRiotMatchDataTable(db);
   await createPlayerStatsTable(db);
   await createTeamStatsTable(db);
   await createBannedChampsTable(db);

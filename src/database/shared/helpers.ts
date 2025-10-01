@@ -1,4 +1,5 @@
 import { CreateTableBuilder, sql, type Kysely } from 'kysely';
+import z from 'zod';
 
 import type { Database } from '@/database/database.js';
 
@@ -65,3 +66,17 @@ export const createTableWithBase = async <TB extends string>(
   await build(withBaseColumns(db.schema.createTable(table))).execute();
   await attachModifiedAtTrigger(db, table);
 };
+
+/**
+ * Zod validation to check if a string is in JSON format
+ *   and returns it as the specified interface/type.
+ */
+export const isStringJson = <T>() =>
+  z.string().transform((s, ctx) => {
+    try {
+      return JSON.parse(s) as T;
+    } catch {
+      ctx.addIssue({ code: 'custom', message: 'Invalid JSON string' });
+      return z.NEVER;
+    }
+  });

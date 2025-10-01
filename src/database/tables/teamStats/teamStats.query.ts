@@ -1,6 +1,7 @@
 import { TEAM_STATS } from '@/database/const.js';
 import { db } from '@/database/database.js';
 import { type InsertTeamStat, type TeamStatRow } from '@/database/schema.js';
+import type { LeagueSide } from '@/database/shared.js';
 
 export class TeamStatsQuery {
   // -- INSERT
@@ -23,7 +24,21 @@ export class TeamStatsQuery {
       .executeTakeFirst();
   }
 
-  // -- UPDATE (not updateable)
+  // -- UPDATE (not replaceable)
+
+  static setTeamId(
+    gameId: string,
+    side: LeagueSide,
+    teamId: string,
+  ): Promise<TeamStatRow | undefined> {
+    return db
+      .updateTable(TEAM_STATS)
+      .set({ teamId })
+      .where('side', '=', side)
+      .where('leagueGameId', '=', gameId)
+      .returningAll()
+      .executeTakeFirst();
+  }
 
   // -- DELETE
 

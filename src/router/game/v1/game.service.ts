@@ -163,7 +163,7 @@ export class GameService {
       leagueMatchId,
       blueTeamId: blueTeamUuid,
       redTeamId: redTeamUuid,
-      patch: info.gameVersion.split('.').slice(0, 1).join('.'),
+      patch: info.gameVersion.split('.').slice(0, 2).join('.'),
       sideWin: blueTeam.win ? 'Blue' : 'Red',
       duration: info.gameDuration,
       startedAt: new Date(info.gameStartTimestamp).toISOString(),
@@ -751,10 +751,10 @@ export class GameService {
         firstBloodVictim: participantId === firstBloodVictimId,
         firstTower: player.firstTowerKill || player.firstTowerAssist,
         soloKills: challenges.soloKills,
-        pentaKills: player.pentaKills - player.quadraKills,
-        quadraKills: player.quadraKills - player.tripleKills,
-        tripleKills: player.tripleKills - player.doubleKills,
-        doubleKills: player.doubleKills,
+        pentaKills: player.pentaKills,
+        quadraKills: player.quadraKills - player.pentaKills,
+        tripleKills: player.tripleKills - player.quadraKills,
+        doubleKills: player.doubleKills - player.tripleKills,
         summoner1Id: player.summoner1Id,
         summoner2Id: player.summoner2Id,
         summoner1Casts: player.summoner1Casts,
@@ -1019,7 +1019,7 @@ export class GameService {
     });
 
     // Insert into riot_accounts table if puuid does not exist.
-    participants.forEach(async (player) => {
+    for (const player of participants) {
       const { puuid, riotIdGameName, riotIdTagline } = player;
       const existingAccount = await RiotAccountsQuery.selectByPuuid(puuid);
       if (!existingAccount) {
@@ -1030,8 +1030,7 @@ export class GameService {
           tagLine: riotIdTagline,
         });
       }
-    });
-
+    }
     /**
      * Adds a banned_champ entity based on the given team data from the riot api.
      */

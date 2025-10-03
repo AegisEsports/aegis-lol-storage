@@ -21,7 +21,7 @@ import {
 
 export const gameSkillLevelUpRowSchema = z.strictObject({
   leagueGameId: z.uuid(),
-  riotPuuid: z.uuid().nullable(),
+  riotPuuid: z.string().nullable(),
   champId: z.coerce.number().int().nullable(),
   gameTimestamp: z.coerce.number().int().nullable(),
   skillNumber: z.coerce.number().int().nullable(),

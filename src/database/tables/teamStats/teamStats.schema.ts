@@ -63,7 +63,7 @@ export const teamStatRowSchema = z.strictObject({
   csAt20: z.coerce.number().int().nullable(),
   csDiff10: z.coerce.number().int().nullable(),
   csDiff15: z.coerce.number().int().nullable(),
-  csDiff20: z.coerce.number().nullable(),
+  csDiff20: z.coerce.number().int().nullable(),
   xpAt10: z.coerce.number().int().nullable(),
   xpAt15: z.coerce.number().int().nullable(),
   xpAt20: z.coerce.number().int().nullable(),

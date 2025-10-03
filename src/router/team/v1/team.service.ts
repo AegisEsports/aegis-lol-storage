@@ -72,7 +72,7 @@ export class TeamService {
       const used = new Set<RosterRole>(rosterData?.map((r) => r.role));
       return ROSTER_ROLES.filter((r) => !used.has(r)) as RosterRole[];
     })();
-    unfulfilledRoles.forEach(async (role) => {
+    unfulfilledRoles.forEach((role) => {
       rosterData.push({ userId: null, role });
     });
     const insertedRoster = await Promise.all(

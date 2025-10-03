@@ -27,6 +27,15 @@ export class UsersQuery {
       .executeTakeFirst();
   }
 
+  static selectByPuuid(puuid: string): Promise<UserRow | undefined> {
+    return db
+      .selectFrom(USERS)
+      .innerJoin('riotAccounts as ra', 'ra.userId', 'users.id')
+      .selectAll('users')
+      .where('ra.riotPuuid', '=', puuid)
+      .executeTakeFirst();
+  }
+
   // -- UPDATE
 
   static updateById(

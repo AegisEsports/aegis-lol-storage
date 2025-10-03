@@ -42,15 +42,15 @@ export const deleteNameParams = getNameParams.clone();
 ```typescript
 import { Router } from 'express';
 
-import { NameController } from '@/router/name/v1/name.controller.js';
+import { validateBody, validateParams } from '@/util/validate.js';
+import { NameController } from './name.controller.js';
 import {
   deleteNameParams,
   getNameParams,
   postNameBody,
   putNameBody,
   putNameParams,
-} from '@/router/name/v1/name.zod.js';
-import { validateBody, validateParams } from '@/util/validate.js';
+} from './name.zod.js';
 
 export const nameRouter = Router();
 
@@ -78,11 +78,8 @@ nameRouter.delete(
 ```typescript
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
-import { NameService } from '@/router/name/v1/name.service.js';
-import type {
-  CreateNameBody,
-  UpdateNameBody,
-} from '@/router/name/v1/name.zod.js';
+import { NameService } from './name.service.js';
+import type { CreateNameBody, UpdateNameBody } from './name.zod.js';
 
 export class NameController {
   /**
@@ -161,8 +158,8 @@ export class NameController {
 ```typescript
 import { NamesQuery } from '@/database/query.js';
 import type { InsertName, UpdateName } from '@/database/schema.js';
-import type { NameDto, NameTableDto } from '@/router/name/v1/name.dto.js';
 import ControllerError from '@/util/errors/controllerError.js';
+import type { NameDto, NameTableDto } from './name.dto.js';
 
 export class NameService {
   /**

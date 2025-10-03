@@ -23,6 +23,15 @@ export class GameEventsQuery {
       .executeTakeFirst();
   }
 
+  static listByGameId(gameId: string): Promise<GameEventRow[]> {
+    return db
+      .selectFrom(GAME_EVENTS)
+      .selectAll()
+      .where('leagueGameId', '=', gameId)
+      .orderBy('gameTimestamp', 'asc')
+      .execute();
+  }
+
   // -- UPDATE (Not updateable)
 
   // -- DELETE

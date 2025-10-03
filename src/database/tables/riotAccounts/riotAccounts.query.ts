@@ -31,6 +31,14 @@ export class RiotAccountsQuery {
       .executeTakeFirst();
   }
 
+  static selectByPuuid(puuid: string): Promise<RiotAccountRow | undefined> {
+    return db
+      .selectFrom(RIOT_ACCOUNTS)
+      .selectAll()
+      .where('riotPuuid', '=', puuid)
+      .executeTakeFirst();
+  }
+
   static listByUserId(userId: string): Promise<RiotAccountRow[]> {
     return db
       .selectFrom(RIOT_ACCOUNTS)

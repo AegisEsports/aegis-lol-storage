@@ -16,17 +16,14 @@ import {
   type Selectable,
   type Updateable,
 } from 'kysely';
+import z from 'zod';
 
 import { NAMES_SNAKE_CASE } from '@/database/const.js';
 import type { Database } from '@/database/database.js';
-import {
-  createTableWithBase,
-  NAME_ROLES,
-  type TableBase,
-} from '@/database/shared.js';
+import { createTableWithBase, type TableBase } from '@/database/shared.js';
 
 export const nameRowSchema = z.strictObject({});
-type nameFields = z.infer<typeof nameRowSchema>;
+type NameFields = z.infer<typeof nameRowSchema>;
 export type NamesTable = TableBase & NameFields;
 
 export const createNamesTable = async (db: Kysely<Database>): Promise<void> => {

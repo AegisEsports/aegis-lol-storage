@@ -26,6 +26,15 @@ export class BannedChampsQuery {
       .executeTakeFirst();
   }
 
+  static listByGameId(gameId: string): Promise<BannedChampRow[]> {
+    return db
+      .selectFrom(BANNED_CHAMPS)
+      .selectAll()
+      .where('leagueGameId', '=', gameId)
+      .orderBy('order', 'asc')
+      .execute();
+  }
+
   // -- UPDATE (updateable)
 
   // -- DELETE

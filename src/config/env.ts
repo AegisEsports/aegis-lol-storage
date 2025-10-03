@@ -21,3 +21,6 @@ export const LOG_FORMAT = getEnv('LOG_FORMAT');
 // CORS
 export const ORIGIN = getEnv('ORIGIN');
 export const CREDENTIALS = Boolean(getEnv('CREDENTIALS'));
+
+// Riot API
+export const RIOT_API_KEY = getEnv('RIOT_API_KEY');

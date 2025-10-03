@@ -59,6 +59,9 @@ LOG_FORMAT = dev # other options are "common", "combined", "short", "tiny"
 # CORS
 ORIGIN = *
 CREDENTIALS = true
+
+# RIOT API
+RIOT_API_KEY = your_api_key_here
 ```
 
 ### 3. Start the Service

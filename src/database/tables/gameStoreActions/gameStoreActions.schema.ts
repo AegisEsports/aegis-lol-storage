@@ -26,7 +26,7 @@ export const gameStoreActionRowSchema = z.strictObject({
   type: z.enum(STORE_ACTION_TYPES),
   itemId: z.coerce.number().int().nullable(),
 });
-type GameStoreActionFields = z.infer<typeof gameStoreActionRowSchema>;
+export type GameStoreActionFields = z.infer<typeof gameStoreActionRowSchema>;
 export type GameStoreActionsTable = TableBase & GameStoreActionFields;
 
 export const createGameStoreActionsTable = async (

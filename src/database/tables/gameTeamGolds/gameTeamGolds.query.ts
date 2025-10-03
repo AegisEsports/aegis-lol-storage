@@ -26,6 +26,15 @@ export class GameTeamGoldsQuery {
       .executeTakeFirst();
   }
 
+  static listByGameId(gameId: string): Promise<GameTeamGoldRow[]> {
+    return db
+      .selectFrom(GAME_TEAM_GOLDS)
+      .selectAll()
+      .where('leagueGameId', '=', gameId)
+      .orderBy('minute', 'asc')
+      .execute();
+  }
+
   // -- UPDATE
 
   // -- DELETE

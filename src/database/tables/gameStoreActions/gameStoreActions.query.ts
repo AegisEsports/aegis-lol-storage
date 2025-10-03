@@ -26,6 +26,15 @@ export class GameStoreActionsQuery {
       .executeTakeFirst();
   }
 
+  static listByGameId(gameId: string): Promise<GameStoreActionRow[]> {
+    return db
+      .selectFrom(GAME_STORE_ACTIONS)
+      .selectAll()
+      .where('leagueGameId', '=', gameId)
+      .orderBy('gameTimestamp', 'asc')
+      .execute();
+  }
+
   // -- UPDATE
 
   // -- DELETE

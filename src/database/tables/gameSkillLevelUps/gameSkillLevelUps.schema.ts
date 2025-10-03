@@ -28,7 +28,7 @@ export const gameSkillLevelUpRowSchema = z.strictObject({
   skillSlot: z.enum(SKILL_SLOTS).nullable(),
   type: z.enum(SKILL_LEVEL_UP_TYPE).nullable(),
 });
-type GameSkillLevelUpFields = z.infer<typeof gameSkillLevelUpRowSchema>;
+export type GameSkillLevelUpFields = z.infer<typeof gameSkillLevelUpRowSchema>;
 export type GameSkillLevelUpsTable = TableBase & GameSkillLevelUpFields;
 
 export const createGameSkillLevelUpsTable = async (

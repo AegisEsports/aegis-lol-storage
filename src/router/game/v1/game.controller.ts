@@ -13,13 +13,8 @@ export class GameController {
     next: NextFunction,
   ) => {
     try {
-      const {
-        leagueMatchId,
-        blueTeamId,
-        redTeamId,
-        rawMatchData,
-        rawTimelineData,
-      } = req.body as CreateGameBody;
+      const { leagueMatchId, blueTeamId, redTeamId, riotMatchId } =
+        req.body as CreateGameBody;
 
       res
         .status(201)
@@ -28,8 +23,7 @@ export class GameController {
             leagueMatchId,
             blueTeamId,
             redTeamId,
-            rawMatchData,
-            rawTimelineData,
+            riotMatchId,
           ),
         );
     } catch (err) {
@@ -68,27 +62,6 @@ export class GameController {
       res
         .status(200)
         .json(await GameService.updateMatchIdInGame(gameId!, matchId!));
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  /**
-   * PATCH - /team-stats/{gameId}/{side}/{teamId}
-   */
-  public static assignTeamToGame: RequestHandler = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    try {
-      const { gameId, side, teamId } = req.params;
-
-      res
-        .status(200)
-        .json(
-          await GameService.updateTeamIdInTeamStats(gameId!, side!, teamId!),
-        );
     } catch (err) {
       next(err);
     }

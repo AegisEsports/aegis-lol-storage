@@ -80,3 +80,20 @@ export const isStringJson = <T>() =>
       return z.NEVER;
     }
   });
+
+type BaseFields = 'id' | 'createdAt' | 'modifiedAt';
+/**
+ * Sanitizes a db row by removing the base fields:
+ * - id
+ * - createdAt
+ * - modifiedAt
+ */
+export const removeBaseFields = <T extends Record<BaseFields, unknown>>(
+  rows: T[],
+): Omit<T, BaseFields>[] => {
+  return rows.map((r) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, createdAt, modifiedAt, ...fields } = r;
+    return fields;
+  });
+};

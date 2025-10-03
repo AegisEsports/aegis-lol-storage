@@ -24,10 +24,12 @@
     "Insertable",
     "kysely",
     "Nashor",
+    "penta",
     "pgcrypto",
     "plpgsql",
     "puuid",
     "puuids",
+    "quadra",
     "timestamptz",
     "Updateable",
     "Voidgrub"

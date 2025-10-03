@@ -6,7 +6,6 @@ import {
   deleteGameParams,
   getGameParams,
   patchGameMatchParams,
-  patchGameTeamStatParams,
   postGameBody,
 } from './game.zod.js';
 
@@ -22,11 +21,6 @@ gameRouter.patch(
   '/:gameId/:matchId',
   validateParams(patchGameMatchParams),
   GameController.assignMatchToGame,
-);
-gameRouter.patch(
-  'team-stats/:gameId/:side:/:teamId',
-  validateParams(patchGameTeamStatParams),
-  GameController.assignTeamToGame,
 );
 gameRouter.delete(
   '/:gameId',

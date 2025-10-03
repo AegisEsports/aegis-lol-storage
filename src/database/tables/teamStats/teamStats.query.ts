@@ -1,7 +1,8 @@
-import { TEAM_STATS } from '@/database/const.js';
+import { TEAM_STATS, TEAMS } from '@/database/const.js';
 import { db } from '@/database/database.js';
 import { type InsertTeamStat, type TeamStatRow } from '@/database/schema.js';
 import type { LeagueSide } from '@/database/shared.js';
+import type { GameTeamStatRow } from '@/router/game/v1/game.dto.js';
 
 export class TeamStatsQuery {
   // -- INSERT
@@ -22,6 +23,17 @@ export class TeamStatsQuery {
       .selectAll()
       .where('id', '=', id)
       .executeTakeFirst();
+  }
+
+  static listByGameId(gameId: string): Promise<GameTeamStatRow[]> {
+    return db
+      .selectFrom(`${TEAM_STATS} as ts`)
+      .innerJoin(`${TEAMS} as t`, 't.id', 'ts.teamId')
+      .selectAll('ts')
+      .select('t.name as teamName')
+      .where('ts.leagueGameId', '=', gameId)
+      .orderBy('side', 'asc')
+      .execute();
   }
 
   // -- UPDATE (not replaceable)

@@ -26,6 +26,16 @@ export class GameSkillLevelUpsQuery {
       .executeTakeFirst();
   }
 
+  static listByGameId(gameId: string): Promise<GameSkillLevelUpRow[]> {
+    return db
+      .selectFrom(GAME_SKILL_LEVEL_UPS)
+      .selectAll()
+      .where('leagueGameId', '=', gameId)
+      .orderBy('riotPuuid', 'asc')
+      .orderBy('gameTimestamp', 'asc')
+      .execute();
+  }
+
   // -- UPDATE
 
   // -- DELETE

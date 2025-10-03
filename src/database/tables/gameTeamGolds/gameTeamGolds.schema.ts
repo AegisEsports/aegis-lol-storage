@@ -25,7 +25,7 @@ export const gameTeamGoldRowSchema = z.strictObject({
   side: z.enum(LEAGUE_SIDES).nullable(),
   gold: z.coerce.number().int().nullable(),
 });
-type GameTeamGoldFields = z.infer<typeof gameTeamGoldRowSchema>;
+export type GameTeamGoldFields = z.infer<typeof gameTeamGoldRowSchema>;
 export type GameTeamGoldsTable = TableBase & GameTeamGoldFields;
 
 export const createGameTeamGoldsTable = async (

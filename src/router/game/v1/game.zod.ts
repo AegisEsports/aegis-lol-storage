@@ -1,18 +1,11 @@
-import {
-  MatchV5TimelineDTOs,
-  type MatchV5DTOs,
-} from 'twisted/dist/models-dto/index.js';
 import z from 'zod';
-
-import { isStringJson, LEAGUE_SIDES } from '@/database/shared.js';
 
 // POST - /
 export const postGameBody = z.strictObject({
   leagueMatchId: z.uuid().nullable(),
-  blueTeamId: z.uuid().nullable(),
-  redTeamId: z.uuid().nullable(),
-  rawMatchData: isStringJson<MatchV5DTOs.MatchDto>(),
-  rawTimelineData: isStringJson<MatchV5TimelineDTOs.MatchTimelineDto>(),
+  blueTeamId: z.uuid(),
+  redTeamId: z.uuid(),
+  riotMatchId: z.string(),
 });
 export type CreateGameBody = z.infer<typeof postGameBody>;
 
@@ -28,13 +21,6 @@ export const getGameRiotDataParams = getGameParams.clone();
 export const patchGameMatchParams = z.strictObject({
   gameId: z.uuid(),
   matchId: z.uuid(),
-});
-
-// PATCH - /team-stats/{gameId}/{side}/{teamId}
-export const patchGameTeamStatParams = z.strictObject({
-  gameId: z.uuid(),
-  side: z.enum(LEAGUE_SIDES.map((s) => s.toLowerCase())),
-  teamId: z.uuid(),
 });
 
 // DELETE - /{gameId}

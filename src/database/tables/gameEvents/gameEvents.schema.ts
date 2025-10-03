@@ -32,7 +32,7 @@ export const gameEventRowSchema = z.strictObject({
   riotPuuidVictim: z.uuid().nullable(),
   baronPowerPlay: z.coerce.number().int().nullable(),
 });
-type GameEventFields = z.infer<typeof gameEventRowSchema>;
+export type GameEventFields = z.infer<typeof gameEventRowSchema>;
 export type GameEventsTable = TableBase & GameEventFields;
 
 export const createGameEventsTable = async (

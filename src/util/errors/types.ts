@@ -8,7 +8,11 @@ export type AuthenticationErrors =
   | 'Mismatch'
   | 'UserOrRefreshTokenNotFound';
 
-export type ApiErrors = 'NoIdParameter' | 'InvalidInput' | 'NotFound';
+export type ApiErrors =
+  | 'NoIdParameter'
+  | 'InvalidInput'
+  | 'NotFound'
+  | 'RiotApiError';
 
 export type SignInMethodApiErrors =
   | 'InvalidSignInMethod'

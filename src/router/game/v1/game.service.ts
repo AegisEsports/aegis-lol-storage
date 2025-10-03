@@ -911,22 +911,22 @@ export class GameService {
       const totalVisionScore = computeTotalTeamStat(teamId_, 'visionScore');
       const wardsClearedAt10 = Object.values(
         atEarlyStatsByRole[10][teamId_],
-      ).reduce((total, stats) => total + (stats?.wardsPlaced ?? 0), 0);
+      ).reduce((total, stats) => total + (stats?.wardsCleared ?? 0), 0);
       const opposingWardsClearedAt10 = Object.values(
         atEarlyStatsByRole[10][opposingTeamId],
-      ).reduce((total, stats) => total + (stats?.wardsPlaced ?? 0), 0);
+      ).reduce((total, stats) => total + (stats?.wardsCleared ?? 0), 0);
       const wardsClearedAt15 = Object.values(
         atEarlyStatsByRole[15][teamId_],
-      ).reduce((total, stats) => total + (stats?.wardsPlaced ?? 0), 0);
+      ).reduce((total, stats) => total + (stats?.wardsCleared ?? 0), 0);
       const opposingWardsClearedAt15 = Object.values(
         atEarlyStatsByRole[15][opposingTeamId],
-      ).reduce((total, stats) => total + (stats?.wardsPlaced ?? 0), 0);
+      ).reduce((total, stats) => total + (stats?.wardsCleared ?? 0), 0);
       const wardsClearedAt20 = Object.values(
         atEarlyStatsByRole[20][teamId_],
-      ).reduce((total, stats) => total + (stats?.wardsPlaced ?? 0), 0);
+      ).reduce((total, stats) => total + (stats?.wardsCleared ?? 0), 0);
       const opposingWardsClearedAt20 = Object.values(
         atEarlyStatsByRole[20][opposingTeamId],
-      ).reduce((total, stats) => total + (stats?.wardsPlaced ?? 0), 0);
+      ).reduce((total, stats) => total + (stats?.wardsCleared ?? 0), 0);
       return {
         leagueGameId,
         teamId: teamId === 100 ? blueTeamUuid : redTeamUuid,

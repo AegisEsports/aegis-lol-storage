@@ -22,14 +22,14 @@ import {
 
 export const gameEventRowSchema = z.strictObject({
   leagueGameId: z.uuid(),
-  riotPuuidKiller: z.uuid().nullable(),
+  riotPuuidKiller: z.string().nullable(),
   teamId: z.uuid().nullable(),
   eventType: z.enum(EVENT_TYPES).nullable(),
   gameTimestamp: z.coerce.number().int().nullable(),
   lane: z.enum(LEAGUE_LANES).nullable(),
   positionX: z.coerce.number().int().nullable(),
   positionY: z.coerce.number().int().nullable(),
-  riotPuuidVictim: z.uuid().nullable(),
+  riotPuuidVictim: z.string().nullable(),
   baronPowerPlay: z.coerce.number().int().nullable(),
 });
 export type GameEventFields = z.infer<typeof gameEventRowSchema>;

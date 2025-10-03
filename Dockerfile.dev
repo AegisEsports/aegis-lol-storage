@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Install deps first for build cache
 COPY package*.json ./
-RUN npm i
+RUN npm ci
 
 ENV NODE_ENV=development \
     CHOKIDAR_USEPOLLING=1 \

@@ -1,8 +1,11 @@
 import {
   EmergencySubRequestsQuery,
+  LeagueGamesQuery,
+  PlayerStatsQuery,
   RosterRequestsQuery,
   SplitsQuery,
   TeamsQuery,
+  TeamStatsQuery,
 } from '@/database/query.js';
 import type { InsertSplit, UpdateSplit } from '@/database/schema.js';
 import type { SplitDto, SplitTableDto } from '@/router/split/v1/split.dto.js';
@@ -20,13 +23,11 @@ export class SplitService {
       teams: [],
       rosterRequests: [],
       emergencySubRequests: [],
-      overallStats: {
-        sides: {
-          numberBlueSides: null,
-          numberRedSides: null,
-        },
-        games: [],
-      },
+      sideStats: null,
+      dragonStats: null,
+      gameStatRecords: null,
+      teamStatRecords: null,
+      playerStatRecords: null,
     };
   };
 
@@ -44,20 +45,89 @@ export class SplitService {
     const getRosterRequests = await RosterRequestsQuery.listBySplitId(splitId);
     const getEmergencySubRequests =
       await EmergencySubRequestsQuery.listBySplitId(splitId);
+    const getSidesStats = await LeagueGamesQuery.selectSidesBySplitId(splitId);
+    const getDragonStats =
+      await LeagueGamesQuery.selectDragonsBySplitId(splitId);
+    const getSingleGameRecords = {
+      totalKills:
+        (await LeagueGamesQuery.listTotalKillsRecordsBySplitId(splitId)) ??
+        null,
+      totalKillsAt15:
+        (await LeagueGamesQuery.listTotalKillsAt15RecordsBySplitId(splitId)) ??
+        null,
+      creepScorePerMinute:
+        (await LeagueGamesQuery.listCreepScorePerMinuteRecordsBySplitId(
+          splitId,
+        )) ?? null,
+      goldPerMinute:
+        (await LeagueGamesQuery.listGoldPerMinuteRecordsBySplitId(splitId)) ??
+        null,
+      damagePerMinute:
+        (await LeagueGamesQuery.listDamagePerMinuteRecordsBySplitId(splitId)) ??
+        null,
+      visionScorePerMinute:
+        (await LeagueGamesQuery.listVisionScorePerMinuteRecordsBySplitId(
+          splitId,
+        )) ?? null,
+    };
+    const getTeamStatRecords = {
+      firstTowerTimestamp:
+        (await TeamStatsQuery.listFirstTowerTimestampRecordsBySplitId(
+          splitId,
+        )) ?? null,
+      firstBloodTimestamp:
+        (await TeamStatsQuery.listFirstBloodTimestampRecordsBySplitId(
+          splitId,
+        )) ?? null,
+      firstInhibitorTimestamp:
+        (await TeamStatsQuery.listFirstInhibitorTimestampRecordsBySplitId(
+          splitId,
+        )) ?? null,
+      killsAt15:
+        (await TeamStatsQuery.listKillsAt15RecordsBySplitId(splitId)) ?? null,
+      goldDiff15:
+        (await TeamStatsQuery.listGoldAt15RecordsBySplitId(splitId)) ?? null,
+      damageDiff15:
+        (await TeamStatsQuery.listDamageAt15RecordsBySplitId(splitId)) ?? null,
+      wardsPlacedDiff15:
+        (await TeamStatsQuery.listWardsPlacedAt15RecordsBySplitId(splitId)) ??
+        null,
+      wardsClearedDiff15:
+        (await TeamStatsQuery.listWardsClearedAt15RecordsBySplitId(splitId)) ??
+        null,
+    };
+    const getPlayerStatRecords = {
+      creepScorePerMinute:
+        (await PlayerStatsQuery.listCreepScorePerMinuteRecordsBySplitId(
+          splitId,
+        )) ?? null,
+      damageDealtPerMinute:
+        (await PlayerStatsQuery.listDamageDealtPerMinuteRecordsBySplitId(
+          splitId,
+        )) ?? null,
+      visionScorePerMinute:
+        (await PlayerStatsQuery.listVisionScorePerMinuteRecordsBySplitId(
+          splitId,
+        )) ?? null,
+      damageAt15:
+        (await PlayerStatsQuery.listDamageAt15RecordsBySplitId(splitId)) ??
+        null,
+      goldAt15:
+        (await PlayerStatsQuery.listGoldAt15RecordsBySplitId(splitId)) ?? null,
+      csAt15:
+        (await PlayerStatsQuery.listCsAt15RecordsBySplitId(splitId)) ?? null,
+    };
 
     return {
       split: getSplit,
       teams: getTeams,
       rosterRequests: getRosterRequests,
       emergencySubRequests: getEmergencySubRequests,
-      overallStats: {
-        // Implement in AEGIS-27
-        sides: {
-          numberBlueSides: null,
-          numberRedSides: null,
-        },
-        games: [],
-      },
+      sideStats: getSidesStats ?? null,
+      dragonStats: getDragonStats ?? null,
+      gameStatRecords: getSingleGameRecords ?? null,
+      teamStatRecords: getTeamStatRecords ?? null,
+      playerStatRecords: getPlayerStatRecords ?? null,
     };
   };
 

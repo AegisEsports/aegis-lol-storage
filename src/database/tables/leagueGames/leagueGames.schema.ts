@@ -20,7 +20,7 @@ import {
 
 export const leagueGameRowSchema = z.strictObject({
   leagueMatchId: z.uuid().nullable(),
-  invalidated: z.coerce.boolean().nullable(),
+  invalidated: z.coerce.boolean().default(false),
   patch: z.string().nullable(),
   blueTeamId: z.uuid().nullable(),
   redTeamId: z.uuid().nullable(),

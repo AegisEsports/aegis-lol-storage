@@ -120,7 +120,7 @@ export class PlayerStatsQuery {
       .select(['ps.visionScorePerMinute', 'ps.visionScore'])
       .orderBy('ps.visionScorePerMinute', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as Promise<PlayerStatRecordVisionScorePerMinuteDto[]>;
+      .execute();
   }
 
   static listKillsAt15RecordsBySplitId(
@@ -130,7 +130,7 @@ export class PlayerStatsQuery {
       .select('ps.killsAt15')
       .orderBy('ps.killsAt15', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as Promise<PlayerStatRecordKillsAt15Dto[]>;
+      .execute();
   }
 
   static listDamageAt15RecordsBySplitId(
@@ -140,7 +140,7 @@ export class PlayerStatsQuery {
       .select(['ps.damageAt15', 'ps.damageDiff15'])
       .orderBy('ps.damageAt15', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as Promise<PlayerStatRecordDamageAt15Dto[]>;
+      .execute();
   }
 
   static listGoldAt15RecordsBySplitId(
@@ -150,7 +150,7 @@ export class PlayerStatsQuery {
       .select(['ps.goldAt15', 'ps.goldDiff15'])
       .orderBy('ps.goldAt15', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as Promise<PlayerStatRecordGoldAt15Dto[]>;
+      .execute();
   }
 
   static listCsAt15RecordsBySplitId(
@@ -160,7 +160,7 @@ export class PlayerStatsQuery {
       .select(['ps.csAt15', 'ps.csDiff15'])
       .orderBy('ps.csAt15', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as Promise<PlayerStatRecordCsAt15Dto[]>;
+      .execute();
   }
 
   // -- UPDATE (not updateable)

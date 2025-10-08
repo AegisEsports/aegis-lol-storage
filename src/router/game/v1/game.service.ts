@@ -161,6 +161,7 @@ export class GameService {
     // Insert into league_games table in order to generate a parent id
     const gameData = await LeagueGamesQuery.insert({
       leagueMatchId,
+      invalidated: false,
       blueTeamId: blueTeamUuid,
       redTeamId: redTeamUuid,
       patch: info.gameVersion.split('.').slice(0, 2).join('.'),
@@ -421,9 +422,18 @@ export class GameService {
         200: makeEarlyStatsTeam(),
       },
     };
+    // Store variables for first objective tracking
     /** participantId of the player who died first */
     let firstBloodVictimId = 0;
     let firstBlood = true;
+    let firstTower = true;
+    let firstInhibitor = true;
+    let firstBloodBlueTeam: boolean | null = null;
+    let firstTowerBlueTeam: boolean | null = null;
+    let firstInhibitorBlueTeam: boolean | null = null;
+    let firstBloodTimestamp: number | null = null;
+    let firstTowerTimestamp: number | null = null;
+    let firstInhibitorTimestamp: number | null = null;
 
     // Populate above objects from Match timeline
     frames.forEach((frame, minute) => {
@@ -459,6 +469,26 @@ export class GameService {
               positionY: position?.y ?? null,
               eventType,
             });
+            // Update first tower info
+            if (firstTower && buildingType === 'TOWER_BUILDING') {
+              firstTower = false;
+              firstTowerTimestamp = timestamp;
+              if (teamId === 100) {
+                firstTowerBlueTeam = true;
+              } else {
+                firstTowerBlueTeam = false;
+              }
+            }
+            // Update first inhibitor info
+            else if (firstInhibitor && buildingType === 'INHIBITOR_BUILDING') {
+              firstInhibitor = false;
+              firstInhibitorTimestamp = timestamp;
+              if (teamId === 100) {
+                firstInhibitorBlueTeam = true;
+              } else {
+                firstInhibitorBlueTeam = false;
+              }
+            }
             break;
           }
           case 'CHAMPION_KILL': {
@@ -486,8 +516,14 @@ export class GameService {
             });
             // Update first blood info
             if (firstBlood && victimId) {
-              firstBloodVictimId = victimId;
               firstBlood = false;
+              firstBloodVictimId = victimId;
+              firstBloodTimestamp = timestamp;
+              if (teamIdByParticipantId[killerId!] === 100) {
+                firstBloodBlueTeam = true;
+              } else {
+                firstBloodBlueTeam = false;
+              }
             }
             break;
           }
@@ -957,8 +993,23 @@ export class GameService {
         creepScorePerMinute: calculatePerMinute(totalCreepScore),
         visionScorePerMinute: calculatePerMinute(totalVisionScore),
         firstBlood: objectives.champion.first,
+        firstBloodTimestamp:
+          (firstBloodBlueTeam && teamId === 100) ||
+          (!firstBloodBlueTeam && teamId === 200)
+            ? firstBloodTimestamp
+            : null,
         firstTower: objectives.tower.first,
+        firstTowerTimestamp:
+          (firstTowerBlueTeam && teamId === 100) ||
+          (!firstTowerBlueTeam && teamId === 200)
+            ? firstTowerTimestamp
+            : null,
         firstInhibitor: objectives.inhibitor.first,
+        firstInhibitorTimestamp:
+          (firstInhibitorBlueTeam && teamId === 100) ||
+          (!firstInhibitorBlueTeam && teamId === 200)
+            ? firstInhibitorTimestamp
+            : null,
         firstDragon: objectives.dragon.first,
         firstVoidgrub: objectives.horde.first,
         firstHerald: objectives.riftHerald.first,

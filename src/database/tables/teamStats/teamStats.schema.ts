@@ -45,8 +45,11 @@ export const teamStatRowSchema = z.strictObject({
   creepScorePerMinute: z.coerce.number().nullable(),
   visionScorePerMinute: z.coerce.number().nullable(),
   firstBlood: z.coerce.boolean().nullable(),
+  firstBloodTimestamp: z.coerce.number().int().nullable(),
   firstTower: z.coerce.boolean().nullable(),
+  firstTowerTimestamp: z.coerce.number().int().nullable(),
   firstInhibitor: z.coerce.boolean().nullable(),
+  firstInhibitorTimestamp: z.coerce.number().int().nullable(),
   firstDragon: z.coerce.boolean().nullable(),
   firstVoidgrub: z.coerce.boolean().nullable(),
   firstHerald: z.coerce.boolean().nullable(),
@@ -146,8 +149,11 @@ export const createTeamStatsTable = async (
       .addColumn('vision_score_per_minute', 'float4')
       // first objectives
       .addColumn('first_blood', 'boolean')
+      .addColumn('first_blood_timestamp', 'int4')
       .addColumn('first_tower', 'boolean')
+      .addColumn('first_tower_timestamp', 'int4')
       .addColumn('first_inhibitor', 'boolean')
+      .addColumn('first_inhibitor_timestamp', 'int4')
       .addColumn('first_dragon', 'boolean')
       .addColumn('first_voidgrub', 'boolean')
       .addColumn('first_herald', 'boolean')

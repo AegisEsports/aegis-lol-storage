@@ -31,26 +31,35 @@ import type {
 import type { GamesPlayedInDto } from '@/router/user/v1/user.dto.js';
 
 /**
+ * Helper type to extract only numeric fields from TeamStatFields
+ * (used for building dynamic queries)
+ */
+type NumericTeamStatKey = {
+  [K in keyof TeamStatFields]: TeamStatFields[K] extends number | null
+    ? K
+    : never;
+}[keyof TeamStatFields];
+/**
  * Helper function to build the base query for team stat records (used in multiple places).
  */
 const gameStatsRecordBaseQuery = (
   splitId: string,
-  statColumn: keyof TeamStatFields,
+  statColumn: NumericTeamStatKey,
 ) => {
   // Subquery: sum both teams per game
   const tsAgg = db
     .selectFrom(`${TEAM_STATS} as ts`)
     .select((eb) => [
-      `ts.leagueGameId`,
+      `ts.leagueGameId as tsLeagueGameId`,
       eb.fn.sum<number>(`ts.${statColumn}`).as(statColumn),
     ])
-    .groupBy('ts.leagueGameId')
+    .groupBy('tsLeagueGameId')
     .as('t');
 
   return db
     .selectFrom(`${LEAGUE_GAMES} as g`)
     .innerJoin(`${LEAGUE_MATCHES} as m`, 'm.id', 'g.leagueMatchId')
-    .leftJoin(tsAgg, 't.leagueGameId', 'g.id')
+    .leftJoin(tsAgg, 't.tsLeagueGameId', 'g.id')
     .leftJoin(`${TEAMS} as tb`, 'tb.id', 'g.blueTeamId')
     .leftJoin(`${TEAMS} as tr`, 'tr.id', 'g.redTeamId')
     .where('m.splitId', '=', splitId)
@@ -199,7 +208,7 @@ export class LeagueGamesQuery {
     return gameStatsRecordBaseQuery(splitId, 'totalKills')
       .orderBy('t.totalKills', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as unknown as Promise<GameStatRecordTotalKillsDto[]>;
+      .execute();
   }
 
   static listTotalKillsAt15RecordsBySplitId(
@@ -208,7 +217,7 @@ export class LeagueGamesQuery {
     return gameStatsRecordBaseQuery(splitId, 'killsAt15')
       .orderBy('t.killsAt15', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as unknown as Promise<GameStatRecordTotalKillsAt15Dto[]>;
+      .execute();
   }
 
   static listCreepScorePerMinuteRecordsBySplitId(
@@ -217,7 +226,7 @@ export class LeagueGamesQuery {
     return gameStatsRecordBaseQuery(splitId, 'creepScorePerMinute')
       .orderBy('t.creepScorePerMinute', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as unknown as Promise<GameStatRecordCreepScorePerMinuteDto[]>;
+      .execute();
   }
 
   static listGoldPerMinuteRecordsBySplitId(
@@ -226,7 +235,7 @@ export class LeagueGamesQuery {
     return gameStatsRecordBaseQuery(splitId, 'goldPerMinute')
       .orderBy('t.goldPerMinute', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as unknown as Promise<GameStatRecordGoldPerMinuteDto[]>;
+      .execute();
   }
 
   static listDamagePerMinuteRecordsBySplitId(
@@ -235,7 +244,7 @@ export class LeagueGamesQuery {
     return gameStatsRecordBaseQuery(splitId, 'damageDealtPerMinute')
       .orderBy('t.damageDealtPerMinute', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as unknown as Promise<GameStatRecordDamagePerMinuteDto[]>;
+      .execute();
   }
 
   static listVisionScorePerMinuteRecordsBySplitId(
@@ -244,7 +253,7 @@ export class LeagueGamesQuery {
     return gameStatsRecordBaseQuery(splitId, 'visionScorePerMinute')
       .orderBy('t.visionScorePerMinute', 'desc')
       .limit(RECORD_LIMIT)
-      .execute() as unknown as Promise<GameStatRecordVisionScorePerMinuteDto[]>;
+      .execute();
   }
 
   // -- UPDATE

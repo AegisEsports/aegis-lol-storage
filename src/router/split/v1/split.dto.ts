@@ -26,22 +26,22 @@ type GameStatRecordBase = {
   duration: number | null;
 };
 export type GameStatRecordTotalKillsDto = GameStatRecordBase & {
-  totalKills: number;
+  totalKills: number | null;
 };
 export type GameStatRecordTotalKillsAt15Dto = GameStatRecordBase & {
-  killsAt15: number;
+  killsAt15: number | null;
 };
 export type GameStatRecordCreepScorePerMinuteDto = GameStatRecordBase & {
-  creepScorePerMinute: number;
+  creepScorePerMinute: number | null;
 };
 export type GameStatRecordGoldPerMinuteDto = GameStatRecordBase & {
-  goldPerMinute: number;
+  goldPerMinute: number | null;
 };
 export type GameStatRecordDamagePerMinuteDto = GameStatRecordBase & {
-  damageDealtPerMinute: number;
+  damageDealtPerMinute: number | null;
 };
 export type GameStatRecordVisionScorePerMinuteDto = GameStatRecordBase & {
-  visionScorePerMinute: number;
+  visionScorePerMinute: number | null;
 };
 type TeamStatRecordBase = {
   leagueGameId: string;

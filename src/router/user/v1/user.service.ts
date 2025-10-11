@@ -109,6 +109,47 @@ export class UserService {
   };
 
   /**
+   * Retrieves a singular entry of a Riot account by its id
+   */
+  public static findRiotAccountById = async (
+    riotAccountId: string,
+  ): Promise<RiotAccountDto> => {
+    const getRiotAccount = await RiotAccountsQuery.selectById(riotAccountId);
+    if (!getRiotAccount) {
+      throw new ControllerError(404, 'NotFound', 'Riot account not found', {
+        riotAccountId,
+      });
+    }
+
+    return {
+      riotAccount: getRiotAccount,
+    };
+  };
+
+  /**
+   * Retrieves a singular entry of a Riot account by its puuid
+   */
+  public static findRiotAccountByPuuid = async (
+    riotPuuid: string,
+  ): Promise<RiotAccountDto> => {
+    const getRiotAccount = await RiotAccountsQuery.selectByPuuid(riotPuuid);
+    if (!getRiotAccount) {
+      throw new ControllerError(
+        404,
+        'NotFound',
+        'Riot account not found through puuid',
+        {
+          riotPuuid,
+        },
+      );
+    }
+
+    return {
+      riotAccount: getRiotAccount,
+    };
+  };
+
+  /**
    * Updates a singular entry of a user.
    */
   public static replaceById = async (

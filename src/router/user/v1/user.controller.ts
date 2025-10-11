@@ -57,8 +57,6 @@ export class UserController {
 
   /**
    * POST - /discord-account
-   *
-   * Creates a singular entry of a Discord account.
    */
   public static createDiscordAccount: RequestHandler = async (
     req: Request,
@@ -77,7 +75,7 @@ export class UserController {
   };
 
   /**
-   * Retrieves a singular entry of a user.
+   * GET - /{userId}
    */
   public static readUser: RequestHandler = async (
     req: Request,
@@ -94,9 +92,45 @@ export class UserController {
   };
 
   /**
+   * GET - /riot-account/{riotAccountId}
+   */
+  public static readRiotAccount: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { riotAccountId } = req.params;
+
+      res
+        .status(200)
+        .json(await UserService.findRiotAccountById(riotAccountId!));
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  /**
+   * GET - /riot-account/by-puuid/{riotPuuid}
+   */
+  public static readRiotAccountByPuuid: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { riotPuuid } = req.params;
+
+      res
+        .status(200)
+        .json(await UserService.findRiotAccountByPuuid(riotPuuid!));
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  /**
    * PUT - /{userId}
-   *
-   * Updates a singular entry of a user.
    */
   public static updateUser: RequestHandler = async (
     req: Request,
@@ -115,9 +149,6 @@ export class UserController {
 
   /**
    * PUT - /riot-account/{riotAccountId}
-   *
-   * Updates a singular entry to the Riot account. Used for updating
-   *   information after retrieving it from the Riot API.
    */
   public static updateRiotAccount: RequestHandler = async (
     req: Request,
@@ -140,9 +171,6 @@ export class UserController {
 
   /**
    * PUT - /discord-account/{discordAccountId}
-   *
-   * Updates a singular entry to the Discord account. Used for updating
-   *   information after retrieving it from the Discord API.
    */
   public static updateDiscordAccount: RequestHandler = async (
     req: Request,

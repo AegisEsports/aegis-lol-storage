@@ -31,6 +31,16 @@ export const getUserParams = z.strictObject({
   userId: z.uuid(),
 });
 
+// GET - /riot-account/{riotAccountId}
+export const getRiotAccountParams = z.strictObject({
+  riotAccountId: z.uuid(),
+});
+
+// GET - /riot-account/by-puuid/{riotPuuid}
+export const getRiotAccountByPuuidParams = z.strictObject({
+  riotPuuid: z.string(),
+});
+
 // PUT - /{userId}
 export const putUserParams = getUserParams.clone();
 export const putUserBody = z.strictObject({
@@ -39,9 +49,7 @@ export const putUserBody = z.strictObject({
 export type UpdateUserBody = z.infer<typeof putUserBody>;
 
 // PUT - /riot-account/{riotAccountId}
-export const putRiotAccountParams = z.strictObject({
-  riotAccountId: z.uuid(),
-});
+export const putRiotAccountParams = getRiotAccountParams.clone();
 export const putRiotAccountBody = z.strictObject({
   riotAccount: riotAccountRowSchema.omit({ riotPuuid: true }),
 });

@@ -3,6 +3,8 @@ import { Router } from 'express';
 import { UserController } from '@/router/user/v1/user.controller.js';
 import {
   deleteUserParams,
+  getRiotAccountByPuuidParams,
+  getRiotAccountParams,
   getUserParams,
   patchDiscordAccountParams,
   patchRiotAccountParams,
@@ -35,6 +37,16 @@ userRouter.get(
   '/:userId',
   validateParams(getUserParams),
   UserController.readUser,
+);
+userRouter.get(
+  '/riot-account/:riotAccountId',
+  validateParams(getRiotAccountParams),
+  UserController.readRiotAccount,
+);
+userRouter.get(
+  '/riot-account/by-puuid/:riotPuuid',
+  validateParams(getRiotAccountByPuuidParams),
+  UserController.readRiotAccountByPuuid,
 );
 userRouter.put(
   '/:userId',

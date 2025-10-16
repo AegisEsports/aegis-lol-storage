@@ -3,7 +3,10 @@ import { Router } from 'express';
 import { SplitController } from '@/router/split/v1/split.controller.js';
 import {
   deleteSplitParams,
+  getSplitGamesParams,
   getSplitParams,
+  getSplitPlayerStatsParams,
+  getSplitTeamStatsParams,
   postSplitBody,
   putSplitBody,
   putSplitParams,
@@ -17,6 +20,21 @@ splitRouter.get(
   '/:splitId',
   validateParams(getSplitParams),
   SplitController.readSplit,
+);
+splitRouter.get(
+  '/players/:splitId',
+  validateParams(getSplitPlayerStatsParams),
+  SplitController.readSplitPlayerStats,
+);
+splitRouter.get(
+  '/teams/:splitId',
+  validateParams(getSplitTeamStatsParams),
+  SplitController.readTeamPlayerStats,
+);
+splitRouter.get(
+  '/games/:splitId',
+  validateParams(getSplitGamesParams),
+  SplitController.readSplitGames,
 );
 splitRouter.put(
   '/:splitId',

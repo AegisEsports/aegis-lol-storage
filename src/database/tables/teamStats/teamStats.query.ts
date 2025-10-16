@@ -12,6 +12,7 @@ import { RECORD_LIMIT } from '@/database/shared.js';
 import type { LeagueSide } from '@/database/shared.js';
 import type { GameTeamStatRow } from '@/router/game/v1/game.dto.js';
 import type {
+  TeamStatOverallDto,
   TeamStatRecordDamageAt15Dto,
   TeamStatRecordFirstBloodTimestampDto,
   TeamStatRecordFirstInhibitorTimestampDto,
@@ -77,6 +78,149 @@ export class TeamStatsQuery {
       .select('t.name as teamName')
       .where('ts.leagueGameId', '=', gameId)
       .orderBy('side', 'asc')
+      .execute();
+  }
+
+  static async listOverallBySplitId(
+    splitId: string,
+  ): Promise<TeamStatOverallDto[]> {
+    return db
+      .selectFrom(`${TEAMS} as t`)
+      .innerJoin(`${TEAM_STATS} as ts`, 'ts.teamId', 't.id')
+      .innerJoin(`${LEAGUE_GAMES} as g`, 'g.id', 'ts.leagueGameId')
+      .where('t.splitId', '=', splitId)
+      .where('g.invalidated', '=', false)
+      .groupBy(['t.id'])
+      .select((eb) => [
+        't.id as teamId',
+        't.name as teamName',
+        't.teamAbbreviation as teamAbbreviation',
+
+        eb.fn.avg<number>('g.duration').as('averageDuration'),
+        eb.fn.count<number>('g.id').as('gamesPlayed'),
+
+        // wins/losses from boolean win
+        sql<number>`sum(case when ${eb.ref('ts.win')} then 1 else 0 end)`.as(
+          'totalWins',
+        ),
+        sql<number>`sum(case when ${eb.ref('ts.win')} then 0 else 1 end)`.as(
+          'totalLosses',
+        ),
+
+        // core totals
+        eb.fn.sum<number>('ts.totalKills').as('totalKills'),
+        eb.fn.sum<number>('ts.totalDeaths').as('totalDeaths'),
+
+        sql<number>`sum(case when ${eb.ref('ts.firstBlood')} then 1 else 0 end)`.as(
+          'totalFirstBloods',
+        ),
+        sql<number>`sum(case when ${eb.ref('ts.firstTower')} then 1 else 0 end)`.as(
+          'totalFirstTowers',
+        ),
+        sql<number>`sum(case when ${eb.ref('ts.firstInhibitor')} then 1 else 0 end)`.as(
+          'totalFirstInhibitors',
+        ),
+        sql<number>`sum(case when ${eb.ref('ts.firstVoidgrub')} then 1 else 0 end)`.as(
+          'totalFirstVoidGrubs',
+        ),
+        sql<number>`sum(case when ${eb.ref('ts.firstDragon')} then 1 else 0 end)`.as(
+          'totalFirstDragons',
+        ),
+        sql<number>`sum(case when ${eb.ref('ts.firstHerald')} then 1 else 0 end)`.as(
+          'totalFirstHeralds',
+        ),
+        sql<number>`sum(case when ${eb.ref('ts.firstAtakhan')} then 1 else 0 end)`.as(
+          'totalFirstAtakhan',
+        ),
+        sql<number>`sum(case when ${eb.ref('ts.firstBaron')} then 1 else 0 end)`.as(
+          'totalFirstBarons',
+        ),
+
+        // per-minute averages (simple mean of per-game rates)
+        eb.fn
+          .avg<number>('ts.damageDealtPerMinute')
+          .as('averageDamageToChampsPerMinute'),
+        eb.fn.avg<number>('ts.goldPerMinute').as('averageGoldPerMinute'),
+        eb.fn
+          .avg<number>('ts.creepScorePerMinute')
+          .as('averageCreepScorePerMinute'),
+        eb.fn
+          .avg<number>('ts.visionScorePerMinute')
+          .as('averageVisionScorePerMinute'),
+
+        // derive wards per minute from totals & duration: avg( (total / (duration/60)) )
+        sql<number>`avg( ( ${eb.ref('ts.totalWardsPlaced')}::float * 60.0 ) / nullif(${eb.ref('g.duration')}, 0) )`.as(
+          'averageWardsPlacedPerMinute',
+        ),
+        sql<number>`avg( ( ${eb.ref('ts.totalWardTakedowns')}::float * 60.0 ) / nullif(${eb.ref('g.duration')}, 0) )`.as(
+          'averageWardTakedownsPerMinute',
+        ),
+
+        // timeline means
+        eb.fn.avg<number>('ts.killsAt10').as('averageKillsAt10'),
+        eb.fn.avg<number>('ts.killsAt15').as('averageKillsAt15'),
+        eb.fn.avg<number>('ts.killsAt20').as('averageKillsAt20'),
+
+        eb.fn.avg<number>('ts.csAt10').as('averageCsAt10'),
+        eb.fn.avg<number>('ts.csAt15').as('averageCsAt15'),
+        eb.fn.avg<number>('ts.csAt20').as('averageCsAt20'),
+
+        eb.fn.avg<number>('ts.goldAt10').as('averageGoldAt10'),
+        eb.fn.avg<number>('ts.goldAt15').as('averageGoldAt15'),
+        eb.fn.avg<number>('ts.goldAt20').as('averageGoldAt20'),
+
+        eb.fn.avg<number>('ts.xpAt10').as('averageXpAt10'),
+        eb.fn.avg<number>('ts.xpAt15').as('averageXpAt15'),
+        eb.fn.avg<number>('ts.xpAt20').as('averageXpAt20'),
+
+        eb.fn.avg<number>('ts.damageAt10').as('averageDamageAt10'),
+        eb.fn.avg<number>('ts.damageAt15').as('averageDamageAt15'),
+        eb.fn.avg<number>('ts.damageAt20').as('averageDamageAt20'),
+
+        eb.fn.avg<number>('ts.wardsPlacedAt10').as('averageWardsPlacedAt10'),
+        eb.fn.avg<number>('ts.wardsPlacedAt15').as('averageWardsPlacedAt15'),
+        eb.fn.avg<number>('ts.wardsPlacedAt20').as('averageWardsPlacedAt20'),
+
+        eb.fn.avg<number>('ts.wardsClearedAt10').as('averageWardsCleared10'),
+        eb.fn.avg<number>('ts.wardsClearedAt15').as('averageWardsCleared15'),
+        eb.fn.avg<number>('ts.wardsClearedAt20').as('averageWardsCleared20'),
+
+        // diff means
+        eb.fn.avg<number>('ts.killsDiff10').as('averageKillsDiff10'),
+        eb.fn.avg<number>('ts.killsDiff15').as('averageKillsDiff15'),
+        eb.fn.avg<number>('ts.killsDiff20').as('averageKillsDiff20'),
+
+        eb.fn.avg<number>('ts.csDiff10').as('averageCsDiff10'),
+        eb.fn.avg<number>('ts.csDiff15').as('averageCsDiff15'),
+        eb.fn.avg<number>('ts.csDiff20').as('averageCsDiff20'),
+
+        eb.fn.avg<number>('ts.goldDiff10').as('averageGoldDiff10'),
+        eb.fn.avg<number>('ts.goldDiff15').as('averageGoldDiff15'),
+        eb.fn.avg<number>('ts.goldDiff20').as('averageGoldDiff20'),
+
+        eb.fn.avg<number>('ts.xpDiff10').as('averageXpDiff10'),
+        eb.fn.avg<number>('ts.xpDiff15').as('averageXpDiff15'),
+        eb.fn.avg<number>('ts.xpDiff20').as('averageXpDiff20'),
+
+        eb.fn.avg<number>('ts.damageDiff10').as('averageDamageDiff10'),
+        eb.fn.avg<number>('ts.damageDiff15').as('averageDamageDiff15'),
+        eb.fn.avg<number>('ts.damageDiff20').as('averageDamageDiff20'),
+
+        eb.fn.avg<number>('ts.wardsPlacedDiff10').as('averageWardsDiff10'),
+        eb.fn.avg<number>('ts.wardsPlacedDiff15').as('averageWardsDiff15'),
+        eb.fn.avg<number>('ts.wardsPlacedDiff20').as('averageWardsDiff20'),
+
+        eb.fn
+          .avg<number>('ts.wardsClearedDiff10')
+          .as('averageWardTakedownDiff10'),
+        eb.fn
+          .avg<number>('ts.wardsClearedDiff15')
+          .as('averageWardTakedownDiff15'),
+        eb.fn
+          .avg<number>('ts.wardsClearedDiff20')
+          .as('averageWardTakedownDiff20'),
+      ])
+      .orderBy('t.name', 'asc')
       .execute();
   }
 

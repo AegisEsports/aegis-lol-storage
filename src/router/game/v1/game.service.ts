@@ -32,6 +32,7 @@ import {
   type LeagueLane,
   type LeagueRole,
   type LeagueSide,
+  type ObjectiveType as ObjectiveSubtype,
   type SkillLevelUpTypes,
   type SkillSlots,
 } from '@/database/shared.js';
@@ -74,7 +75,7 @@ export class GameService {
    */
   private static readonly TOWER_TYPE_MAP: Record<
     MatchV5TimelineDTOs.TowerType,
-    EventType
+    ObjectiveSubtype
   > = {
     BASE_TURRET: 'Base_Tower',
     INNER_TURRET: 'Inner_Tower',
@@ -82,15 +83,25 @@ export class GameService {
     OUTER_TURRET: 'Outer_Tower',
   };
   /**
+   * Maps a MatchV5TimelineDTOs.MonsterType to our own defined objective type.
+   */
+  private static readonly MONSTER_TYPE_MAP: Record<string, EventType> = {
+    DRAGON: 'Dragon',
+    BARON_NASHOR: 'Baron_Nashor',
+    RIFTHERALD: 'Rift_Herald',
+    HORDE: 'Voidgrub',
+    ATAKHAN: 'Atakhan',
+  };
+  /**
    * Maps a MatchV5TimelineDTOs.SubMonsterType to our own defined dragon type.
    */
-  private static readonly DRAGON_TYPE_MAP: Record<string, EventType> = {
-    CHEMTECH_DRAGON: 'Chemtech_Drake',
-    AIR_DRAGON: 'Cloud_Drake',
-    HEXTECH_DRAGON: 'Hextech_Drake',
-    FIRE_DRAGON: 'Infernal_Drake',
-    EARTH_DRAGON: 'Mountain_Drake',
-    WATER_DRAGON: 'Ocean_Drake',
+  private static readonly DRAGON_TYPE_MAP: Record<string, ObjectiveSubtype> = {
+    CHEMTECH_DRAGON: 'Chemtech_Dragon',
+    AIR_DRAGON: 'Cloud_Dragon',
+    HEXTECH_DRAGON: 'Hextech_Dragon',
+    FIRE_DRAGON: 'Infernal_Dragon',
+    EARTH_DRAGON: 'Mountain_Dragon',
+    WATER_DRAGON: 'Ocean_Dragon',
     ELDER_DRAGON: 'Elder_Dragon',
   };
   /**
@@ -451,7 +462,7 @@ export class GameService {
               teamId,
               towerType,
             } = event;
-            const eventType: EventType | null =
+            const objectiveSubType: ObjectiveSubtype | null =
               buildingType === 'TOWER_BUILDING'
                 ? (this.TOWER_TYPE_MAP[towerType!] ?? null)
                 : 'Inhibitor';
@@ -467,7 +478,8 @@ export class GameService {
               lane,
               positionX: position?.x ?? null,
               positionY: position?.y ?? null,
-              eventType,
+              eventType: 'Building',
+              objectiveSubType,
             });
             // Update first tower info
             if (firstTower && buildingType === 'TOWER_BUILDING') {
@@ -535,25 +547,14 @@ export class GameService {
               monsterType,
               position,
             } = event;
-            const getMonsterType = (
-              type: string,
-              dragonType?: string,
-            ): EventType | null => {
-              if (type === 'BARON_NASHOR') return 'Baron_Nashor';
-              if (type === 'RIFT_HERALD') return 'Rift_Herald';
-              if (type === 'ATAKHAN') return 'Atakhan';
-              if (type === 'HORDE') return 'Voidgrub';
-              return dragonType
-                ? (this.DRAGON_TYPE_MAP[dragonType] ?? null)
-                : null;
-            };
             // Add to GameEventList
             if (killerId && killerId > 0) {
               gameEventList.push({
                 leagueGameId,
                 riotPuuidKiller: puuidByParticipantId[killerId!] || null,
                 teamId: killerTeamId === 100 ? blueTeamUuid : redTeamUuid,
-                eventType: getMonsterType(monsterType!, monsterSubType!),
+                eventType: this.MONSTER_TYPE_MAP[monsterType!] || null,
+                objectiveSubType: this.DRAGON_TYPE_MAP[monsterSubType!] || null,
                 gameTimestamp: timestamp,
                 positionX: position?.x ?? null,
                 positionY: position?.y ?? null,
@@ -625,7 +626,8 @@ export class GameService {
               //  team that LOST the plate, not the team that destroyed it.
               //  So if teamId is 100 (Blue), then the red team destroyed it.
               teamId: teamId === 100 ? redTeamUuid : blueTeamUuid,
-              eventType: 'Turret_Plate',
+              eventType: 'Building',
+              objectiveSubType: 'Turret_Plate',
               gameTimestamp: timestamp,
               lane: this.LANE_TYPE_MAP[laneType!] || null,
               positionX: position?.x ?? null,
@@ -691,6 +693,10 @@ export class GameService {
             role
           ]!.wardsPlaced =
             statCounterByParticipantId[participantId]!.wardsPlaced;
+          atEarlyStatsByRole[minute][teamIdByParticipantId[participantId]!][
+            role
+          ]!.wardsCleared =
+            statCounterByParticipantId[participantId]!.wardsCleared;
         }
       }
       // Add to teamGoldList

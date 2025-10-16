@@ -42,6 +42,59 @@ export class SplitController {
   };
 
   /**
+   * GET - /players/{splitId}
+   */
+  public static readSplitPlayerStats: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { splitId } = req.params;
+
+      res
+        .status(200)
+        .json(await SplitService.findPlayerStatsBySplitId(splitId!));
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  /**
+   * GET - /teams/{splitId}
+   */
+  public static readTeamPlayerStats: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { splitId } = req.params;
+
+      res.status(200).json(await SplitService.findTeamStatsBySplitId(splitId!));
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  /**
+   * GET - /games/{splitId}
+   */
+  public static readSplitGames: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { splitId } = req.params;
+
+      res.status(200).json(await SplitService.findGamesBySplitId(splitId!));
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  /**
    * PUT - /{splitId}
    */
   public static updateSplit: RequestHandler = async (

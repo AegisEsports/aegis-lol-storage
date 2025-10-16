@@ -20,6 +20,7 @@ import {
 import { RECORD_LIMIT } from '@/database/shared.js';
 import type {
   DragonStatsDto,
+  GameDetailDto,
   GameStatRecordCreepScorePerMinuteDto,
   GameStatRecordDamagePerMinuteDto,
   GameStatRecordGoldPerMinuteDto,
@@ -27,6 +28,7 @@ import type {
   GameStatRecordTotalKillsDto,
   GameStatRecordVisionScorePerMinuteDto,
   SidesStatsDto,
+  TeamGameStatDto,
 } from '@/router/split/v1/split.dto.js';
 import type { GamesPlayedInDto } from '@/router/user/v1/user.dto.js';
 
@@ -145,6 +147,169 @@ export class LeagueGamesQuery {
       .selectAll()
       .where('leagueMatchId', '=', matchId)
       .execute();
+  }
+
+  static async listBySplitId(splitId: string): Promise<GameDetailDto[]> {
+    const rows = await db
+      .selectFrom(`${LEAGUE_GAMES} as g`)
+      .leftJoin(`${TEAMS} as tb`, 'tb.id', 'g.blueTeamId')
+      .leftJoin(`${TEAMS} as tr`, 'tr.id', 'g.redTeamId')
+      .leftJoin(`${TEAM_STATS} as tsb`, (join) =>
+        join
+          .onRef('tsb.leagueGameId', '=', 'g.id')
+          .on('tsb.side', '=', sql.lit('Blue')),
+      )
+      .leftJoin(`${TEAM_STATS} as tsr`, (join) =>
+        join
+          .onRef('tsr.leagueGameId', '=', 'g.id')
+          .on('tsr.side', '=', sql.lit('Red')),
+      )
+      // ---- LATERAL: Blue dragons
+      .leftJoinLateral(
+        (eb) =>
+          eb
+            .selectFrom(`${GAME_EVENTS} as e`)
+            .whereRef('e.leagueGameId', '=', 'g.id')
+            .whereRef('e.teamId', '=', 'g.blueTeamId')
+            .where('e.eventType', '=', 'Dragon')
+            .select(
+              sql<
+                string[]
+              >`coalesce(array_agg(e.objective_sub_type order by e.game_timestamp), '{}')`.as(
+                'dragons',
+              ),
+            )
+            .as('bd'),
+        (join) => join.onTrue(),
+      )
+      // ---- LATERAL: Red dragons
+      .leftJoinLateral(
+        (eb) =>
+          eb
+            .selectFrom(`${GAME_EVENTS} as e`)
+            .whereRef('e.leagueGameId', '=', 'g.id')
+            .whereRef('e.teamId', '=', 'g.redTeamId')
+            .where('e.eventType', '=', 'Dragon')
+            .select(
+              sql<
+                string[]
+              >`coalesce(array_agg(e.objective_sub_type order by e.game_timestamp), '{}')`.as(
+                'dragons',
+              ),
+            )
+            .as('rd'),
+        (join) => join.onTrue(),
+      )
+      .where((eb) =>
+        eb.or([eb('tb.splitId', '=', splitId), eb('tr.splitId', '=', splitId)]),
+      )
+      .select([
+        'g.id as leagueGameId',
+        'g.leagueMatchId',
+        'g.startedAt as playedAt',
+        'g.invalidated',
+        'g.sideWin',
+        'g.blueTeamId',
+        'g.redTeamId',
+        'tb.name as blueTeamName',
+        'tr.name as redTeamName',
+
+        // Blue side
+        'tsb.totalKills as bTotalKills',
+        'tsb.totalDeaths as bTotalDeaths',
+        'tsb.totalAssists as bTotalAssists',
+        'tsb.totalGold as bTotalGold',
+        'tsb.totalTowers as bTotalTowers',
+        'tsb.totalVoidgrubs as bTotalVoidgrubs',
+        'tsb.totalHeralds as bTotalHeralds',
+        'tsb.totalAtakhans as bTotalAtakhans',
+        'tsb.totalBarons as bTotalBarons',
+        'tsb.totalInhibitors as bTotalInhibitors',
+
+        // Red side
+        'tsr.totalKills as rTotalKills',
+        'tsr.totalDeaths as rTotalDeaths',
+        'tsr.totalAssists as rTotalAssists',
+        'tsr.totalGold as rTotalGold',
+        'tsr.totalTowers as rTotalTowers',
+        'tsr.totalVoidgrubs as rTotalVoidgrubs',
+        'tsr.totalHeralds as rTotalHeralds',
+        'tsr.totalAtakhans as rTotalAtakhans',
+        'tsr.totalBarons as rTotalBarons',
+        'tsr.totalInhibitors as rTotalInhibitors',
+
+        // dragon type arrays
+        'bd.dragons as bDragonTypes',
+        'rd.dragons as rDragonTypes',
+      ])
+      .orderBy('g.startedAt', 'asc')
+      .execute();
+
+    const toTeamStat = (p: {
+      kills: number | null;
+      deaths: number | null;
+      assists: number | null;
+      gold: number | null;
+      towers: number | null;
+      voidGrubs: number | null;
+      dragons: string[] | null;
+      heralds: number | null;
+      atakhans: number | null;
+      barons: number | null;
+      inhibitors: number | null;
+    }): TeamGameStatDto => ({
+      kills: p.kills ?? null,
+      deaths: p.deaths ?? null,
+      assists: p.assists ?? null,
+      gold: p.gold ?? null,
+      towers: p.towers ?? null,
+      voidGrubs: p.voidGrubs ?? null,
+      dragons: p.dragons ?? [],
+      heralds: p.heralds ?? null,
+      atakhans: p.atakhans ?? null,
+      barons: p.barons ?? null,
+      inhibitors: p.inhibitors ?? null,
+    });
+
+    return rows.map(
+      (r): GameDetailDto => ({
+        leagueGameId: r.leagueGameId,
+        leagueMatchId: r.leagueMatchId ?? null,
+        playedAt: r.playedAt ?? null,
+        blueTeamId: r.blueTeamId ?? null,
+        blueTeamName: r.blueTeamName ?? null,
+        redTeamId: r.redTeamId ?? null,
+        redTeamName: r.redTeamName ?? null,
+        invalidated: !!r.invalidated,
+        sideWin: r.sideWin ?? null,
+        blueTeamStat: toTeamStat({
+          kills: r.bTotalKills,
+          deaths: r.bTotalDeaths,
+          assists: r.bTotalAssists,
+          gold: r.bTotalGold,
+          towers: r.bTotalTowers,
+          voidGrubs: r.bTotalVoidgrubs,
+          dragons: r.bDragonTypes,
+          heralds: r.bTotalHeralds,
+          atakhans: r.bTotalAtakhans,
+          barons: r.bTotalBarons,
+          inhibitors: r.bTotalInhibitors,
+        }),
+        redTeamStat: toTeamStat({
+          kills: r.rTotalKills,
+          deaths: r.rTotalDeaths,
+          assists: r.rTotalAssists,
+          gold: r.rTotalGold,
+          towers: r.rTotalTowers,
+          voidGrubs: r.rTotalVoidgrubs,
+          dragons: r.rDragonTypes,
+          heralds: r.rTotalHeralds,
+          atakhans: r.rTotalAtakhans,
+          barons: r.rTotalBarons,
+          inhibitors: r.rTotalInhibitors,
+        }),
+      }),
+    );
   }
 
   static selectSidesBySplitId(

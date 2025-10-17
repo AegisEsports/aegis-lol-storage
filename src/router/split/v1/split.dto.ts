@@ -7,8 +7,8 @@ import type {
 
 // SplitDto
 export type SidesStatsDto = {
-  blueSides: number | null;
-  redSides: number | null;
+  blueWins: number | null;
+  redWins: number | null;
 };
 export type DragonStatsDto = {
   cloud: number | null;

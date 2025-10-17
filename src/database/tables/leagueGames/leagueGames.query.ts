@@ -309,10 +309,10 @@ export class LeagueGamesQuery {
       .where('m.splitId', '=', splitId)
       .select((eb) => [
         sql<number>`count(*) filter (where ${eb.ref('g.sideWin')} = 'Blue')`.as(
-          'blueSides',
+          'blueWins',
         ),
         sql<number>`count(*) filter (where ${eb.ref('g.sideWin')} = 'Red')`.as(
-          'redSides',
+          'redWins',
         ),
       ])
       .executeTakeFirst();

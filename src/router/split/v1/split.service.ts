@@ -8,7 +8,13 @@ import {
   TeamStatsQuery,
 } from '@/database/query.js';
 import type { InsertSplit, UpdateSplit } from '@/database/schema.js';
-import type { SplitDto, SplitTableDto } from '@/router/split/v1/split.dto.js';
+import type {
+  GamesSplitDto,
+  PlayerStatsSplitDto,
+  SplitDto,
+  SplitTableDto,
+  TeamStatsSplitDto,
+} from '@/router/split/v1/split.dto.js';
 import ControllerError from '@/util/errors/controllerError.js';
 
 export class SplitService {
@@ -128,6 +134,63 @@ export class SplitService {
       gameStatRecords: getSingleGameRecords ?? null,
       teamStatRecords: getTeamStatRecords ?? null,
       playerStatRecords: getPlayerStatRecords ?? null,
+    };
+  };
+
+  /**
+   * Retrieves player stats for a singular split.
+   */
+  public static findPlayerStatsBySplitId = async (
+    splitId: string,
+  ): Promise<PlayerStatsSplitDto> => {
+    const getSplit = await SplitsQuery.selectById(splitId);
+    if (!getSplit) {
+      throw new ControllerError(404, 'NotFound', 'Split not found', {
+        splitId,
+      });
+    }
+    const getPlayerStats = await PlayerStatsQuery.listOverallBySplitId(splitId);
+
+    return {
+      players: getPlayerStats,
+    };
+  };
+
+  /**
+   * Retrieves team stats for a singular split.
+   */
+  public static findTeamStatsBySplitId = async (
+    splitId: string,
+  ): Promise<TeamStatsSplitDto> => {
+    const getSplit = await SplitsQuery.selectById(splitId);
+    if (!getSplit) {
+      throw new ControllerError(404, 'NotFound', 'Split not found', {
+        splitId,
+      });
+    }
+    const getTeamStats = await TeamStatsQuery.listOverallBySplitId(splitId);
+
+    return {
+      teams: getTeamStats,
+    };
+  };
+
+  /**
+   * Retrieves games for a singular split.
+   */
+  public static findGamesBySplitId = async (
+    splitId: string,
+  ): Promise<GamesSplitDto> => {
+    const getSplit = await SplitsQuery.selectById(splitId);
+    if (!getSplit) {
+      throw new ControllerError(404, 'NotFound', 'Split not found', {
+        splitId,
+      });
+    }
+
+    const getGames = await LeagueGamesQuery.listBySplitId(splitId);
+    return {
+      games: getGames,
     };
   };
 

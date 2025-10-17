@@ -7,8 +7,8 @@ import type {
 
 // SplitDto
 export type SidesStatsDto = {
-  blueSides: number | null;
-  redSides: number | null;
+  blueWins: number | null;
+  redWins: number | null;
 };
 export type DragonStatsDto = {
   cloud: number | null;
@@ -149,10 +149,174 @@ export type SplitDto = {
     csAt15: PlayerStatRecordCsAt15Dto[] | null;
   } | null;
 };
-export type SplitRecordsDto = {
-  sides: SidesStatsDto;
-  games: GameStatRecordBase[];
-  players: PlayerStatRecordBase[];
+
+// PlayerStatsSplitDto
+export type PlayerStatOverallDto = {
+  userId: string | null;
+  userName: string | null;
+  role: string | null;
+  gamesPlayed: number | null;
+  // core/tallies
+  totalKills: number | null;
+  totalDeaths: number | null;
+  totalAssists: number | null;
+  totalFirstBloodTakedowns: number | null;
+  totalSoloKills: number | null;
+  totalDoubleKills: number | null;
+  totalTripleKills: number | null;
+  totalQuadraKills: number | null;
+  totalPentaKills: number | null;
+  // average tallies
+  averageDamageToChamps: number | null;
+  standardDeviationDamageToChamps: number | null;
+  averageDamageToChampsPerMinute: number | null;
+  averageGoldPerMinute: number | null;
+  averageCreepScorePerMinute: number | null;
+  averageVisionScorePerMinute: number | null;
+  averageWardsPlacedPerMinute: number | null;
+  averageWardTakedownsPerMinute: number | null;
+  // average timelines
+  averageKillsAt10: number | null;
+  averageKillsAt15: number | null;
+  averageKillsAt20: number | null;
+  averageCsAt10: number | null;
+  averageCsAt15: number | null;
+  averageCsAt20: number | null;
+  averageGoldAt10: number | null;
+  averageGoldAt15: number | null;
+  averageGoldAt20: number | null;
+  averageXpAt10: number | null;
+  averageXpAt15: number | null;
+  averageXpAt20: number | null;
+  averageDamageAt10: number | null;
+  averageDamageAt15: number | null;
+  averageDamageAt20: number | null;
+  averageWardsPlacedAt20: number | null;
+  averageWardTakedownsBefore20: number | null;
+  // average diff stats
+  averageDamageDealtPerMinuteDiff: number | null;
+  averageCsDiff10: number | null;
+  averageCsDiff15: number | null;
+  averageCsDiff20: number | null;
+  averageGoldDiff10: number | null;
+  averageGoldDiff15: number | null;
+  averageGoldDiff20: number | null;
+  averageXpDiff10: number | null;
+  averageXpDiff15: number | null;
+  averageXpDiff20: number | null;
+  averageDamageDiff10: number | null;
+  averageDamageDiff15: number | null;
+  averageDamageDiff20: number | null;
+  averageWardsDiff20: number | null;
+  averageWardTakedownDiff20: number | null;
+};
+export type PlayerStatsSplitDto = {
+  players: PlayerStatOverallDto[];
+};
+
+// TeamStatsSplitDto
+export type TeamStatOverallDto = {
+  teamId: string;
+  teamName: string | null;
+  teamAbbreviation: string | null;
+  averageDuration: number | null;
+  gamesPlayed: number | null;
+  totalWins: number | null;
+  totalLosses: number | null;
+  // core/tallies
+  totalKills: number | null;
+  totalDeaths: number | null;
+  totalFirstBloods: number | null;
+  totalFirstTowers: number | null;
+  totalFirstInhibitors: number | null;
+  totalFirstVoidGrubs: number | null;
+  totalFirstDragons: number | null;
+  totalFirstHeralds: number | null;
+  totalFirstAtakhan: number | null;
+  totalFirstBarons: number | null;
+  // average tallies
+  averageDamageToChampsPerMinute: number | null;
+  averageGoldPerMinute: number | null;
+  averageCreepScorePerMinute: number | null;
+  averageVisionScorePerMinute: number | null;
+  averageWardsPlacedPerMinute: number | null;
+  averageWardTakedownsPerMinute: number | null;
+  // average timelines
+  averageKillsAt10: number | null;
+  averageKillsAt15: number | null;
+  averageKillsAt20: number | null;
+  averageCsAt10: number | null;
+  averageCsAt15: number | null;
+  averageCsAt20: number | null;
+  averageGoldAt10: number | null;
+  averageGoldAt15: number | null;
+  averageGoldAt20: number | null;
+  averageXpAt10: number | null;
+  averageXpAt15: number | null;
+  averageXpAt20: number | null;
+  averageDamageAt10: number | null;
+  averageDamageAt15: number | null;
+  averageDamageAt20: number | null;
+  averageWardsPlacedAt10: number | null;
+  averageWardsPlacedAt15: number | null;
+  averageWardsPlacedAt20: number | null;
+  averageWardsCleared10: number | null;
+  averageWardsCleared15: number | null;
+  averageWardsCleared20: number | null;
+  // average diff stats
+  averageKillsDiff10: number | null;
+  averageKillsDiff15: number | null;
+  averageKillsDiff20: number | null;
+  averageCsDiff10: number | null;
+  averageCsDiff15: number | null;
+  averageCsDiff20: number | null;
+  averageGoldDiff10: number | null;
+  averageGoldDiff15: number | null;
+  averageGoldDiff20: number | null;
+  averageXpDiff10: number | null;
+  averageXpDiff15: number | null;
+  averageXpDiff20: number | null;
+  averageDamageDiff10: number | null;
+  averageDamageDiff15: number | null;
+  averageDamageDiff20: number | null;
+  averageWardsDiff10: number | null;
+  averageWardsDiff15: number | null;
+  averageWardsDiff20: number | null;
+  averageWardTakedownDiff10: number | null;
+  averageWardTakedownDiff15: number | null;
+  averageWardTakedownDiff20: number | null;
+};
+export type TeamStatsSplitDto = {
+  teams: TeamStatOverallDto[];
+};
+
+// GamesSplitDto
+export type TeamGameStatDto = {
+  kills: number | null;
+  gold: number | null;
+  towers: number | null;
+  voidGrubs: number | null;
+  dragons: string[]; // dragon types
+  heralds: number | null;
+  atakhans: number | null;
+  barons: number | null;
+  inhibitors: number | null;
+};
+export type GameDetailDto = {
+  leagueGameId: string;
+  leagueMatchId: string | null;
+  playedAt: string | null;
+  redTeamId: string | null;
+  redTeamName: string | null;
+  blueTeamId: string | null;
+  blueTeamName: string | null;
+  invalidated: boolean;
+  sideWin: string | null;
+  blueTeamStat: TeamGameStatDto;
+  redTeamStat: TeamGameStatDto;
+};
+export type GamesSplitDto = {
+  games: GameDetailDto[];
 };
 
 // SplitTableDto

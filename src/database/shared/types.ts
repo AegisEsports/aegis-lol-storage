@@ -68,26 +68,32 @@ export const MATCH_TYPES = ['RegularSeason', 'Playoffs', 'PlayIn'] as const;
 export type MatchType = (typeof MATCH_TYPES)[number];
 
 export const EVENT_TYPES = [
+  'Building',
+  'Dragon',
+  'Baron_Nashor',
+  'Rift_Herald',
+  'Kill',
+  'Voidgrub',
+  'Atakhan',
+] as const;
+export type EventType = (typeof EVENT_TYPES)[number];
+
+export const OBJECTIVE_TYPES = [
+  'Turret_Plate',
   'Outer_Tower',
   'Inner_Tower',
   'Base_Tower',
   'Nexus_Tower',
   'Inhibitor',
-  'Chemtech_Drake',
-  'Cloud_Drake',
-  'Hextech_Drake',
-  'Infernal_Drake',
-  'Mountain_Drake',
-  'Ocean_Drake',
+  'Chemtech_Dragon',
+  'Cloud_Dragon',
+  'Hextech_Dragon',
+  'Infernal_Dragon',
+  'Mountain_Dragon',
+  'Ocean_Dragon',
   'Elder_Dragon',
-  'Baron_Nashor',
-  'Rift_Herald',
-  'Kill',
-  'Turret_Plate',
-  'Voidgrub',
-  'Atakhan',
 ] as const;
-export type EventType = (typeof EVENT_TYPES)[number];
+export type ObjectiveType = (typeof OBJECTIVE_TYPES)[number];
 
 export const SKILL_SLOTS = ['Q', 'W', 'E', 'R'];
 export type SkillSlots = (typeof SKILL_SLOTS)[number];

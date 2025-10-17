@@ -1,4 +1,4 @@
-import { Pool, type PoolConfig } from 'pg';
+import { Pool, types, type PoolConfig } from 'pg';
 
 import {
   DB_HOST,
@@ -9,6 +9,16 @@ import {
   DB_USER,
   NODE_ENV,
 } from './env.js';
+
+// NUMERIC/DECIMAL (OID 1700) -> JS number
+types.setTypeParser(types.builtins.NUMERIC, (v) =>
+  v === null ? null : parseFloat(v),
+);
+
+// BIGINT/INT8 (OID 20) -> JS number (ok if values stay within Number.MAX_SAFE_INTEGER)
+types.setTypeParser(types.builtins.INT8, (v) =>
+  v === null ? null : parseInt(v, 10),
+);
 
 const poolConfig: PoolConfig = {
   user: DB_USER,

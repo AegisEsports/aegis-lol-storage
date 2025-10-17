@@ -293,8 +293,6 @@ export type TeamStatsSplitDto = {
 // GamesSplitDto
 export type TeamGameStatDto = {
   kills: number | null;
-  deaths: number | null;
-  assists: number | null;
   gold: number | null;
   towers: number | null;
   voidGrubs: number | null;

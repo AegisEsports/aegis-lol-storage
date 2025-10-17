@@ -216,8 +216,6 @@ export class LeagueGamesQuery {
 
         // Blue side
         'tsb.totalKills as bTotalKills',
-        'tsb.totalDeaths as bTotalDeaths',
-        'tsb.totalAssists as bTotalAssists',
         'tsb.totalGold as bTotalGold',
         'tsb.totalTowers as bTotalTowers',
         'tsb.totalVoidgrubs as bTotalVoidgrubs',
@@ -228,8 +226,6 @@ export class LeagueGamesQuery {
 
         // Red side
         'tsr.totalKills as rTotalKills',
-        'tsr.totalDeaths as rTotalDeaths',
-        'tsr.totalAssists as rTotalAssists',
         'tsr.totalGold as rTotalGold',
         'tsr.totalTowers as rTotalTowers',
         'tsr.totalVoidgrubs as rTotalVoidgrubs',
@@ -247,8 +243,6 @@ export class LeagueGamesQuery {
 
     const toTeamStat = (p: {
       kills: number | null;
-      deaths: number | null;
-      assists: number | null;
       gold: number | null;
       towers: number | null;
       voidGrubs: number | null;
@@ -259,8 +253,6 @@ export class LeagueGamesQuery {
       inhibitors: number | null;
     }): TeamGameStatDto => ({
       kills: p.kills ?? null,
-      deaths: p.deaths ?? null,
-      assists: p.assists ?? null,
       gold: p.gold ?? null,
       towers: p.towers ?? null,
       voidGrubs: p.voidGrubs ?? null,
@@ -284,8 +276,6 @@ export class LeagueGamesQuery {
         sideWin: r.sideWin ?? null,
         blueTeamStat: toTeamStat({
           kills: r.bTotalKills,
-          deaths: r.bTotalDeaths,
-          assists: r.bTotalAssists,
           gold: r.bTotalGold,
           towers: r.bTotalTowers,
           voidGrubs: r.bTotalVoidgrubs,
@@ -297,8 +287,6 @@ export class LeagueGamesQuery {
         }),
         redTeamStat: toTeamStat({
           kills: r.rTotalKills,
-          deaths: r.rTotalDeaths,
-          assists: r.rTotalAssists,
           gold: r.rTotalGold,
           towers: r.rTotalTowers,
           voidGrubs: r.rTotalVoidgrubs,

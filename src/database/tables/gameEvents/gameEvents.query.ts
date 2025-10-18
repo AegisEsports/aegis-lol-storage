@@ -1,6 +1,7 @@
 import { GAME_EVENTS } from '@/database/const.js';
 import { db } from '@/database/database.js';
 import { type InsertGameEvent, type GameEventRow } from '@/database/schema.js';
+import type { LeagueSide } from '@/database/shared.js';
 
 export class GameEventsQuery {
   // -- INSERT
@@ -33,6 +34,15 @@ export class GameEventsQuery {
   }
 
   // -- UPDATE (Not updateable)
+
+  static async setTeamId(gameId: string, side: LeagueSide, teamId: string) {
+    await db
+      .updateTable(GAME_EVENTS)
+      .where('leagueGameId', '=', gameId)
+      .where('side', '=', side)
+      .set({ teamId })
+      .executeTakeFirstOrThrow();
+  }
 
   // -- DELETE
 

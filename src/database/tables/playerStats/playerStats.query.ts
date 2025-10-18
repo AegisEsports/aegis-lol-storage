@@ -13,7 +13,7 @@ import {
   type InsertPlayerStat,
   type PlayerStatRow,
 } from '@/database/schema.js';
-import { RECORD_LIMIT } from '@/database/shared.js';
+import { RECORD_LIMIT, type LeagueSide } from '@/database/shared.js';
 import type { GamePlayerStatRow } from '@/router/game/v1/game.dto.js';
 import type {
   PlayerStatOverallDto,
@@ -88,6 +88,19 @@ export class PlayerStatsQuery {
       .select('u.username as username')
       .where('ps.leagueGameId', '=', gameId)
       .execute();
+  }
+
+  static listChampIdsByGameAndSide(
+    gameId: string,
+    side: LeagueSide,
+  ): Promise<number[]> {
+    return db
+      .selectFrom(PLAYER_STATS)
+      .select('champId')
+      .where('leagueGameId', '=', gameId)
+      .where('side', '=', side)
+      .execute()
+      .then((rows) => rows.map((r) => r.champId));
   }
 
   static listOverallBySplitId(
@@ -282,6 +295,15 @@ export class PlayerStatsQuery {
   }
 
   // -- UPDATE (not updateable)
+
+  static setTeamId(gameId: string, side: LeagueSide, teamId: string) {
+    return db
+      .updateTable(PLAYER_STATS)
+      .where('leagueGameId', '=', gameId)
+      .where('side', '=', side)
+      .set({ teamId })
+      .executeTakeFirstOrThrow();
+  }
 
   // -- DELETE
 

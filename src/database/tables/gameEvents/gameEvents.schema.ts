@@ -19,12 +19,14 @@ import {
   EVENT_TYPES,
   LEAGUE_LANES,
   OBJECTIVE_TYPES,
+  LEAGUE_SIDES,
 } from '@/database/shared.js';
 
 export const gameEventRowSchema = z.strictObject({
   leagueGameId: z.uuid(),
   riotPuuidKiller: z.string().nullable(),
   teamId: z.uuid().nullable(),
+  side: z.enum(LEAGUE_SIDES).nullable(),
   eventType: z.enum(EVENT_TYPES).nullable(),
   objectiveSubType: z.enum(OBJECTIVE_TYPES).nullable(),
   gameTimestamp: z.coerce.number().int().nullable(),
@@ -61,6 +63,7 @@ export const createGameEventsTable = async (
           .onDelete('set null')
           .onUpdate('cascade'),
       )
+      .addColumn('side', 'varchar(4)')
       .addColumn('event_type', 'varchar')
       .addColumn('objective_sub_type', 'varchar')
       .addColumn('game_timestamp', 'int4')

@@ -150,6 +150,7 @@ export class GameService {
     blueTeamUuid: string,
     redTeamUuid: string,
     riotMatchId: string,
+    draftLink: string | null,
   ): Promise<GameDto> => {
     // Call the Riot API with twisted.
     const riotApiClient = new RiotApiClient();
@@ -170,8 +171,10 @@ export class GameService {
     const { frames } = timelineInfo;
 
     // Insert into league_games table in order to generate a parent id
-    const gameData = await LeagueGamesQuery.insert({
+    const insertedGameData = await LeagueGamesQuery.insert({
+      riotMatchId,
       leagueMatchId,
+      gameNumber: 0,
       invalidated: false,
       blueTeamId: blueTeamUuid,
       redTeamId: redTeamUuid,
@@ -179,8 +182,15 @@ export class GameService {
       sideWin: blueTeam.win ? 'Blue' : 'Red',
       duration: info.gameDuration,
       startedAt: new Date(info.gameStartTimestamp).toISOString(),
+      draftLink,
     });
-    const leagueGameId = gameData.id;
+    const leagueGameId = insertedGameData.id;
+
+    // Update gameNumber after insertion if a leagueMatchId exists
+    if (leagueMatchId) {
+      await LeagueGamesQuery.setGameNumbersByMatchId(leagueMatchId);
+    }
+    const getGameData = await LeagueGamesQuery.selectById(leagueGameId);
 
     /**
      * Compute team golds at a specific minute mark (i.e. 10 or 15).
@@ -626,6 +636,7 @@ export class GameService {
               //  team that LOST the plate, not the team that destroyed it.
               //  So if teamId is 100 (Blue), then the red team destroyed it.
               teamId: teamId === 100 ? redTeamUuid : blueTeamUuid,
+              side: teamId === 100 ? 'Red' : 'Blue',
               eventType: 'Building',
               objectiveSubType: 'Turret_Plate',
               gameTimestamp: timestamp,
@@ -1173,7 +1184,7 @@ export class GameService {
     );
 
     return {
-      game: gameData,
+      game: getGameData!,
       bannedChamps: removeBaseFields(bannedChampsData),
       playerStats: playerStatsData,
       teamStats: teamStatsData,
@@ -1226,6 +1237,69 @@ export class GameService {
       throw new ControllerError(404, 'NotFound', 'Game not found', {
         gameId,
       });
+    }
+
+    // Update game numbers for all games in the match
+    const { leagueMatchId } = patchedGame;
+    if (leagueMatchId) {
+      await LeagueGamesQuery.setGameNumbersByMatchId(leagueMatchId);
+    }
+    const getGame = await LeagueGamesQuery.selectById(gameId);
+
+    return {
+      game: getGame!,
+    };
+  };
+
+  /**
+   * Assigns a draft link to the game.
+   */
+  public static updateDraftLinkInGame = async (
+    gameId: string,
+    draftLink: string | null,
+  ): Promise<GameTableDto> => {
+    const patchedGame = await LeagueGamesQuery.setDraftLink(gameId, draftLink);
+    if (!patchedGame) {
+      throw new ControllerError(404, 'NotFound', 'Game not found', {
+        gameId,
+      });
+    }
+
+    return {
+      game: patchedGame,
+    };
+  };
+
+  /**
+   * Assigns a team to the specified side in the game.
+   */
+  public static updateTeamInGame = async (
+    gameId: string,
+    side: string,
+    teamId: string,
+  ): Promise<GameTableDto> => {
+    const patchedGame =
+      side === 'blue'
+        ? await LeagueGamesQuery.setBlueTeam(gameId, teamId)
+        : await LeagueGamesQuery.setRedTeam(gameId, teamId);
+    if (!patchedGame) {
+      throw new ControllerError(404, 'NotFound', 'Game not found', {
+        gameId,
+      });
+    }
+
+    // Also update all the respective game stats tables to reflect the new team
+    const setTeamOnStatsTables = async (side: LeagueSide) => {
+      await TeamStatsQuery.setTeamId(gameId, side, teamId);
+      await PlayerStatsQuery.setTeamId(gameId, side, teamId);
+      await BannedChampsQuery.setTeamId(gameId, side, teamId);
+      await GameEventsQuery.setTeamId(gameId, side, teamId);
+      await GameTeamGoldsQuery.setTeamId(gameId, side, teamId);
+    };
+    if (side === 'blue') {
+      await setTeamOnStatsTables('Blue');
+    } else {
+      await setTeamOnStatsTables('Red');
     }
 
     return {

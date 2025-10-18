@@ -70,6 +70,18 @@ export class TeamStatsQuery {
       .executeTakeFirst();
   }
 
+  static selectByGameAndSide(
+    gameId: string,
+    side: LeagueSide,
+  ): Promise<TeamStatRow> {
+    return db
+      .selectFrom(TEAM_STATS)
+      .selectAll()
+      .where('leagueGameId', '=', gameId)
+      .where('side', '=', side)
+      .executeTakeFirstOrThrow();
+  }
+
   static listByGameId(gameId: string): Promise<GameTeamStatRow[]> {
     return db
       .selectFrom(`${TEAM_STATS} as ts`)
@@ -308,18 +320,13 @@ export class TeamStatsQuery {
 
   // -- UPDATE (not replaceable)
 
-  static setTeamId(
-    gameId: string,
-    side: LeagueSide,
-    teamId: string,
-  ): Promise<TeamStatRow | undefined> {
+  static setTeamId(gameId: string, side: LeagueSide, teamId: string) {
     return db
       .updateTable(TEAM_STATS)
-      .set({ teamId })
       .where('side', '=', side)
       .where('leagueGameId', '=', gameId)
-      .returningAll()
-      .executeTakeFirst();
+      .set({ teamId })
+      .executeTakeFirstOrThrow();
   }
 
   // -- DELETE

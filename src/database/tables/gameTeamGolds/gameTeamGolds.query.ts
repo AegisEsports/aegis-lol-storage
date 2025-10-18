@@ -4,6 +4,7 @@ import {
   type InsertGameTeamGold,
   type GameTeamGoldRow,
 } from '@/database/schema.js';
+import type { LeagueSide } from '@/database/shared.js';
 
 export class GameTeamGoldsQuery {
   // -- INSERT
@@ -35,7 +36,16 @@ export class GameTeamGoldsQuery {
       .execute();
   }
 
-  // -- UPDATE
+  // -- UPDATE (not updateable)
+
+  static async setTeamId(gameId: string, side: LeagueSide, teamId: string) {
+    await db
+      .updateTable(GAME_TEAM_GOLDS)
+      .where('leagueGameId', '=', gameId)
+      .where('side', '=', side)
+      .set({ teamId })
+      .executeTakeFirstOrThrow();
+  }
 
   // -- DELETE
 

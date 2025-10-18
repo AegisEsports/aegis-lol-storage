@@ -4,6 +4,7 @@ import {
   type InsertBannedChamp,
   type BannedChampRow,
 } from '@/database/schema.js';
+import type { LeagueSide } from '@/database/shared.js';
 
 export class BannedChampsQuery {
   // -- INSERT
@@ -36,6 +37,22 @@ export class BannedChampsQuery {
   }
 
   // -- UPDATE (updateable)
+
+  static async setTeamId(gameId: string, side: LeagueSide, teamId: string) {
+    await db
+      .updateTable(BANNED_CHAMPS)
+      .where('leagueGameId', '=', gameId)
+      .where('sideBannedBy', '=', side)
+      .set({ teamIdBanned: teamId })
+      .executeTakeFirstOrThrow();
+
+    await db
+      .updateTable(BANNED_CHAMPS)
+      .where('leagueGameId', '=', gameId)
+      .where('sideBannedBy', '!=', side)
+      .set({ teamIdAgainst: teamId })
+      .executeTakeFirstOrThrow();
+  }
 
   // -- DELETE
 

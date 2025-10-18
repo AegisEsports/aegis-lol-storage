@@ -16,6 +16,7 @@ export type ValidationErrorPayload = {
   error: 'ValidationError';
   source: Source;
   issues: Issue[];
+  value: object;
 };
 
 const formatZodError = (err: ZodError): Issue[] => {
@@ -37,6 +38,7 @@ const validator = (source: Source) => {
           error: 'ValidationError',
           source,
           issues: formatZodError(result.error),
+          value,
         };
         throw new ControllerError(
           400,

@@ -19,14 +19,17 @@ import {
 } from '@/database/shared.js';
 
 export const leagueGameRowSchema = z.strictObject({
+  riotMatchId: z.string(),
   leagueMatchId: z.uuid().nullable(),
+  gameNumber: z.coerce.number().int(),
   invalidated: z.coerce.boolean().default(false),
-  patch: z.string().nullable(),
+  patch: z.string(),
   blueTeamId: z.uuid().nullable(),
   redTeamId: z.uuid().nullable(),
-  sideWin: z.enum(LEAGUE_SIDES).nullable(),
-  duration: z.coerce.number().int().nullable(),
-  startedAt: z.iso.date().nullable(),
+  sideWin: z.enum(LEAGUE_SIDES),
+  duration: z.coerce.number().int(),
+  startedAt: z.iso.date(),
+  draftLink: z.url().or(z.literal('')).nullable(),
 });
 type LeagueGameFields = z.infer<typeof leagueGameRowSchema>;
 export type LeagueGamesTable = TableBase & LeagueGameFields;
@@ -36,12 +39,14 @@ export const createLeagueGamesTable = async (
 ): Promise<void> => {
   await createTableWithBase(db, LEAGUE_GAMES_SNAKE_CASE, (t) =>
     t
+      .addColumn('riot_match_id', 'varchar', (col) => col.notNull())
       .addColumn('league_match_id', 'uuid', (col) =>
         col
           .references(`${LEAGUE_MATCHES_SNAKE_CASE}.id`)
           .onDelete('set null')
           .onUpdate('cascade'),
       )
+      .addColumn('game_number', 'int2')
       .addColumn('invalidated', 'boolean', (col) =>
         col.notNull().defaultTo(false),
       )
@@ -60,7 +65,8 @@ export const createLeagueGamesTable = async (
       )
       .addColumn('side_win', 'varchar(4)')
       .addColumn('duration', 'int2')
-      .addColumn('started_at', 'timestamptz'),
+      .addColumn('started_at', 'timestamptz')
+      .addColumn('draft_link', 'varchar'),
   );
 };
 

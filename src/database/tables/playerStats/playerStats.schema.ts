@@ -29,7 +29,7 @@ export const playerStatRowSchema = z.strictObject({
   teamId: z.uuid().nullable(),
   playerRole: z.enum(LEAGUE_ROLES).nullable(),
   side: z.enum(LEAGUE_SIDES).nullable(),
-  champId: z.coerce.number().int().nullable(),
+  champId: z.coerce.number().int(),
   champName: z.string().nullable(),
   win: z.coerce.boolean().nullable(),
   kills: z.coerce.number().int().nullable(),

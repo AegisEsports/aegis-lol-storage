@@ -1,7 +1,11 @@
 import {
+  BannedChampsQuery,
+  LeagueGamesQuery,
   // LeagueGamesQuery,
   LeagueMatchesQuery,
+  PlayerStatsQuery,
   TeamsQuery,
+  TeamStatsQuery,
 } from '@/database/query.js';
 import type {
   InsertLeagueMatch,
@@ -12,6 +16,7 @@ import type {
 import { MATCH_SIDES } from '@/database/shared.js';
 import type {
   MatchDto,
+  MatchGameDto,
   // MatchGameDto,
   MatchTableDto,
 } from '@/router/match/v1/match.dto.js';
@@ -76,10 +81,61 @@ export class MatchService {
     }
     const { homeTeamName, awayTeamName } =
       await this.getTeamNamesFromMatch(getMatch);
-    // const getGames = await LeagueGamesQuery.listByMatchId(getMatch.id);
-    // const games: MatchGameDto[] = getGames.map((game) => {
+    const getGames = await LeagueGamesQuery.listByMatchId(getMatch.id);
+    const games: MatchGameDto[] = await Promise.all(
+      getGames.map(async (game) => {
+        const { blueTeamName, redTeamName } =
+          await this.getTeamNamesFromGame(game);
+        const blueTeamStats = await TeamStatsQuery.selectByGameAndSide(
+          game.id,
+          'Blue',
+        );
+        const redTeamStats = await TeamStatsQuery.selectByGameAndSide(
+          game.id,
+          'Red',
+        );
+        const bannedChampRows = await BannedChampsQuery.listByGameId(game.id);
 
-    // })
+        return {
+          leagueGameId: game.id,
+          gameNumber: game.gameNumber,
+          blueTeam: {
+            teamId: game.blueTeamId,
+            teamName: blueTeamName,
+            champBanIds: bannedChampRows
+              .filter((r) => r.sideBannedBy === 'Blue')
+              .map((r) => r.champId)
+              .filter((id) => id),
+            champPickIds: await PlayerStatsQuery.listChampIdsByGameAndSide(
+              game.id,
+              'Blue',
+            ),
+            gold: blueTeamStats.totalGold!,
+            kills: blueTeamStats.totalKills!,
+            towers: blueTeamStats.totalTowers!,
+            dragons: blueTeamStats.totalDragons!,
+          },
+          redTeam: {
+            teamId: game.redTeamId,
+            teamName: redTeamName,
+            champBanIds: bannedChampRows
+              .filter((r) => r.sideBannedBy === 'Red')
+              .map((r) => r.champId)
+              .filter((id) => id),
+            champPickIds: await PlayerStatsQuery.listChampIdsByGameAndSide(
+              game.id,
+              'Red',
+            ),
+            gold: redTeamStats.totalGold!,
+            kills: redTeamStats.totalKills!,
+            towers: redTeamStats.totalTowers!,
+            dragons: redTeamStats.totalDragons!,
+          },
+          sideWin: game.sideWin,
+          duration: game.duration,
+        };
+      }),
+    );
 
     return {
       match: {
@@ -87,7 +143,7 @@ export class MatchService {
         homeTeamName,
         awayTeamName,
       },
-      games: [],
+      games,
     };
   };
 
@@ -125,14 +181,9 @@ export class MatchService {
     if (side === MATCH_SIDES[0].toLowerCase()) {
       // Away
       patchedMatch = await LeagueMatchesQuery.setAwayTeamId(matchId, teamId);
-    } else if (side === MATCH_SIDES[1].toLowerCase()) {
+    } else {
       // Home
       patchedMatch = await LeagueMatchesQuery.setHomeTeamId(matchId, teamId);
-    } else {
-      // Should never get here
-      throw new ControllerError(400, 'InvalidInput', 'Side input invalid', {
-        side,
-      });
     }
     if (!patchedMatch) {
       throw new ControllerError(404, 'NotFound', 'Match not found', {

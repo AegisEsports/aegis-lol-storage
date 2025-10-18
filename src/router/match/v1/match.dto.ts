@@ -3,17 +3,18 @@ import type { LeagueSide } from '@/database/shared.js';
 
 // MatchDto
 export type MatchGameStatsDto = {
-  teamId: string;
-  teamName: string;
+  teamId: string | null;
+  teamName: string | null;
   champBanIds: number[];
   champPickIds: number[];
   gold: number;
   kills: number;
-  deaths: number;
-  assists: number;
+  towers: number;
+  dragons: number;
 };
 export type MatchGameDto = {
   leagueGameId: string;
+  gameNumber: number;
   blueTeam: MatchGameStatsDto;
   redTeam: MatchGameStatsDto;
   sideWin: LeagueSide;

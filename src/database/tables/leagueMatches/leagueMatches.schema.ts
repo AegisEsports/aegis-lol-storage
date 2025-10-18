@@ -63,7 +63,7 @@ export const createLeagueMatchesTable = async (
       )
       .addColumn('best_of', 'int2')
       .addColumn('match_type', 'varchar')
-      .addColumn('week_number', 'varchar')
+      .addColumn('week_number', 'int2')
       .addColumn('scheduled_at', 'timestamptz'),
   );
 };

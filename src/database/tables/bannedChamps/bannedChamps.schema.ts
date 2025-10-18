@@ -20,11 +20,11 @@ import {
 
 export const bannedChampRowSchema = z.strictObject({
   leagueGameId: z.uuid(),
-  order: z.coerce.number().int().nullable(),
-  sideBannedBy: z.enum(LEAGUE_SIDES).nullable(),
+  order: z.coerce.number().int(),
+  sideBannedBy: z.enum(LEAGUE_SIDES),
   teamIdBanned: z.uuid().nullable(),
   teamIdAgainst: z.uuid().nullable(),
-  champId: z.coerce.number().int().nullable(),
+  champId: z.coerce.number().int(),
 });
 export type BannedChampFields = z.infer<typeof bannedChampRowSchema>;
 export type BannedChampsTable = TableBase & BannedChampFields;

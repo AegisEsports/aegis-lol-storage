@@ -146,6 +146,7 @@ export class LeagueGamesQuery {
       .selectFrom(LEAGUE_GAMES)
       .selectAll()
       .where('leagueMatchId', '=', matchId)
+      .orderBy('gameNumber', 'asc')
       .execute();
   }
 
@@ -433,6 +434,67 @@ export class LeagueGamesQuery {
       .where('id', '=', gameId)
       .returningAll()
       .executeTakeFirst();
+  }
+
+  static setDraftLink(
+    gameId: string,
+    draftLink: string | null,
+  ): Promise<LeagueGameRow | undefined> {
+    return db
+      .updateTable(LEAGUE_GAMES)
+      .set({ draftLink })
+      .where('id', '=', gameId)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
+  static setBlueTeam(
+    gameId: string,
+    teamId: string,
+  ): Promise<LeagueGameRow | undefined> {
+    return db
+      .updateTable(LEAGUE_GAMES)
+      .set({ blueTeamId: teamId })
+      .where('id', '=', gameId)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
+  static setRedTeam(
+    gameId: string,
+    teamId: string,
+  ): Promise<LeagueGameRow | undefined> {
+    return db
+      .updateTable(LEAGUE_GAMES)
+      .set({ redTeamId: teamId })
+      .where('id', '=', gameId)
+      .returningAll()
+      .executeTakeFirst();
+  }
+
+  /**
+   * Sets the game numbers for all games in a match, ordered by startedAt ascending.
+   * Returns the number of games updated.
+   * Must be called after every insertion/update to leagueMatchId
+   */
+  static async setGameNumbersByMatchId(matchId: string): Promise<number> {
+    const ids: { id: string }[] = await db
+      .selectFrom(LEAGUE_GAMES)
+      .select(['id'])
+      .where('leagueMatchId', '=', matchId)
+      .orderBy('startedAt', 'asc')
+      .execute();
+
+    for (const [number, id] of ids.map((r) => r.id).entries()) {
+      await db
+        .updateTable(LEAGUE_GAMES)
+        .set({ gameNumber: number + 1 })
+        .where('id', '=', id)
+        .returningAll()
+        .execute();
+    }
+
+    return ids.length;
   }
 
   // -- DELETE

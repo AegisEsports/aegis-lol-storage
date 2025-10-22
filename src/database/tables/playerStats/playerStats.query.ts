@@ -29,7 +29,6 @@ import type {
   ChampionPickStatDto,
   TeamPlayerInGameDto,
 } from '@/router/team/v1/team.dto.js';
-// import type { ChampionPickStatDto } from '@/router/team/v1/team.dto.js';
 
 /**
  * Helper function to build the base query for player stat records (used in multiple places).

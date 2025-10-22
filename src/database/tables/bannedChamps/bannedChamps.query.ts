@@ -6,7 +6,6 @@ import {
 } from '@/database/schema.js';
 import type { LeagueSide } from '@/database/shared.js';
 import type { ChampionBanStatDto } from '@/router/team/v1/team.dto.js';
-//import type { ChampionBanStatDto } from '@/router/team/v1/team.dto.js';
 
 export class BannedChampsQuery {
   // -- INSERT

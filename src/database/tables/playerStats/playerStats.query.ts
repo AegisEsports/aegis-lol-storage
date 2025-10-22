@@ -25,6 +25,10 @@ import type {
   PlayerStatRecordKillsAt15Dto,
   PlayerStatRecordVisionScorePerMinuteDto,
 } from '@/router/split/v1/split.dto.js';
+import type {
+  ChampionPickStatDto,
+  TeamPlayerInGameDto,
+} from '@/router/team/v1/team.dto.js';
 
 /**
  * Helper function to build the base query for player stat records (used in multiple places).
@@ -77,6 +81,51 @@ export class PlayerStatsQuery {
       .selectAll()
       .where('id', '=', id)
       .executeTakeFirst();
+  }
+
+  static selectCountPicksByTeamId(
+    teamId: string,
+  ): Promise<ChampionPickStatDto[]> {
+    return db
+      .selectFrom(`${PLAYER_STATS} as ps`)
+      .innerJoin(`${LEAGUE_GAMES} as g`, 'g.id', 'ps.leagueGameId')
+      .where('ps.teamId', '=', teamId)
+      .where('g.invalidated', '=', false)
+      .where('ps.champId', 'is not', null)
+      .select((eb) => [
+        'ps.champId',
+        'ps.champName',
+        eb.fn.countAll<number>().as('picks'),
+        sql<number>`count(*) filter (where ${eb.ref('ps.win')} = true)`.as(
+          'wins',
+        ),
+      ])
+      .groupBy(['ps.champId', 'ps.champName'])
+      .orderBy('picks', 'desc')
+      .orderBy('champName', 'asc')
+      .execute();
+  }
+
+  static selectByGameAndTeam(
+    gameId: string,
+    teamId: string,
+  ): Promise<TeamPlayerInGameDto[]> {
+    return db
+      .selectFrom(`${PLAYER_STATS} as ps`)
+      .innerJoin(`${RIOT_ACCOUNTS} as ra`, 'ra.riotPuuid', 'ps.riotPuuid')
+      .innerJoin(`${USERS} as u`, 'u.id', 'ra.userId')
+      .where('ps.leagueGameId', '=', gameId)
+      .where('ps.teamId', '=', teamId)
+      .select([
+        'u.id as userId',
+        'u.username as username',
+        'ps.playerRole as role',
+        'ps.champId',
+        'ps.champName',
+        'ps.goldDiff10',
+        'ps.goldDiff15',
+      ])
+      .execute();
   }
 
   static listByGameId(gameId: string): Promise<GamePlayerStatRow[]> {

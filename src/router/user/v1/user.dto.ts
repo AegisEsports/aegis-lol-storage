@@ -17,16 +17,28 @@ export type TeamPlayedInDto = TeamRow & {
   leagueName: string | null;
   splitName: string | null;
 };
-export type GamesPlayedInDto = LeagueGameRow & {
+export type PlayerGamePlayedInDto = LeagueGameRow & {
+  splitId: string | null;
+  splitName: string | null;
+  teamName: string | null;
+  opposingTeamName: string | null;
   side: LeagueSide | null;
   role: LeagueRole | null;
   win: boolean | null;
   eSubbed: boolean;
+  champName: string | null;
+  summonerSpell1Id: number | null;
+  summonerSpell2Id: number | null;
+  kills: number | null;
+  deaths: number | null;
+  assists: number | null;
+  gold: number | null;
+  creepScore: number | null;
 };
 export type UserDto = {
   user: UserRow;
   teams: TeamPlayedInDto[]; // sorted by startDate
-  games: GamesPlayedInDto[];
+  games: PlayerGamePlayedInDto[];
   riotAccounts: RiotAccountRow[];
   discordAccounts: DiscordAccountRow[];
   organizationsOwn: OrganizationRow[];

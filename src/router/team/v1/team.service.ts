@@ -1,11 +1,16 @@
 import {
+  BannedChampsQuery,
   DiscordAccountsQuery,
   EmergencySubRequestsQuery,
+  LeagueGamesQuery,
+  LeagueMatchesQuery,
+  PlayerStatsQuery,
   RiotAccountsQuery,
   RosterRequestsQuery,
   SplitsQuery,
   TeamRostersQuery,
   TeamsQuery,
+  TeamStatsQuery,
   UsersQuery,
 } from '@/database/query.js';
 import type {
@@ -90,6 +95,12 @@ export class TeamService {
       team: insertedTeam,
       split: getSplit!,
       roster: rosterRecord,
+      matches: [],
+      championStats: {
+        picks: [],
+        bansBy: [],
+        bansAgainst: [],
+      },
       rosterRequests: [],
       emergencySubRequests: [],
     };
@@ -134,14 +145,46 @@ export class TeamService {
     const getSplit = await SplitsQuery.selectById(getTeam.splitId);
     const getTeamRoster = await TeamRostersQuery.listByTeamId(teamId);
     const rosterRecord = await this.createRosterRecord(getTeamRoster);
+    const getChampionPicks =
+      await PlayerStatsQuery.selectCountPicksByTeamId(teamId);
+    const getChampionBansBy =
+      await BannedChampsQuery.selectCountByTeamId(teamId);
+    const getChampionBansAgainst =
+      await BannedChampsQuery.selectCountAgainstByTeamId(teamId);
     const getRosterRequests = await RosterRequestsQuery.listByTeamId(teamId);
     const getEmergencySubRequests =
       await EmergencySubRequestsQuery.listByTeamId(teamId);
+    // Build matches object with the nested array of games played
+    const getMatches = await LeagueMatchesQuery.listByTeamId(teamId);
+    for (const match of getMatches) {
+      const leagueGameStats = await LeagueGamesQuery.listByMatchId(match.id);
+      match.games = await Promise.all(
+        leagueGameStats.map(async (game) => {
+          const side = game.blueTeamId === teamId ? 'Blue' : 'Red';
+
+          return {
+            ...game,
+            side,
+            stats: await TeamStatsQuery.selectByGameAndTeam(game.id, teamId),
+            players: await PlayerStatsQuery.selectByGameAndTeam(
+              game.id,
+              teamId,
+            ),
+          };
+        }),
+      );
+    }
 
     return {
       team: getTeam,
       split: getSplit!,
       roster: rosterRecord,
+      matches: getMatches,
+      championStats: {
+        picks: getChampionPicks,
+        bansBy: getChampionBansBy,
+        bansAgainst: getChampionBansAgainst,
+      },
       rosterRequests: getRosterRequests,
       emergencySubRequests: getEmergencySubRequests,
     };

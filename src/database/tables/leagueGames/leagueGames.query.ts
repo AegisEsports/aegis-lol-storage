@@ -7,6 +7,7 @@ import {
   LEAGUE_MATCHES,
   PLAYER_STATS,
   RIOT_ACCOUNTS,
+  SPLITS,
   TEAM_STATS,
   TEAMS,
 } from '@/database/const.js';
@@ -30,7 +31,7 @@ import type {
   SidesStatsDto,
   TeamGameStatDto,
 } from '@/router/split/v1/split.dto.js';
-import type { GamesPlayedInDto } from '@/router/user/v1/user.dto.js';
+import type { PlayerGamePlayedInDto } from '@/router/user/v1/user.dto.js';
 
 /**
  * Helper type to extract only numeric fields from TeamStatFields
@@ -98,13 +99,13 @@ export class LeagueGamesQuery {
 
   static async listPlayedInByUserId(
     userId: string,
-  ): Promise<GamesPlayedInDto[]> {
-    // Main query
+  ): Promise<PlayerGamePlayedInDto[]> {
     return await db
       .selectFrom(`${PLAYER_STATS} as ps`)
       .innerJoin(`${RIOT_ACCOUNTS} as ra`, 'ra.riotPuuid', 'ps.riotPuuid') // puuid belongs to exactly one user
       .innerJoin(`${LEAGUE_GAMES} as g`, 'g.id', 'ps.leagueGameId')
-      .where('ra.userId', '=', userId)
+      .innerJoin(`${LEAGUE_MATCHES} as m`, 'm.id', 'g.leagueMatchId')
+      .innerJoin(`${SPLITS} as s`, 's.id', 'm.splitId')
       // e-sub (approved) on the same match for this user
       .leftJoin(`${EMERGENCY_SUB_REQUESTS} as es`, (join) =>
         join
@@ -112,21 +113,28 @@ export class LeagueGamesQuery {
           .on('es.userId', '=', userId)
           .on('es.approved', '=', true),
       )
-      .selectAll('g') // LeagueGameRow fields
+      // names for blue/red teams from the game row
+      .leftJoin(`${TEAMS} as tb`, 'tb.id', 'g.blueTeamId')
+      .leftJoin(`${TEAMS} as tr`, 'tr.id', 'g.redTeamId')
+      .where('ra.userId', '=', userId)
+      // -- LeagueGameRow fields
+      .selectAll('g')
       // role & side from stats
-      .select(['ps.playerRole as role', 'ps.side as side'])
-      // win: did this player’s team win?
-      .select((eb) =>
-        eb
-          .case()
-          .when(eb.ref('g.sideWin'), 'is', null)
-          .then(null)
-          .when(eb.ref('ps.side'), '=', eb.ref('g.sideWin'))
-          .then(true)
-          .else(false)
-          .end()
-          .as('win'),
-      )
+      .select([
+        's.id as splitId',
+        's.name as splitName',
+        'ps.playerRole as role',
+        'ps.side as side',
+        'ps.win as win',
+        'ps.champName as champName',
+        'ps.summoner1Id as summonerSpell1Id',
+        'ps.summoner2Id as summonerSpell2Id',
+        'ps.kills as kills',
+        'ps.deaths as deaths',
+        'ps.assists as assists',
+        'ps.gold as gold',
+        'ps.creepScore as creepScore',
+      ])
       // eSubbed: approved e-sub row exists for this match & user
       .select((eb) =>
         eb
@@ -136,6 +144,30 @@ export class LeagueGamesQuery {
           .else(true)
           .end()
           .as('eSubbed'),
+      )
+      // teamName: whichever team the player is on (blue or red)
+      .select((eb) =>
+        eb
+          .case()
+          .when(eb.ref('ps.teamId'), '=', eb.ref('g.blueTeamId'))
+          .then(eb.ref('tb.name'))
+          .when(eb.ref('ps.teamId'), '=', eb.ref('g.redTeamId'))
+          .then(eb.ref('tr.name'))
+          .else(null)
+          .end()
+          .as('teamName'),
+      )
+      // opposingTeamName: the other team in the game
+      .select((eb) =>
+        eb
+          .case()
+          .when(eb.ref('ps.teamId'), '=', eb.ref('g.blueTeamId'))
+          .then(eb.ref('tr.name'))
+          .when(eb.ref('ps.teamId'), '=', eb.ref('g.redTeamId'))
+          .then(eb.ref('tb.name'))
+          .else(null)
+          .end()
+          .as('opposingTeamName'),
       )
       .orderBy('g.startedAt', 'desc')
       .execute();

@@ -22,6 +22,7 @@ import type {
   TeamStatRecordWardsClearedAt15Dto,
   TeamStatRecordWardsPlacedAt15Dto,
 } from '@/router/split/v1/split.dto.js';
+import type { TeamStatPlayedInDto } from '@/router/team/v1/team.dto.js';
 
 /**
  * Helper function to build the base query for team stat records (used in multiple places).
@@ -68,6 +69,48 @@ export class TeamStatsQuery {
       .selectAll()
       .where('id', '=', id)
       .executeTakeFirst();
+  }
+
+  static async selectByGameAndTeam(
+    gameId: string,
+    teamId: string,
+  ): Promise<TeamStatPlayedInDto> {
+    const row = await db
+      .selectFrom(`${TEAM_STATS} as ts_me`)
+      .leftJoin(
+        `${TEAM_STATS} as ts_opp`,
+        (join) =>
+          join
+            .onRef('ts_opp.leagueGameId', '=', 'ts_me.leagueGameId')
+            .on('ts_opp.teamId', '<>', teamId), // opponent = same game, different team
+      )
+      .where('ts_me.leagueGameId', '=', gameId)
+      .where('ts_me.teamId', '=', teamId)
+      .select((eb) => [
+        eb.ref('ts_me.totalKills').as('totalKills'),
+        eb.ref('ts_me.totalGold').as('totalGold'),
+        eb.ref('ts_me.totalTowers').as('totalTowers'),
+        eb.ref('ts_me.totalDragons').as('totalDragons'),
+
+        eb.ref('ts_opp.totalKills').as('opposingKills'),
+        eb.ref('ts_opp.totalGold').as('opposingGold'),
+        eb.ref('ts_opp.totalTowers').as('opposingTowers'),
+        eb.ref('ts_opp.totalDragons').as('opposingDragons'),
+      ])
+      .executeTakeFirst();
+
+    return (
+      row ?? {
+        totalKills: null,
+        totalGold: null,
+        totalTowers: null,
+        totalDragons: null,
+        opposingKills: null,
+        opposingGold: null,
+        opposingTowers: null,
+        opposingDragons: null,
+      }
+    );
   }
 
   static selectByGameAndSide(

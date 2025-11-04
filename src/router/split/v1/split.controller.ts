@@ -95,6 +95,25 @@ export class SplitController {
   };
 
   /**
+   * GET - /champs/{splitId}
+   */
+  public static readSplitChampionStats: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { splitId } = req.params;
+
+      res
+        .status(200)
+        .json(await SplitService.findChampionStatsBySplitId(splitId!));
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  /**
    * PUT - /{splitId}
    */
   public static updateSplit: RequestHandler = async (

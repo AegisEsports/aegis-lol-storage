@@ -1,4 +1,5 @@
 import {
+  BannedChampsQuery,
   EmergencySubRequestsQuery,
   LeagueGamesQuery,
   PlayerStatsQuery,
@@ -9,6 +10,8 @@ import {
 } from '@/database/query.js';
 import type { InsertSplit, UpdateSplit } from '@/database/schema.js';
 import type {
+  ChampionStatOverallDto,
+  ChampionStatsSplitDto,
   GamesSplitDto,
   PlayerStatsSplitDto,
   SplitDto,
@@ -191,6 +194,156 @@ export class SplitService {
     const getGames = await LeagueGamesQuery.listBySplitId(splitId);
     return {
       games: getGames,
+    };
+  };
+
+  /**
+   * Retrieves champion stats for a singular split.
+   */
+  public static findChampionStatsBySplitId = async (
+    splitId: string,
+  ): Promise<ChampionStatsSplitDto> => {
+    const getSplit = await SplitsQuery.selectById(splitId);
+    if (!getSplit) {
+      throw new ControllerError(404, 'NotFound', 'Split not found', {
+        splitId,
+      });
+    }
+
+    // Will need to do some extensive logic here outside of sql query work.
+    const championStatMap: Map<number, ChampionStatOverallDto> = new Map();
+    /** Initialize new object */
+    const initChampionStatOverall = (
+      champId: number,
+    ): ChampionStatOverallDto => ({
+      champId,
+      picks: 0,
+      bans: 0,
+      priorityScore: 0,
+      presence: 0,
+      bluePicks: 0,
+      redPicks: 0,
+      blueBans: 0,
+      redBans: 0,
+      wins: 0,
+      losses: 0,
+      averageBanOrder: 0,
+    });
+    // Calculate priorityValue by match
+    // Pick - Based on what game the pick is made:
+    //  Game 1 pick = 3
+    //  Game 2 pick = 2
+    //  Game 3, 4, 5 pick = 1
+    //  Not picked = 0
+    // Ban - Based on the earliest game the champ was banned:
+    //  Game 1 ban = 3
+    //  Game 2 ban = 2
+    //  Game 3, 4, 5 ban = 1
+    //  Not banned = 0
+    // Champ = Max(Pick, Ban)
+    //
+    // Construct map #1 of matchId -> champId -> priorityValue
+    // Construct map #2 of matchId -> Set<number> (champIds that were present in the match)
+    const GAME_NUMBER_PRIORITY_MAP: Record<number, number> = Object.freeze({
+      1: 3,
+      2: 2,
+      3: 1,
+      4: 1,
+      5: 1,
+    });
+    const priorityMap: Map<string, Map<number, number>> = new Map();
+    const presenceMap: Map<string, Set<number>> = new Map();
+    /** Helper function to update the priority and presence maps */
+    const addToPriorityPresenceMaps = (
+      leagueMatchId: string,
+      champId: number,
+      gameNumber: number,
+    ) => {
+      if (!priorityMap.has(leagueMatchId)) {
+        priorityMap.set(leagueMatchId, new Map());
+      }
+      const matchPriorityMap = priorityMap.get(leagueMatchId)!;
+      const existingPriority = matchPriorityMap.get(champId) ?? 0;
+      // Update to the higher priority value
+      matchPriorityMap.set(
+        champId,
+        Math.max(existingPriority, GAME_NUMBER_PRIORITY_MAP[gameNumber] ?? 0),
+      );
+      if (!presenceMap.has(leagueMatchId)) {
+        presenceMap.set(leagueMatchId, new Set());
+      }
+      // Add to presence set
+      presenceMap.get(leagueMatchId)!.add(champId);
+    };
+    // Process champion picks
+    const getChampionPicks =
+      await PlayerStatsQuery.listChampionPicksBySplitId(splitId);
+    for (const pick of getChampionPicks) {
+      if (!championStatMap.has(pick.champId)) {
+        championStatMap.set(
+          pick.champId,
+          initChampionStatOverall(pick.champId),
+        );
+      }
+      const overall = championStatMap.get(pick.champId)!;
+      overall.picks += 1;
+      if (pick.side === 'Blue') {
+        overall.bluePicks += 1;
+      } else {
+        overall.redPicks += 1;
+      }
+      overall.wins += pick.win ? 1 : 0;
+      overall.losses += pick.win ? 0 : 1;
+      addToPriorityPresenceMaps(
+        pick.leagueMatchId,
+        pick.champId,
+        pick.gameNumber,
+      );
+    }
+    // Process champion bans
+    const getChampionBans =
+      await BannedChampsQuery.listChampionBansBySplitId(splitId);
+    for (const ban of getChampionBans) {
+      if (!championStatMap.has(ban.champId)) {
+        championStatMap.set(ban.champId, initChampionStatOverall(ban.champId));
+      }
+      const overall = championStatMap.get(ban.champId)!;
+      overall.bans += 1;
+      if (ban.side === 'Blue') {
+        overall.blueBans += 1;
+      } else {
+        overall.redBans += 1;
+      }
+      overall.averageBanOrder += ban.banOrder ?? 0;
+      addToPriorityPresenceMaps(ban.leagueMatchId, ban.champId, ban.gameNumber);
+    }
+    // Aggregate priority and presence from the maps
+    for (const matchPriority of priorityMap.values()) {
+      for (const [champId, priorityScore] of matchPriority.entries()) {
+        const overall = championStatMap.get(champId);
+        if (overall) {
+          overall.priorityScore += priorityScore;
+        }
+      }
+    }
+    for (const matchPresence of presenceMap.values()) {
+      for (const champId of matchPresence.values()) {
+        const overall = championStatMap.get(champId);
+        if (overall) {
+          overall.presence += 1;
+        }
+      }
+    }
+    // Finalize calculations by normalizing priorityScore and presence to percentages
+    const numberOfMatches = presenceMap.size;
+    for (const overall of championStatMap.values()) {
+      overall.priorityScore =
+        (overall.priorityScore / (numberOfMatches * 3)) * 100;
+      overall.presence = (overall.presence / numberOfMatches) * 100;
+    }
+
+    return {
+      champions: Array.from(championStatMap.values()),
     };
   };
 

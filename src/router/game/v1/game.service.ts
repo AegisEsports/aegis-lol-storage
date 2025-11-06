@@ -1109,17 +1109,20 @@ export class GameService {
       otherTeamUuid: string | null,
     ): Promise<BannedChampRow[]> => {
       return Promise.all(
-        team.bans.map(
-          async (b) =>
-            await BannedChampsQuery.insert({
-              leagueGameId,
-              order: b.pickTurn,
-              sideBannedBy: side,
-              teamIdBanned: teamUuid,
-              teamIdAgainst: otherTeamUuid,
-              champId: b.championId,
-            }),
-        ),
+        team.bans.map(async (b, idx) => {
+          // There is currently a bug in the Riot API where sometimes
+          //  the 'pickTurn' field is incorrect. So we manually correct it here.
+          const banOrders =
+            side === 'Blue' ? [1, 3, 5, 8, 10] : [5, 6, 7, 8, 9];
+          return await BannedChampsQuery.insert({
+            leagueGameId,
+            banOrder: banOrders[idx] ?? 0,
+            sideBannedBy: side,
+            teamIdBanned: teamUuid,
+            teamIdAgainst: otherTeamUuid,
+            champId: b.championId,
+          });
+        }),
       );
     };
     // Insert into banned_champs table

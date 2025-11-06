@@ -349,7 +349,7 @@ export type ChampionStatOverallDto = {
   redBans: number;
   wins: number;
   losses: number;
-  averageBanOrder: number;
+  averageBanOrder: number | null;
 };
 export type ChampionStatsSplitDto = {
   champions: ChampionStatOverallDto[];

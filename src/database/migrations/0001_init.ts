@@ -1,3 +1,7 @@
+/**
+ * Initialize the database schema
+ */
+
 import { sql, type Kysely } from 'kysely';
 
 import type { Database } from '@/database/database.js';
@@ -99,11 +103,11 @@ export const up = async (db: Kysely<Database>): Promise<void> => {
   await sql`SELECT ensure_fk_indexes('public')`.execute(db);
 };
 
-export const down = async (db: Kysely<Database>): Promise<void> => {
-  // NOTE: this wipes the entire 'public' schema.
-  await sql`DROP SCHEMA IF EXISTS public CASCADE`.execute(db);
-  await sql`CREATE SCHEMA public`.execute(db);
-
-  // Re-grant defaults so new objects are creatable
-  await sql`GRANT USAGE, CREATE ON SCHEMA public TO PUBLIC`.execute(db);
+export const down = async (): Promise<void> => {
+  // Leaving this blank for now when it's needed.
+  // // NOTE: this wipes the entire 'public' schema.
+  // await sql`DROP SCHEMA IF EXISTS public CASCADE`.execute(db);
+  // await sql`CREATE SCHEMA public`.execute(db);
+  // // Re-grant defaults so new objects are creatable
+  // await sql`GRANT USAGE, CREATE ON SCHEMA public TO PUBLIC`.execute(db);
 };

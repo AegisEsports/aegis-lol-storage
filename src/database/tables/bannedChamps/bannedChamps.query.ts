@@ -64,7 +64,7 @@ export class BannedChampsQuery {
       .selectFrom(BANNED_CHAMPS)
       .selectAll()
       .where('leagueGameId', '=', gameId)
-      .orderBy('order', 'asc')
+      .orderBy('banOrder', 'asc')
       .execute();
   }
 
@@ -82,9 +82,8 @@ export class BannedChampsQuery {
         'g.gameNumber',
         'bc.sideBannedBy as side',
         'bc.champId',
-        'bc.order as banOrder',
+        'bc.banOrder as banOrder',
       ])
-      .groupBy(['bc.leagueGameId'])
       .execute();
   }
 

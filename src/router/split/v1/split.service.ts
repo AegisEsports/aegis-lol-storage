@@ -269,10 +269,10 @@ export class SplitService {
         champId,
         Math.max(existingPriority, GAME_NUMBER_PRIORITY_MAP[gameNumber] ?? 0),
       );
+      // Add to presence set
       if (!presenceMap.has(leagueMatchId)) {
         presenceMap.set(leagueMatchId, new Set());
       }
-      // Add to presence set
       presenceMap.get(leagueMatchId)!.add(champId);
     };
     // Process champion picks
@@ -314,7 +314,7 @@ export class SplitService {
       } else {
         overall.redBans += 1;
       }
-      overall.averageBanOrder += ban.banOrder ?? 0;
+      overall.averageBanOrder! += ban.banOrder ?? 0;
       addToPriorityPresenceMaps(ban.leagueMatchId, ban.champId, ban.gameNumber);
     }
     // Aggregate priority and presence from the maps
@@ -340,6 +340,10 @@ export class SplitService {
       overall.priorityScore =
         (overall.priorityScore / (numberOfMatches * 3)) * 100;
       overall.presence = (overall.presence / numberOfMatches) * 100;
+      overall.averageBanOrder =
+        overall.averageBanOrder && overall.bans
+          ? overall.averageBanOrder / overall.bans
+          : null;
     }
 
     return {

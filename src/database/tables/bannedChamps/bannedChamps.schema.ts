@@ -20,7 +20,7 @@ import {
 
 export const bannedChampRowSchema = z.strictObject({
   leagueGameId: z.uuid(),
-  order: z.coerce.number().int(),
+  banOrder: z.coerce.number().int(),
   sideBannedBy: z.enum(LEAGUE_SIDES),
   teamIdBanned: z.uuid().nullable(),
   teamIdAgainst: z.uuid().nullable(),
@@ -40,7 +40,7 @@ export const createBannedChampsTable = async (
           .references(`${LEAGUE_GAMES_SNAKE_CASE}.id`)
           .onDelete('cascade'),
       )
-      .addColumn('order', 'int2')
+      .addColumn('ban_order', 'int2')
       .addColumn('side_banned_by', 'varchar')
       .addColumn('team_id_banned', 'uuid', (col) =>
         col

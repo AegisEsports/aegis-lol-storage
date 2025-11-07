@@ -16,6 +16,7 @@ import {
 import { RECORD_LIMIT, type LeagueSide } from '@/database/shared.js';
 import type { GamePlayerStatRow } from '@/router/game/v1/game.dto.js';
 import type {
+  ChampionPickRecord,
   PlayerStatOverallDto,
   PlayerStatRecordCreepScorePerMinuteDto,
   PlayerStatRecordCsAt15Dto,
@@ -266,6 +267,26 @@ export class PlayerStatsQuery {
           .as('averageWardTakedownDiff20'),
       ])
       .orderBy('u.username', 'asc')
+      .execute();
+  }
+
+  static listChampionPicksBySplitId(
+    splitId: string,
+  ): Promise<ChampionPickRecord[]> {
+    return db
+      .selectFrom(`${PLAYER_STATS} as ps`)
+      .innerJoin(`${LEAGUE_GAMES} as g`, 'g.id', 'ps.leagueGameId')
+      .innerJoin(`${LEAGUE_MATCHES} as m`, 'm.id', 'g.leagueMatchId')
+      .where('m.splitId', '=', splitId)
+      .select([
+        'm.id as leagueMatchId',
+        'g.id as leagueGameId',
+        'g.gameNumber',
+        'ps.side',
+        'ps.champId',
+        'ps.win',
+      ])
+      .orderBy('leagueMatchId', 'asc')
       .execute();
   }
 

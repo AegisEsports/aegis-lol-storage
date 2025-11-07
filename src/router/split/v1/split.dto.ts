@@ -4,6 +4,7 @@ import type {
   SplitRow,
   TeamRow,
 } from '@/database/schema.js';
+import type { LeagueSide } from '@/database/shared.js';
 
 // SplitDto
 export type SidesStatsDto = {
@@ -317,6 +318,41 @@ export type GameDetailDto = {
 };
 export type GamesSplitDto = {
   games: GameDetailDto[];
+};
+
+// ChampionStatsSplitDto
+export type ChampionPickRecord = {
+  leagueMatchId: string;
+  leagueGameId: string;
+  gameNumber: number;
+  side: LeagueSide | null;
+  champId: number;
+  win: boolean | null;
+};
+export type ChampionBanRecord = {
+  leagueMatchId: string;
+  leagueGameId: string;
+  gameNumber: number;
+  side: LeagueSide | null;
+  champId: number;
+  banOrder: number | null;
+};
+export type ChampionStatOverallDto = {
+  champId: number;
+  picks: number;
+  bans: number;
+  priorityScore: number; // Calculated in percentage
+  presence: number; // Calculated in percentage
+  bluePicks: number;
+  redPicks: number;
+  blueBans: number;
+  redBans: number;
+  wins: number;
+  losses: number;
+  averageBanOrder: number | null;
+};
+export type ChampionStatsSplitDto = {
+  champions: ChampionStatOverallDto[];
 };
 
 // SplitTableDto

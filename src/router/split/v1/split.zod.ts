@@ -22,6 +22,9 @@ export const getSplitTeamStatsParams = getSplitParams.clone();
 // GET - /games/{splitId}
 export const getSplitGamesParams = getSplitParams.clone();
 
+// GET - /champs/{splitId}
+export const getSplitChampionStatsParams = getSplitParams.clone();
+
 // PUT - /{splitId}
 export const putSplitParams = getSplitParams.clone();
 export const putSplitBody = postSplitBody.clone();

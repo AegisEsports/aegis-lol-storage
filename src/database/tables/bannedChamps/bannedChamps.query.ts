@@ -1,10 +1,15 @@
-import { BANNED_CHAMPS } from '@/database/const.js';
+import {
+  BANNED_CHAMPS,
+  LEAGUE_GAMES,
+  LEAGUE_MATCHES,
+} from '@/database/const.js';
 import { db } from '@/database/database.js';
 import {
   type InsertBannedChamp,
   type BannedChampRow,
 } from '@/database/schema.js';
 import type { LeagueSide } from '@/database/shared.js';
+import type { ChampionBanRecord } from '@/router/split/v1/split.dto.js';
 import type { ChampionBanStatDto } from '@/router/team/v1/team.dto.js';
 
 export class BannedChampsQuery {
@@ -59,7 +64,26 @@ export class BannedChampsQuery {
       .selectFrom(BANNED_CHAMPS)
       .selectAll()
       .where('leagueGameId', '=', gameId)
-      .orderBy('order', 'asc')
+      .orderBy('banOrder', 'asc')
+      .execute();
+  }
+
+  static listChampionBansBySplitId(
+    splitId: string,
+  ): Promise<ChampionBanRecord[]> {
+    return db
+      .selectFrom(`${BANNED_CHAMPS} as bc`)
+      .innerJoin(`${LEAGUE_GAMES} as g`, 'g.id', 'bc.leagueGameId')
+      .innerJoin(`${LEAGUE_MATCHES} as m`, 'm.id', 'g.leagueMatchId')
+      .where('m.splitId', '=', splitId)
+      .select([
+        'm.id as leagueMatchId',
+        'g.id as leagueGameId',
+        'g.gameNumber',
+        'bc.sideBannedBy as side',
+        'bc.champId',
+        'bc.banOrder as banOrder',
+      ])
       .execute();
   }
 

@@ -1113,7 +1113,7 @@ export class GameService {
           // There is currently a bug in the Riot API where sometimes
           //  the 'pickTurn' field is incorrect. So we manually correct it here.
           const banOrders =
-            side === 'Blue' ? [1, 3, 5, 8, 10] : [5, 6, 7, 8, 9];
+            side === 'Blue' ? [1, 3, 5, 8, 10] : [2, 4, 6, 7, 9];
           return await BannedChampsQuery.insert({
             leagueGameId,
             banOrder: banOrders[idx] ?? 0,

@@ -17,6 +17,8 @@ export type NameTableDto = {};
 ```typescript
 import z from 'zod';
 
+import { nameRowSchema } from '@/database/schema.js';
+
 // POST - /
 export const postNameBody = z.strictObject({});
 export type CreateNameBody = z.infer<typeof postNameBody>;
@@ -175,7 +177,7 @@ export class NameService {
    * Creates a singular entry of a name.
    */
   public create = async (nameData: InsertName): Promise<NameDto> => {
-    const insertedName = await NamesQuery.insert(nameData);
+    const insertedName = await NamesQuery.insert(this.db, nameData);
 
     return {
       name: insertedName,
@@ -186,7 +188,7 @@ export class NameService {
    * Retrieves a singular entry of a name.
    */
   public findById = async (nameId: string): Promise<NameDto> => {
-    const getName = await NamesQuery.selectById(nameId);
+    const getName = await NamesQuery.selectById(this.db, nameId);
     if (!getName) {
       throw new ControllerError(404, 'NotFound', 'Name not found', {
         nameId,
@@ -205,7 +207,7 @@ export class NameService {
     nameId: string,
     nameData: UpdateName,
   ): Promise<NameTableDto> => {
-    const updatedName = await NamesQuery.updateById(nameId, nameData);
+    const updatedName = await NamesQuery.updateById(this.db, nameId, nameData);
     if (!updatedName) {
       throw new ControllerError(404, 'NotFound', 'Name not found', {
         nameId,
@@ -221,7 +223,7 @@ export class NameService {
    * Deletes a singular entry of a name.
    */
   public removeById = async (nameId: string): Promise<NameTableDto> => {
-    const deletedName = await NamesQuery.deleteById(nameId);
+    const deletedName = await NamesQuery.deleteById(this.db, nameId);
     if (!deletedName) {
       throw new ControllerError(404, 'NotFound', 'Name not found', {
         nameId,

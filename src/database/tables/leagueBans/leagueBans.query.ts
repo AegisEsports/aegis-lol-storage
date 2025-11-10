@@ -1,16 +1,21 @@
+import type { Kysely } from 'kysely';
+
 import { LEAGUE_BANS, USERS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertLeagueBan,
   type LeagueBanRow,
   type UpdateLeagueBan,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 import type { UsersBannedInLeagueDto } from '@/router/league/v1/league.dto.js';
 
 export class LeagueBansQuery {
   // -- INSERT
 
-  static insert(db: DbType, values: InsertLeagueBan): Promise<LeagueBanRow> {
+  static insert(
+    db: Kysely<Database>,
+    values: InsertLeagueBan,
+  ): Promise<LeagueBanRow> {
     return db
       .insertInto(LEAGUE_BANS)
       .values(values)
@@ -20,7 +25,10 @@ export class LeagueBansQuery {
 
   // -- SELECT
 
-  static selectById(db: DbType, id: string): Promise<LeagueBanRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<LeagueBanRow | undefined> {
     return db
       .selectFrom(LEAGUE_BANS)
       .selectAll()
@@ -28,7 +36,10 @@ export class LeagueBansQuery {
       .executeTakeFirst();
   }
 
-  static listByUserId(db: DbType, userId: string): Promise<LeagueBanRow[]> {
+  static listByUserId(
+    db: Kysely<Database>,
+    userId: string,
+  ): Promise<LeagueBanRow[]> {
     return db
       .selectFrom(LEAGUE_BANS)
       .selectAll()
@@ -37,7 +48,7 @@ export class LeagueBansQuery {
   }
 
   static listByLeagueId(
-    db: DbType,
+    db: Kysely<Database>,
     leagueId: string,
   ): Promise<UsersBannedInLeagueDto[]> {
     return db
@@ -54,7 +65,7 @@ export class LeagueBansQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateLeagueBan,
   ): Promise<LeagueBanRow | undefined> {
@@ -68,7 +79,10 @@ export class LeagueBansQuery {
 
   // -- DELETE
 
-  static deleteById(db: DbType, id: string): Promise<LeagueBanRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<LeagueBanRow | undefined> {
     return db
       .deleteFrom(LEAGUE_BANS)
       .where('id', '=', id)

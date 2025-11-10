@@ -1,3 +1,5 @@
+import type { Kysely } from 'kysely';
+
 import {
   LEAGUES,
   ROSTER_REQUESTS,
@@ -5,18 +7,18 @@ import {
   TEAM_ROSTERS,
   TEAMS,
 } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertTeam,
   type TeamRow,
   type UpdateTeam,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 import type { TeamPlayedInDto } from '@/router/user/v1/user.dto.js';
 
 export class TeamsQuery {
   // -- INSERT
 
-  static insert(db: DbType, values: InsertTeam): Promise<TeamRow> {
+  static insert(db: Kysely<Database>, values: InsertTeam): Promise<TeamRow> {
     return db
       .insertInto(TEAMS)
       .values(values)
@@ -26,7 +28,10 @@ export class TeamsQuery {
 
   // -- SELECT
 
-  static selectById(db: DbType, id: string): Promise<TeamRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<TeamRow | undefined> {
     return db
       .selectFrom(TEAMS)
       .selectAll()
@@ -34,7 +39,10 @@ export class TeamsQuery {
       .executeTakeFirst();
   }
 
-  static listBySplitId(db: DbType, splitId: string): Promise<TeamRow[]> {
+  static listBySplitId(
+    db: Kysely<Database>,
+    splitId: string,
+  ): Promise<TeamRow[]> {
     return db
       .selectFrom(`${TEAMS}`)
       .selectAll()
@@ -43,7 +51,7 @@ export class TeamsQuery {
   }
 
   static async listPlayedInByUserId(
-    db: DbType,
+    db: Kysely<Database>,
     userId: string,
   ): Promise<TeamPlayedInDto[]> {
     // Distinct teams the user has appeared on.
@@ -148,7 +156,7 @@ export class TeamsQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateTeam,
   ): Promise<TeamRow | undefined> {
@@ -161,7 +169,7 @@ export class TeamsQuery {
   }
 
   static setOrganizationId(
-    db: DbType,
+    db: Kysely<Database>,
     teamId: string,
     organizationId: string,
   ): Promise<TeamRow | undefined> {
@@ -175,7 +183,10 @@ export class TeamsQuery {
 
   // -- DELETE
 
-  static deleteById(db: DbType, id: string): Promise<TeamRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<TeamRow | undefined> {
     return db
       .deleteFrom(TEAMS)
       .where('id', '=', id)

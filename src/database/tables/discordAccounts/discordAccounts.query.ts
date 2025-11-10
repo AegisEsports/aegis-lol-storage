@@ -1,20 +1,21 @@
+import type { Kysely } from 'kysely';
 import { DatabaseError } from 'pg';
 import { PostgresError } from 'pg-error-enum';
 
 import { DISCORD_ACCOUNTS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type DiscordAccountRow,
   type InsertDiscordAccount,
   type UpdateDiscordAccount,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 import ControllerError from '@/util/errors/controllerError.js';
 
 export class DiscordAccountsQuery {
   // -- INSERT
 
   static insert(
-    db: DbType,
+    db: Kysely<Database>,
     values: InsertDiscordAccount,
   ): Promise<DiscordAccountRow> {
     return db
@@ -27,7 +28,7 @@ export class DiscordAccountsQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<DiscordAccountRow | undefined> {
     return db
@@ -38,7 +39,7 @@ export class DiscordAccountsQuery {
   }
 
   static listByUserId(
-    db: DbType,
+    db: Kysely<Database>,
     userId: string,
   ): Promise<DiscordAccountRow[]> {
     return db
@@ -51,7 +52,7 @@ export class DiscordAccountsQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateDiscordAccount,
   ): Promise<DiscordAccountRow | undefined> {
@@ -64,7 +65,7 @@ export class DiscordAccountsQuery {
   }
 
   static setWithUserId(
-    db: DbType,
+    db: Kysely<Database>,
     discordAccountId: string,
     userId: string,
   ): Promise<DiscordAccountRow | undefined> {
@@ -92,7 +93,7 @@ export class DiscordAccountsQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<DiscordAccountRow | undefined> {
     return db

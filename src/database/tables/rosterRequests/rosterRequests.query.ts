@@ -1,16 +1,18 @@
+import type { Kysely } from 'kysely';
+
 import { ROSTER_REQUESTS, TEAMS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertRosterRequest,
   type RosterRequestRow,
   type UpdateRosterRequest,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 
 export class RosterRequestsQuery {
   // -- INSERT
 
   static insert(
-    db: DbType,
+    db: Kysely<Database>,
     values: InsertRosterRequest,
   ): Promise<RosterRequestRow> {
     return db
@@ -23,7 +25,7 @@ export class RosterRequestsQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<RosterRequestRow | undefined> {
     return db
@@ -34,7 +36,7 @@ export class RosterRequestsQuery {
   }
 
   static listBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<RosterRequestRow[]> {
     return db
@@ -46,7 +48,10 @@ export class RosterRequestsQuery {
       .execute();
   }
 
-  static listByTeamId(db: DbType, teamId: string): Promise<RosterRequestRow[]> {
+  static listByTeamId(
+    db: Kysely<Database>,
+    teamId: string,
+  ): Promise<RosterRequestRow[]> {
     return db
       .selectFrom(ROSTER_REQUESTS)
       .selectAll()
@@ -57,7 +62,7 @@ export class RosterRequestsQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateRosterRequest,
   ): Promise<RosterRequestRow | undefined> {
@@ -70,7 +75,7 @@ export class RosterRequestsQuery {
   }
 
   static setApproval(
-    db: DbType,
+    db: Kysely<Database>,
     approved: boolean,
     rosterRequestId: string,
     userReviewedById: string,
@@ -90,7 +95,7 @@ export class RosterRequestsQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<RosterRequestRow | undefined> {
     return db

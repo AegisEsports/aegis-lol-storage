@@ -42,7 +42,7 @@ export class TeamService {
   /**
    * Helper function to turn TeamRosterRow[] -> Record<string, PlayerDto>
    */
-  private createRosterRecord = async (
+  private formRosterRecord = async (
     roster: TeamRosterRow[],
   ): Promise<Record<string, PlayerDto>> => {
     const playerEntries = await Promise.all(
@@ -75,40 +75,42 @@ export class TeamService {
     teamData: InsertTeam,
     rosterData: CreateTeamRoster,
   ): Promise<TeamDto> => {
-    const insertedTeam = await TeamsQuery.insert(this.db, teamData);
-    const getSplit = await SplitsQuery.selectById(this.db, teamData.splitId);
-    // For the roles not listed in 'roster', create default ones.
-    const unfulfilledRoles = (() => {
-      const used = new Set<RosterRole>(rosterData?.map((r) => r.role));
-      return ROSTER_ROLES.filter((r) => !used.has(r)) as RosterRole[];
-    })();
-    unfulfilledRoles.forEach((role) => {
-      rosterData.push({ userId: null, role });
-    });
-    const insertedRoster = await Promise.all(
-      rosterData.map(async (r) => {
-        return await TeamRostersQuery.insert(this.db, {
-          teamId: insertedTeam.id,
-          userId: r.userId,
-          role: r.role,
-        });
-      }),
-    );
-    const rosterRecord = await this.createRosterRecord(insertedRoster);
+    return await this.db.transaction().execute(async (trx) => {
+      const insertedTeam = await TeamsQuery.insert(trx, teamData);
+      const getSplit = await SplitsQuery.selectById(trx, teamData.splitId);
+      // For the roles not listed in 'roster', create default ones.
+      const unfulfilledRoles = (() => {
+        const used = new Set<RosterRole>(rosterData?.map((r) => r.role));
+        return ROSTER_ROLES.filter((r) => !used.has(r)) as RosterRole[];
+      })();
+      unfulfilledRoles.forEach((role) => {
+        rosterData.push({ userId: null, role });
+      });
+      const insertedRoster = await Promise.all(
+        rosterData.map(async (r) => {
+          return await TeamRostersQuery.insert(trx, {
+            teamId: insertedTeam.id,
+            userId: r.userId,
+            role: r.role,
+          });
+        }),
+      );
+      const rosterRecord = await this.formRosterRecord(insertedRoster);
 
-    return {
-      team: insertedTeam,
-      split: getSplit!,
-      roster: rosterRecord,
-      matches: [],
-      championStats: {
-        picks: [],
-        bansBy: [],
-        bansAgainst: [],
-      },
-      rosterRequests: [],
-      emergencySubRequests: [],
-    };
+      return {
+        team: insertedTeam,
+        split: getSplit!,
+        roster: rosterRecord,
+        matches: [],
+        championStats: {
+          picks: [],
+          bansBy: [],
+          bansAgainst: [],
+        },
+        rosterRequests: [],
+        emergencySubRequests: [],
+      };
+    });
   };
 
   /**
@@ -155,7 +157,7 @@ export class TeamService {
     }
     const getSplit = await SplitsQuery.selectById(this.db, getTeam.splitId);
     const getTeamRoster = await TeamRostersQuery.listByTeamId(this.db, teamId);
-    const rosterRecord = await this.createRosterRecord(getTeamRoster);
+    const rosterRecord = await this.formRosterRecord(getTeamRoster);
     const getChampionPicks = await PlayerStatsQuery.selectCountPicksByTeamId(
       this.db,
       teamId,

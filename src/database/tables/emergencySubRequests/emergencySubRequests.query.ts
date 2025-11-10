@@ -1,16 +1,18 @@
+import type { Kysely } from 'kysely';
+
 import { EMERGENCY_SUB_REQUESTS, TEAMS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertEmergencySubRequest,
   type EmergencySubRequestRow,
   type UpdateEmergencySubRequest,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 
 export class EmergencySubRequestsQuery {
   // -- INSERT
 
   static insert(
-    db: DbType,
+    db: Kysely<Database>,
     values: InsertEmergencySubRequest,
   ): Promise<EmergencySubRequestRow> {
     return db
@@ -23,7 +25,7 @@ export class EmergencySubRequestsQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<EmergencySubRequestRow | undefined> {
     return db
@@ -34,7 +36,7 @@ export class EmergencySubRequestsQuery {
   }
 
   static listBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<EmergencySubRequestRow[]> {
     return db
@@ -47,7 +49,7 @@ export class EmergencySubRequestsQuery {
   }
 
   static listByTeamId(
-    db: DbType,
+    db: Kysely<Database>,
     teamId: string,
   ): Promise<EmergencySubRequestRow[]> {
     return db
@@ -60,7 +62,7 @@ export class EmergencySubRequestsQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateEmergencySubRequest,
   ): Promise<EmergencySubRequestRow | undefined> {
@@ -73,7 +75,7 @@ export class EmergencySubRequestsQuery {
   }
 
   static setApproval(
-    db: DbType,
+    db: Kysely<Database>,
     approved: boolean,
     emergencySubRequestId: string,
     userReviewedById: string,
@@ -93,7 +95,7 @@ export class EmergencySubRequestsQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<EmergencySubRequestRow | undefined> {
     return db

@@ -33,34 +33,38 @@ export class UserService {
    * Creates a singular entry of a user, along with its listed Riot + Discord
    *   accounts.
    */
-  public initialize = async (
+  public create = async (
     userData: InsertUser,
     riotAccounts: InsertRiotAccount[],
     discordAccounts: InsertDiscordAccount[],
   ): Promise<UserDto> => {
-    const insertedUser = await UsersQuery.insert(this.db, userData);
-    const [insertedRiotAccounts, insertedDiscordAccounts] = await Promise.all([
-      Promise.all(
-        riotAccounts.map((account) =>
-          RiotAccountsQuery.insert(this.db, account),
-        ),
-      ),
-      Promise.all(
-        discordAccounts.map((account) =>
-          DiscordAccountsQuery.insert(this.db, account),
-        ),
-      ),
-    ]);
+    return await this.db.transaction().execute(async (trx) => {
+      const insertedUser = await UsersQuery.insert(trx, userData);
+      const [insertedRiotAccounts, insertedDiscordAccounts] = await Promise.all(
+        [
+          Promise.all(
+            riotAccounts.map((account) =>
+              RiotAccountsQuery.insert(trx, account),
+            ),
+          ),
+          Promise.all(
+            discordAccounts.map((account) =>
+              DiscordAccountsQuery.insert(trx, account),
+            ),
+          ),
+        ],
+      );
 
-    return {
-      user: insertedUser,
-      teams: [],
-      games: [],
-      riotAccounts: insertedRiotAccounts,
-      discordAccounts: insertedDiscordAccounts,
-      organizationsOwn: [],
-      leagueBans: [],
-    };
+      return {
+        user: insertedUser,
+        teams: [],
+        games: [],
+        riotAccounts: insertedRiotAccounts,
+        discordAccounts: insertedDiscordAccounts,
+        organizationsOwn: [],
+        leagueBans: [],
+      };
+    });
   };
 
   /**

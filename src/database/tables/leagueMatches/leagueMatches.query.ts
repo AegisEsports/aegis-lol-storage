@@ -1,19 +1,19 @@
-import { sql } from 'kysely';
+import { Kysely, sql } from 'kysely';
 
 import { LEAGUE_MATCHES, TEAMS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertLeagueMatch,
   type LeagueMatchRow,
   type UpdateLeagueMatch,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 import type { TeamMatchPlayedInDto } from '@/router/team/v1/team.dto.js';
 
 export class LeagueMatchesQuery {
   // -- INSERT
 
   static insert(
-    db: DbType,
+    db: Kysely<Database>,
     values: InsertLeagueMatch,
   ): Promise<LeagueMatchRow> {
     return db
@@ -26,7 +26,7 @@ export class LeagueMatchesQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<LeagueMatchRow | undefined> {
     return db
@@ -41,7 +41,7 @@ export class LeagueMatchesQuery {
    * Intentionally leaving out nested games/players; handled in service layer.
    */
   static async listByTeamId(
-    db: DbType,
+    db: Kysely<Database>,
     teamId: string,
   ): Promise<TeamMatchPlayedInDto[]> {
     const rows = await db
@@ -100,7 +100,7 @@ export class LeagueMatchesQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateLeagueMatch,
   ): Promise<LeagueMatchRow | undefined> {
@@ -113,7 +113,7 @@ export class LeagueMatchesQuery {
   }
 
   static setHomeTeamId(
-    db: DbType,
+    db: Kysely<Database>,
     matchId: string,
     teamId: string,
   ): Promise<LeagueMatchRow | undefined> {
@@ -126,7 +126,7 @@ export class LeagueMatchesQuery {
   }
 
   static setAwayTeamId(
-    db: DbType,
+    db: Kysely<Database>,
     matchId: string,
     teamId: string,
   ): Promise<LeagueMatchRow | undefined> {
@@ -141,7 +141,7 @@ export class LeagueMatchesQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<LeagueMatchRow | undefined> {
     return db

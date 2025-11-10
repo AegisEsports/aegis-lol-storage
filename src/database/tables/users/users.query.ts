@@ -1,15 +1,17 @@
+import type { Kysely } from 'kysely';
+
 import { USERS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertUser,
   type UpdateUser,
   type UserRow,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 
 export class UsersQuery {
   // -- INSERT
 
-  static insert(db: DbType, values: InsertUser): Promise<UserRow> {
+  static insert(db: Kysely<Database>, values: InsertUser): Promise<UserRow> {
     return db
       .insertInto(USERS)
       .values(values)
@@ -19,7 +21,10 @@ export class UsersQuery {
 
   // -- SELECT
 
-  static selectById(db: DbType, id: string): Promise<UserRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<UserRow | undefined> {
     return db
       .selectFrom(USERS)
       .selectAll()
@@ -28,7 +33,7 @@ export class UsersQuery {
   }
 
   static selectByPuuid(
-    db: DbType,
+    db: Kysely<Database>,
     puuid: string,
   ): Promise<UserRow | undefined> {
     return db
@@ -42,7 +47,7 @@ export class UsersQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateUser,
   ): Promise<UserRow | undefined> {
@@ -56,7 +61,10 @@ export class UsersQuery {
 
   // -- DELETE
 
-  static deleteById(db: DbType, id: string): Promise<UserRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<UserRow | undefined> {
     return db
       .deleteFrom(USERS)
       .where('id', '=', id)

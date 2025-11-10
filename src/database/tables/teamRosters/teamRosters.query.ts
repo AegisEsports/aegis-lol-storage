@@ -1,15 +1,20 @@
+import type { Kysely } from 'kysely';
+
 import { TEAM_ROSTERS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertTeamRoster,
   type TeamRosterRow,
   type UpdateTeamRoster,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 
 export class TeamRostersQuery {
   // -- INSERT
 
-  static insert(db: DbType, values: InsertTeamRoster): Promise<TeamRosterRow> {
+  static insert(
+    db: Kysely<Database>,
+    values: InsertTeamRoster,
+  ): Promise<TeamRosterRow> {
     return db
       .insertInto(TEAM_ROSTERS)
       .values(values)
@@ -20,7 +25,7 @@ export class TeamRostersQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<TeamRosterRow | undefined> {
     return db
@@ -30,7 +35,10 @@ export class TeamRostersQuery {
       .executeTakeFirst();
   }
 
-  static listByTeamId(db: DbType, teamId: string): Promise<TeamRosterRow[]> {
+  static listByTeamId(
+    db: Kysely<Database>,
+    teamId: string,
+  ): Promise<TeamRosterRow[]> {
     return db
       .selectFrom(TEAM_ROSTERS)
       .selectAll()
@@ -41,7 +49,7 @@ export class TeamRostersQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateTeamRoster,
   ): Promise<TeamRosterRow | undefined> {
@@ -56,7 +64,7 @@ export class TeamRostersQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<TeamRosterRow | undefined> {
     return db

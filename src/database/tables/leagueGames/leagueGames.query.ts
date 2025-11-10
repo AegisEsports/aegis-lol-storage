@@ -1,4 +1,4 @@
-import { sql } from 'kysely';
+import { Kysely, sql } from 'kysely';
 
 import {
   EMERGENCY_SUB_REQUESTS,
@@ -11,6 +11,7 @@ import {
   TEAM_STATS,
   TEAMS,
 } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertLeagueGame,
   type LeagueGameRow,
@@ -18,7 +19,6 @@ import {
   type UpdateLeagueGame,
 } from '@/database/schema.js';
 import { RECORD_LIMIT } from '@/database/shared.js';
-import type { DbType } from '@/database/types.js';
 import type {
   DragonStatsDto,
   GameDetailDto,
@@ -46,7 +46,7 @@ type NumericTeamStatKey = {
  * Helper function to build the base query for team stat records (used in multiple places).
  */
 const gameStatsRecordBaseQuery = (
-  db: DbType,
+  db: Kysely<Database>,
   splitId: string,
   statColumn: NumericTeamStatKey,
 ) => {
@@ -80,7 +80,10 @@ const gameStatsRecordBaseQuery = (
 export class LeagueGamesQuery {
   // -- INSERT
 
-  static insert(db: DbType, values: InsertLeagueGame): Promise<LeagueGameRow> {
+  static insert(
+    db: Kysely<Database>,
+    values: InsertLeagueGame,
+  ): Promise<LeagueGameRow> {
     return db
       .insertInto(LEAGUE_GAMES)
       .values(values)
@@ -91,7 +94,7 @@ export class LeagueGamesQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<LeagueGameRow | undefined> {
     return db
@@ -102,7 +105,7 @@ export class LeagueGamesQuery {
   }
 
   static async listPlayedInByUserId(
-    db: DbType,
+    db: Kysely<Database>,
     userId: string,
   ): Promise<PlayerGamePlayedInDto[]> {
     return await db
@@ -178,7 +181,10 @@ export class LeagueGamesQuery {
       .execute();
   }
 
-  static listByMatchId(db: DbType, matchId: string): Promise<LeagueGameRow[]> {
+  static listByMatchId(
+    db: Kysely<Database>,
+    matchId: string,
+  ): Promise<LeagueGameRow[]> {
     return db
       .selectFrom(LEAGUE_GAMES)
       .selectAll()
@@ -188,7 +194,7 @@ export class LeagueGamesQuery {
   }
 
   static async listBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameDetailDto[]> {
     const rows = await db
@@ -342,7 +348,7 @@ export class LeagueGamesQuery {
   }
 
   static selectSidesBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<SidesStatsDto | undefined> {
     return db
@@ -361,7 +367,7 @@ export class LeagueGamesQuery {
   }
 
   static selectDragonsBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<DragonStatsDto | undefined> {
     return db
@@ -399,7 +405,7 @@ export class LeagueGamesQuery {
   // For GameStatRecords
 
   static listTotalKillsRecordsBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordTotalKillsDto[]> {
     return gameStatsRecordBaseQuery(db, splitId, 'totalKills')
@@ -409,7 +415,7 @@ export class LeagueGamesQuery {
   }
 
   static listTotalKillsAt15RecordsBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordTotalKillsAt15Dto[]> {
     return gameStatsRecordBaseQuery(db, splitId, 'killsAt15')
@@ -419,7 +425,7 @@ export class LeagueGamesQuery {
   }
 
   static listCreepScorePerMinuteRecordsBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordCreepScorePerMinuteDto[]> {
     return gameStatsRecordBaseQuery(db, splitId, 'creepScorePerMinute')
@@ -429,7 +435,7 @@ export class LeagueGamesQuery {
   }
 
   static listGoldPerMinuteRecordsBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordGoldPerMinuteDto[]> {
     return gameStatsRecordBaseQuery(db, splitId, 'goldPerMinute')
@@ -439,7 +445,7 @@ export class LeagueGamesQuery {
   }
 
   static listDamagePerMinuteRecordsBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordDamagePerMinuteDto[]> {
     return gameStatsRecordBaseQuery(db, splitId, 'damageDealtPerMinute')
@@ -449,7 +455,7 @@ export class LeagueGamesQuery {
   }
 
   static listVisionScorePerMinuteRecordsBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordVisionScorePerMinuteDto[]> {
     return gameStatsRecordBaseQuery(db, splitId, 'visionScorePerMinute')
@@ -461,7 +467,7 @@ export class LeagueGamesQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateLeagueGame,
   ): Promise<LeagueGameRow | undefined> {
@@ -474,7 +480,7 @@ export class LeagueGamesQuery {
   }
 
   static setMatchId(
-    db: DbType,
+    db: Kysely<Database>,
     gameId: string,
     matchId: string,
   ): Promise<LeagueGameRow | undefined> {
@@ -487,7 +493,7 @@ export class LeagueGamesQuery {
   }
 
   static setDraftLink(
-    db: DbType,
+    db: Kysely<Database>,
     gameId: string,
     draftLink: string | null,
   ): Promise<LeagueGameRow | undefined> {
@@ -500,7 +506,7 @@ export class LeagueGamesQuery {
   }
 
   static setBlueTeam(
-    db: DbType,
+    db: Kysely<Database>,
     gameId: string,
     teamId: string,
   ): Promise<LeagueGameRow | undefined> {
@@ -513,7 +519,7 @@ export class LeagueGamesQuery {
   }
 
   static setRedTeam(
-    db: DbType,
+    db: Kysely<Database>,
     gameId: string,
     teamId: string,
   ): Promise<LeagueGameRow | undefined> {
@@ -531,7 +537,7 @@ export class LeagueGamesQuery {
    * Must be called after every insertion/update to leagueMatchId
    */
   static async setGameNumbersByMatchId(
-    db: DbType,
+    db: Kysely<Database>,
     matchId: string,
   ): Promise<number> {
     const ids: { id: string }[] = await db
@@ -556,7 +562,7 @@ export class LeagueGamesQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<LeagueGameRow | undefined> {
     return db

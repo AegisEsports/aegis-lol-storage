@@ -31,7 +31,7 @@ export class UserController {
 
       res
         .status(201)
-        .json(await this.user.initialize(user, riotAccounts, discordAccounts));
+        .json(await this.user.create(user, riotAccounts, discordAccounts));
     } catch (err) {
       next(err);
     }

@@ -1,14 +1,16 @@
+import type { Kysely } from 'kysely';
+
 import {
   BANNED_CHAMPS,
   LEAGUE_GAMES,
   LEAGUE_MATCHES,
 } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertBannedChamp,
   type BannedChampRow,
 } from '@/database/schema.js';
 import type { LeagueSide } from '@/database/shared.js';
-import type { DbType } from '@/database/types.js';
 import type { ChampionBanRecord } from '@/router/split/v1/split.dto.js';
 import type { ChampionBanStatDto } from '@/router/team/v1/team.dto.js';
 
@@ -16,7 +18,7 @@ export class BannedChampsQuery {
   // -- INSERT
 
   static insert(
-    db: DbType,
+    db: Kysely<Database>,
     values: InsertBannedChamp,
   ): Promise<BannedChampRow> {
     return db
@@ -29,7 +31,7 @@ export class BannedChampsQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<BannedChampRow | undefined> {
     return db
@@ -40,7 +42,7 @@ export class BannedChampsQuery {
   }
 
   static selectCountByTeamId(
-    db: DbType,
+    db: Kysely<Database>,
     teamId: string,
   ): Promise<ChampionBanStatDto[]> {
     return db
@@ -55,7 +57,7 @@ export class BannedChampsQuery {
   }
 
   static selectCountAgainstByTeamId(
-    db: DbType,
+    db: Kysely<Database>,
     teamId: string,
   ): Promise<ChampionBanStatDto[]> {
     return db
@@ -69,7 +71,10 @@ export class BannedChampsQuery {
       .execute();
   }
 
-  static listByGameId(db: DbType, gameId: string): Promise<BannedChampRow[]> {
+  static listByGameId(
+    db: Kysely<Database>,
+    gameId: string,
+  ): Promise<BannedChampRow[]> {
     return db
       .selectFrom(BANNED_CHAMPS)
       .selectAll()
@@ -79,7 +84,7 @@ export class BannedChampsQuery {
   }
 
   static listChampionBansBySplitId(
-    db: DbType,
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<ChampionBanRecord[]> {
     return db
@@ -101,7 +106,7 @@ export class BannedChampsQuery {
   // -- UPDATE (updateable)
 
   static async setTeamId(
-    db: DbType,
+    db: Kysely<Database>,
     gameId: string,
     side: LeagueSide,
     teamId: string,
@@ -124,7 +129,7 @@ export class BannedChampsQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<BannedChampRow | undefined> {
     return db

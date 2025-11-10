@@ -1,16 +1,18 @@
+import type { Kysely } from 'kysely';
+
 import { ORGANIZATIONS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertOrganization,
   type OrganizationRow,
   type UpdateOrganization,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 
 export class OrganizationsQuery {
   // -- INSERT
 
   static insert(
-    db: DbType,
+    db: Kysely<Database>,
     values: InsertOrganization,
   ): Promise<OrganizationRow> {
     return db
@@ -23,7 +25,7 @@ export class OrganizationsQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<OrganizationRow | undefined> {
     return db
@@ -33,7 +35,10 @@ export class OrganizationsQuery {
       .executeTakeFirst();
   }
 
-  static listByUserId(db: DbType, userId: string): Promise<OrganizationRow[]> {
+  static listByUserId(
+    db: Kysely<Database>,
+    userId: string,
+  ): Promise<OrganizationRow[]> {
     return db
       .selectFrom(ORGANIZATIONS)
       .selectAll()
@@ -44,7 +49,7 @@ export class OrganizationsQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateOrganization,
   ): Promise<OrganizationRow | undefined> {
@@ -59,7 +64,7 @@ export class OrganizationsQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<OrganizationRow | undefined> {
     return db

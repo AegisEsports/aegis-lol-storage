@@ -1,16 +1,18 @@
+import type { Kysely } from 'kysely';
+
 import { GAME_TEAM_GOLDS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertGameTeamGold,
   type GameTeamGoldRow,
 } from '@/database/schema.js';
 import type { LeagueSide } from '@/database/shared.js';
-import type { DbType } from '@/database/types.js';
 
 export class GameTeamGoldsQuery {
   // -- INSERT
 
   static insert(
-    db: DbType,
+    db: Kysely<Database>,
     values: InsertGameTeamGold,
   ): Promise<GameTeamGoldRow> {
     return db
@@ -23,7 +25,7 @@ export class GameTeamGoldsQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<GameTeamGoldRow | undefined> {
     return db
@@ -33,7 +35,10 @@ export class GameTeamGoldsQuery {
       .executeTakeFirst();
   }
 
-  static listByGameId(db: DbType, gameId: string): Promise<GameTeamGoldRow[]> {
+  static listByGameId(
+    db: Kysely<Database>,
+    gameId: string,
+  ): Promise<GameTeamGoldRow[]> {
     return db
       .selectFrom(GAME_TEAM_GOLDS)
       .selectAll()
@@ -45,7 +50,7 @@ export class GameTeamGoldsQuery {
   // -- UPDATE (not updateable)
 
   static async setTeamId(
-    db: DbType,
+    db: Kysely<Database>,
     gameId: string,
     side: LeagueSide,
     teamId: string,
@@ -61,7 +66,7 @@ export class GameTeamGoldsQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<GameTeamGoldRow | undefined> {
     return db

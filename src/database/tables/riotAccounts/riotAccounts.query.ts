@@ -1,20 +1,21 @@
+import type { Kysely } from 'kysely';
 import { DatabaseError } from 'pg';
 import { PostgresError } from 'pg-error-enum';
 
 import { RIOT_ACCOUNTS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertRiotAccount,
   type RiotAccountRow,
   type UpdateRiotAccount,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 import ControllerError from '@/util/errors/controllerError.js';
 
 export class RiotAccountsQuery {
   // -- INSERT
 
   static insert(
-    db: DbType,
+    db: Kysely<Database>,
     values: InsertRiotAccount,
   ): Promise<RiotAccountRow> {
     return db
@@ -27,7 +28,7 @@ export class RiotAccountsQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<RiotAccountRow | undefined> {
     return db
@@ -38,7 +39,7 @@ export class RiotAccountsQuery {
   }
 
   static selectByPuuid(
-    db: DbType,
+    db: Kysely<Database>,
     puuid: string,
   ): Promise<RiotAccountRow | undefined> {
     return db
@@ -48,7 +49,10 @@ export class RiotAccountsQuery {
       .executeTakeFirst();
   }
 
-  static listByUserId(db: DbType, userId: string): Promise<RiotAccountRow[]> {
+  static listByUserId(
+    db: Kysely<Database>,
+    userId: string,
+  ): Promise<RiotAccountRow[]> {
     return db
       .selectFrom(RIOT_ACCOUNTS)
       .selectAll()
@@ -59,7 +63,7 @@ export class RiotAccountsQuery {
   // -- UPDATE
 
   static updateById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
     update: UpdateRiotAccount,
   ): Promise<RiotAccountRow | undefined> {
@@ -72,7 +76,7 @@ export class RiotAccountsQuery {
   }
 
   static setWithUserId(
-    db: DbType,
+    db: Kysely<Database>,
     riotAccountId: string,
     userId: string,
   ): Promise<RiotAccountRow | undefined> {
@@ -100,7 +104,7 @@ export class RiotAccountsQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<RiotAccountRow | undefined> {
     return db

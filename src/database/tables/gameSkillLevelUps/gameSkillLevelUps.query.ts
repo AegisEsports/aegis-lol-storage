@@ -1,15 +1,17 @@
+import type { Kysely } from 'kysely';
+
 import { GAME_SKILL_LEVEL_UPS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertGameSkillLevelUp,
   type GameSkillLevelUpRow,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 
 export class GameSkillLevelUpsQuery {
   // -- INSERT
 
   static insert(
-    db: DbType,
+    db: Kysely<Database>,
     values: InsertGameSkillLevelUp,
   ): Promise<GameSkillLevelUpRow> {
     return db
@@ -22,7 +24,7 @@ export class GameSkillLevelUpsQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<GameSkillLevelUpRow | undefined> {
     return db
@@ -33,7 +35,7 @@ export class GameSkillLevelUpsQuery {
   }
 
   static listByGameId(
-    db: DbType,
+    db: Kysely<Database>,
     gameId: string,
   ): Promise<GameSkillLevelUpRow[]> {
     return db
@@ -50,7 +52,7 @@ export class GameSkillLevelUpsQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<GameSkillLevelUpRow | undefined> {
     return db

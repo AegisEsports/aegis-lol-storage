@@ -1,15 +1,17 @@
+import type { Kysely } from 'kysely';
+
 import { GAME_STORE_ACTIONS } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertGameStoreAction,
   type GameStoreActionRow,
 } from '@/database/schema.js';
-import type { DbType } from '@/database/types.js';
 
 export class GameStoreActionsQuery {
   // -- INSERT
 
   static insert(
-    db: DbType,
+    db: Kysely<Database>,
     values: InsertGameStoreAction,
   ): Promise<GameStoreActionRow> {
     return db
@@ -22,7 +24,7 @@ export class GameStoreActionsQuery {
   // -- SELECT
 
   static selectById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<GameStoreActionRow | undefined> {
     return db
@@ -33,7 +35,7 @@ export class GameStoreActionsQuery {
   }
 
   static listByGameId(
-    db: DbType,
+    db: Kysely<Database>,
     gameId: string,
   ): Promise<GameStoreActionRow[]> {
     return db
@@ -49,7 +51,7 @@ export class GameStoreActionsQuery {
   // -- DELETE
 
   static deleteById(
-    db: DbType,
+    db: Kysely<Database>,
     id: string,
   ): Promise<GameStoreActionRow | undefined> {
     return db

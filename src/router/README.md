@@ -53,23 +53,24 @@ import {
 } from './name.zod.js';
 
 export const nameRouter = Router();
+const nameController = new NameController();
 
-nameRouter.post('/', validateBody(postNameBody), NameController.createName);
+nameRouter.post('/', validateBody(postNameBody), nameController.createName);
 nameRouter.get(
   '/:nameId',
   validateParams(getNameParams),
-  NameController.readName,
+  nameController.readName,
 );
 nameRouter.put(
   '/:nameId',
   validateParams(putNameParams),
   validateBody(putNameBody),
-  NameController.updateName,
+  nameController.updateName,
 );
 nameRouter.delete(
   '/:nameId',
   validateParams(deleteNameParams),
-  NameController.deleteName,
+  nameController.deleteName,
 );
 ```
 
@@ -78,14 +79,17 @@ nameRouter.delete(
 ```typescript
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
+import { db } from '@/database/database.js';
 import { NameService } from './name.service.js';
 import type { CreateNameBody, UpdateNameBody } from './name.zod.js';
 
 export class NameController {
+  private name: NameService = new NameService(db);
+
   /**
    * POST - /
    */
-  public static createName: RequestHandler = async (
+  public createName: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -93,7 +97,7 @@ export class NameController {
     try {
       const { name } = req.body as CreateNameBody;
 
-      res.status(201).json(await NameService.create(name));
+      res.status(201).json(await this.name.create(name));
     } catch (err) {
       next(err);
     }
@@ -102,7 +106,7 @@ export class NameController {
   /**
    * GET - /{nameId}
    */
-  public static readName: RequestHandler = async (
+  public readName: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -110,7 +114,7 @@ export class NameController {
     try {
       const { nameId } = req.params;
 
-      res.status(200).json(await NameService.findById(nameId!));
+      res.status(200).json(await this.name.findById(nameId!));
     } catch (err) {
       next(err);
     }
@@ -119,7 +123,7 @@ export class NameController {
   /**
    * PUT - /{nameId}
    */
-  public static updateName: RequestHandler = async (
+  public updateName: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -128,7 +132,7 @@ export class NameController {
       const { nameId } = req.params;
       const { name } = req.body as UpdateNameBody;
 
-      res.status(200).json(await NameService.replaceById(nameId!, name));
+      res.status(200).json(await this.name.replaceById(nameId!, name));
     } catch (err) {
       next(err);
     }
@@ -137,7 +141,7 @@ export class NameController {
   /**
    * DELETE - /{nameId}
    */
-  public static deleteName: RequestHandler = async (
+  public deleteName: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -145,7 +149,7 @@ export class NameController {
     try {
       const { nameId } = req.params;
 
-      res.status(200).json(await NameService.removeById(nameId!));
+      res.status(200).json(await this.name.removeById(nameId!));
     } catch (err) {
       next(err);
     }
@@ -156,16 +160,21 @@ export class NameController {
 ## Service
 
 ```typescript
+import type { Kysely } from 'kysely';
+
+import type { Database } from '@/database/database.js';
 import { NamesQuery } from '@/database/query.js';
 import type { InsertName, UpdateName } from '@/database/schema.js';
 import ControllerError from '@/util/errors/controllerError.js';
 import type { NameDto, NameTableDto } from './name.dto.js';
 
 export class NameService {
+  constructor(private db: Kysely<Database>) {}
+
   /**
    * Creates a singular entry of a name.
    */
-  public static create = async (nameData: InsertName): Promise<NameDto> => {
+  public create = async (nameData: InsertName): Promise<NameDto> => {
     const insertedName = await NamesQuery.insert(nameData);
 
     return {
@@ -176,7 +185,7 @@ export class NameService {
   /**
    * Retrieves a singular entry of a name.
    */
-  public static findById = async (nameId: string): Promise<NameDto> => {
+  public findById = async (nameId: string): Promise<NameDto> => {
     const getName = await NamesQuery.selectById(nameId);
     if (!getName) {
       throw new ControllerError(404, 'NotFound', 'Name not found', {
@@ -192,7 +201,7 @@ export class NameService {
   /**
    * Updates a singular entry of a name.
    */
-  public static replaceById = async (
+  public replaceById = async (
     nameId: string,
     nameData: UpdateName,
   ): Promise<NameTableDto> => {
@@ -211,7 +220,7 @@ export class NameService {
   /**
    * Deletes a singular entry of a name.
    */
-  public static removeById = async (nameId: string): Promise<NameTableDto> => {
+  public removeById = async (nameId: string): Promise<NameTableDto> => {
     const deletedName = await NamesQuery.deleteById(nameId);
     if (!deletedName) {
       throw new ControllerError(404, 'NotFound', 'Name not found', {

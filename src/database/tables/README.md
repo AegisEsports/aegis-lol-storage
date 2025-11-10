@@ -40,7 +40,10 @@ export type UpdateName = Updateable<NamesTable>;
 ## Query
 
 ```typescript
-import { db } from '@/database/database.js';
+import type { Kysely } from 'kysely';
+
+import { TABLE_NAME } from '@/database/const.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertName,
   type UpdateName,
@@ -50,7 +53,7 @@ import {
 export class NamesQuery {
   // -- INSERT
 
-  static insert(values: InsertName): Promise<NameRow> {
+  static insert(db: Kysely<Database>, values: InsertName): Promise<NameRow> {
     return db
       .insertInto(TABLE_NAME)
       .values(values)
@@ -60,7 +63,10 @@ export class NamesQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<NameRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<NameRow | undefined> {
     return db
       .selectFrom(TABLE_NAME)
       .selectAll()
@@ -71,6 +77,7 @@ export class NamesQuery {
   // -- UPDATE
 
   static updateById(
+    db: Kysely<Database>,
     id: string,
     update: UpdateName,
   ): Promise<NameRow | undefined> {
@@ -84,7 +91,10 @@ export class NamesQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<NameRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<NameRow | undefined> {
     return db
       .deleteFrom(TABLE_NAME)
       .where('id', '=', id)

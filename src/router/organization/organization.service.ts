@@ -82,7 +82,7 @@ export class OrganizationService {
   };
 
   /**
-   * Deletes a singular entry of a organization.
+   * Deletes a singular entry of an organization.
    */
   public removeById = async (
     organizationId: string,

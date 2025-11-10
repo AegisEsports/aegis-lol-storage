@@ -50,6 +50,17 @@ export class TeamsQuery {
       .execute();
   }
 
+  static listByOrganizationId(
+    db: Kysely<Database>,
+    organizationId: string,
+  ): Promise<TeamRow[]> {
+    return db
+      .selectFrom(`${TEAMS}`)
+      .selectAll()
+      .where('organizationId', '=', organizationId)
+      .execute();
+  }
+
   static async listPlayedInByUserId(
     db: Kysely<Database>,
     userId: string,

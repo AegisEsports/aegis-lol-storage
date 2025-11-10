@@ -13,31 +13,32 @@ import {
 } from './game.zod.js';
 
 export const gameRouter = Router();
+const gameController = new GameController();
 
-gameRouter.post('/', validateBody(postGameBody), GameController.createGame);
+gameRouter.post('/', validateBody(postGameBody), gameController.createGame);
 gameRouter.get(
   '/:gameId',
   validateParams(getGameParams),
-  GameController.readGame,
+  gameController.readGame,
 );
 gameRouter.patch(
   '/match/:gameId/:matchId',
   validateParams(patchGameMatchParams),
-  GameController.assignMatchToGame,
+  gameController.assignMatchToGame,
 );
 gameRouter.patch(
   '/draft-link/:gameId',
   validateParams(patchGameDraftLinkParams),
   validateBody(patchGameDraftLinkBody),
-  GameController.assignDraftLinkToGame,
+  gameController.assignDraftLinkToGame,
 );
 gameRouter.patch(
   '/team/:gameId/:side/:teamId',
   validateParams(patchGameTeamParams),
-  GameController.assignTeamToGame,
+  gameController.assignTeamToGame,
 );
 gameRouter.delete(
   '/:gameId',
   validateParams(deleteGameParams),
-  GameController.deleteGame,
+  gameController.deleteGame,
 );

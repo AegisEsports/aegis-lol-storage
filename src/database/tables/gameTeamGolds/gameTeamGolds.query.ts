@@ -1,15 +1,18 @@
 import { GAME_TEAM_GOLDS } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertGameTeamGold,
   type GameTeamGoldRow,
 } from '@/database/schema.js';
 import type { LeagueSide } from '@/database/shared.js';
+import type { DbType } from '@/database/types.js';
 
 export class GameTeamGoldsQuery {
   // -- INSERT
 
-  static insert(values: InsertGameTeamGold): Promise<GameTeamGoldRow> {
+  static insert(
+    db: DbType,
+    values: InsertGameTeamGold,
+  ): Promise<GameTeamGoldRow> {
     return db
       .insertInto(GAME_TEAM_GOLDS)
       .values(values)
@@ -19,7 +22,10 @@ export class GameTeamGoldsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<GameTeamGoldRow | undefined> {
+  static selectById(
+    db: DbType,
+    id: string,
+  ): Promise<GameTeamGoldRow | undefined> {
     return db
       .selectFrom(GAME_TEAM_GOLDS)
       .selectAll()
@@ -27,7 +33,7 @@ export class GameTeamGoldsQuery {
       .executeTakeFirst();
   }
 
-  static listByGameId(gameId: string): Promise<GameTeamGoldRow[]> {
+  static listByGameId(db: DbType, gameId: string): Promise<GameTeamGoldRow[]> {
     return db
       .selectFrom(GAME_TEAM_GOLDS)
       .selectAll()
@@ -38,7 +44,12 @@ export class GameTeamGoldsQuery {
 
   // -- UPDATE (not updateable)
 
-  static async setTeamId(gameId: string, side: LeagueSide, teamId: string) {
+  static async setTeamId(
+    db: DbType,
+    gameId: string,
+    side: LeagueSide,
+    teamId: string,
+  ) {
     await db
       .updateTable(GAME_TEAM_GOLDS)
       .where('leagueGameId', '=', gameId)
@@ -49,7 +60,10 @@ export class GameTeamGoldsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<GameTeamGoldRow | undefined> {
+  static deleteById(
+    db: DbType,
+    id: string,
+  ): Promise<GameTeamGoldRow | undefined> {
     return db
       .deleteFrom(GAME_TEAM_GOLDS)
       .where('id', '=', id)

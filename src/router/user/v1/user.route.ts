@@ -21,66 +21,67 @@ import {
 import { validateBody, validateParams } from '@/util/validate.js';
 
 export const userRouter = Router();
+const userController = new UserController();
 
-userRouter.post('/', validateBody(postUserBody), UserController.createUser);
+userRouter.post('/', validateBody(postUserBody), userController.createUser);
 userRouter.post(
   '/riot-account',
   validateBody(postRiotAccountBody),
-  UserController.createRiotAccount,
+  userController.createRiotAccount,
 );
 userRouter.post(
   '/discord-account',
   validateBody(postDiscordAccountBody),
-  UserController.createDiscordAccount,
+  userController.createDiscordAccount,
 );
 userRouter.get(
   '/:userId',
   validateParams(getUserParams),
-  UserController.readUser,
+  userController.readUser,
 );
 userRouter.get(
   '/riot-account/:riotAccountId',
   validateParams(getRiotAccountParams),
-  UserController.readRiotAccount,
+  userController.readRiotAccount,
 );
 userRouter.get(
   '/riot-account/by-puuid/:riotPuuid',
   validateParams(getRiotAccountByPuuidParams),
-  UserController.readRiotAccountByPuuid,
+  userController.readRiotAccountByPuuid,
 );
 userRouter.put(
   '/:userId',
   validateParams(putUserParams),
   validateBody(putUserBody),
-  UserController.updateUser,
+  userController.updateUser,
 );
 userRouter.put(
   '/riot-account/:riotAccountId',
   validateParams(putRiotAccountParams),
   validateBody(putRiotAccountBody),
-  UserController.updateRiotAccount,
+  userController.updateRiotAccount,
 );
 userRouter.put(
   '/discord-account/:discordAccountId',
   validateParams(putDiscordAccountParams),
   validateBody(putDiscordAccountBody),
-  UserController.updateDiscordAccount,
+  userController.updateDiscordAccount,
 );
 userRouter.patch(
   '/riot-account/:riotAccountId/:userId',
   validateParams(patchRiotAccountParams),
-  UserController.assignUserToRiotAccount,
+  userController.assignUserToRiotAccount,
 );
 userRouter.patch(
   '/discord-account/:discordAccountId/:userId',
   validateParams(patchDiscordAccountParams),
-  UserController.assignUserToDiscordAccount,
+  userController.assignUserToDiscordAccount,
 );
 // userRouter.patch('/invalidate/:splitId/:userId', , UsersController.);
 userRouter.delete(
   '/:userId',
   validateParams(deleteUserParams),
-  UserController.deleteUser,
+  userController.deleteUser,
 );
 // userRouter.delete('/riot-account/:riotAccountId', , UsersController.);
 // userRouter.delete('/discord-account/:discordAccountId', , UsersController.);

@@ -1,15 +1,15 @@
 import { USERS } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertUser,
   type UpdateUser,
   type UserRow,
 } from '@/database/schema.js';
+import type { DbType } from '@/database/types.js';
 
 export class UsersQuery {
   // -- INSERT
 
-  static insert(values: InsertUser): Promise<UserRow> {
+  static insert(db: DbType, values: InsertUser): Promise<UserRow> {
     return db
       .insertInto(USERS)
       .values(values)
@@ -19,7 +19,7 @@ export class UsersQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<UserRow | undefined> {
+  static selectById(db: DbType, id: string): Promise<UserRow | undefined> {
     return db
       .selectFrom(USERS)
       .selectAll()
@@ -27,7 +27,10 @@ export class UsersQuery {
       .executeTakeFirst();
   }
 
-  static selectByPuuid(puuid: string): Promise<UserRow | undefined> {
+  static selectByPuuid(
+    db: DbType,
+    puuid: string,
+  ): Promise<UserRow | undefined> {
     return db
       .selectFrom(USERS)
       .innerJoin('riotAccounts as ra', 'ra.userId', 'users.id')
@@ -39,6 +42,7 @@ export class UsersQuery {
   // -- UPDATE
 
   static updateById(
+    db: DbType,
     id: string,
     update: UpdateUser,
   ): Promise<UserRow | undefined> {
@@ -52,7 +56,7 @@ export class UsersQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<UserRow | undefined> {
+  static deleteById(db: DbType, id: string): Promise<UserRow | undefined> {
     return db
       .deleteFrom(USERS)
       .where('id', '=', id)

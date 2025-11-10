@@ -1,18 +1,21 @@
 import { sql } from 'kysely';
 
 import { LEAGUE_MATCHES, TEAMS } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertLeagueMatch,
   type LeagueMatchRow,
   type UpdateLeagueMatch,
 } from '@/database/schema.js';
+import type { DbType } from '@/database/types.js';
 import type { TeamMatchPlayedInDto } from '@/router/team/v1/team.dto.js';
 
 export class LeagueMatchesQuery {
   // -- INSERT
 
-  static insert(values: InsertLeagueMatch): Promise<LeagueMatchRow> {
+  static insert(
+    db: DbType,
+    values: InsertLeagueMatch,
+  ): Promise<LeagueMatchRow> {
     return db
       .insertInto(LEAGUE_MATCHES)
       .values(values)
@@ -22,7 +25,10 @@ export class LeagueMatchesQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<LeagueMatchRow | undefined> {
+  static selectById(
+    db: DbType,
+    id: string,
+  ): Promise<LeagueMatchRow | undefined> {
     return db
       .selectFrom(LEAGUE_MATCHES)
       .selectAll()
@@ -34,7 +40,10 @@ export class LeagueMatchesQuery {
    * List all league matches a team has played in.
    * Intentionally leaving out nested games/players; handled in service layer.
    */
-  static async listByTeamId(teamId: string): Promise<TeamMatchPlayedInDto[]> {
+  static async listByTeamId(
+    db: DbType,
+    teamId: string,
+  ): Promise<TeamMatchPlayedInDto[]> {
     const rows = await db
       .selectFrom(`${LEAGUE_MATCHES} as m`)
       // join home/away teams so we can pick the opponent's name
@@ -91,6 +100,7 @@ export class LeagueMatchesQuery {
   // -- UPDATE
 
   static updateById(
+    db: DbType,
     id: string,
     update: UpdateLeagueMatch,
   ): Promise<LeagueMatchRow | undefined> {
@@ -103,6 +113,7 @@ export class LeagueMatchesQuery {
   }
 
   static setHomeTeamId(
+    db: DbType,
     matchId: string,
     teamId: string,
   ): Promise<LeagueMatchRow | undefined> {
@@ -115,6 +126,7 @@ export class LeagueMatchesQuery {
   }
 
   static setAwayTeamId(
+    db: DbType,
     matchId: string,
     teamId: string,
   ): Promise<LeagueMatchRow | undefined> {
@@ -128,7 +140,10 @@ export class LeagueMatchesQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<LeagueMatchRow | undefined> {
+  static deleteById(
+    db: DbType,
+    id: string,
+  ): Promise<LeagueMatchRow | undefined> {
     return db
       .deleteFrom(LEAGUE_MATCHES)
       .where('id', '=', id)

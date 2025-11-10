@@ -8,12 +8,12 @@ import {
   TEAMS,
   USERS,
 } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertPlayerStat,
   type PlayerStatRow,
 } from '@/database/schema.js';
 import { RECORD_LIMIT, type LeagueSide } from '@/database/shared.js';
+import type { DbType } from '@/database/types.js';
 import type { GamePlayerStatRow } from '@/router/game/v1/game.dto.js';
 import type {
   ChampionPickRecord,
@@ -34,7 +34,7 @@ import type {
 /**
  * Helper function to build the base query for player stat records (used in multiple places).
  */
-const playerStatRecordBaseQuery = (splitId: string) => {
+const playerStatRecordBaseQuery = (db: DbType, splitId: string) => {
   return db
     .selectFrom(`${PLAYER_STATS} as ps`)
     .innerJoin(`${LEAGUE_GAMES} as g`, 'g.id', 'ps.leagueGameId')
@@ -66,7 +66,7 @@ const playerStatRecordBaseQuery = (splitId: string) => {
 export class PlayerStatsQuery {
   // -- INSERT
 
-  static insert(values: InsertPlayerStat): Promise<PlayerStatRow> {
+  static insert(db: DbType, values: InsertPlayerStat): Promise<PlayerStatRow> {
     return db
       .insertInto(PLAYER_STATS)
       .values(values)
@@ -76,7 +76,10 @@ export class PlayerStatsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<PlayerStatRow | undefined> {
+  static selectById(
+    db: DbType,
+    id: string,
+  ): Promise<PlayerStatRow | undefined> {
     return db
       .selectFrom(PLAYER_STATS)
       .selectAll()
@@ -85,6 +88,7 @@ export class PlayerStatsQuery {
   }
 
   static selectCountPicksByTeamId(
+    db: DbType,
     teamId: string,
   ): Promise<ChampionPickStatDto[]> {
     return db
@@ -108,6 +112,7 @@ export class PlayerStatsQuery {
   }
 
   static selectByGameAndTeam(
+    db: DbType,
     gameId: string,
     teamId: string,
   ): Promise<TeamPlayerInGameDto[]> {
@@ -129,7 +134,10 @@ export class PlayerStatsQuery {
       .execute();
   }
 
-  static listByGameId(gameId: string): Promise<GamePlayerStatRow[]> {
+  static listByGameId(
+    db: DbType,
+    gameId: string,
+  ): Promise<GamePlayerStatRow[]> {
     return db
       .selectFrom(`${PLAYER_STATS} as ps`)
       .innerJoin(`${RIOT_ACCOUNTS} as ra`, 'ra.riotPuuid', 'ps.riotPuuid')
@@ -141,6 +149,7 @@ export class PlayerStatsQuery {
   }
 
   static listChampIdsByGameAndSide(
+    db: DbType,
     gameId: string,
     side: LeagueSide,
   ): Promise<number[]> {
@@ -154,6 +163,7 @@ export class PlayerStatsQuery {
   }
 
   static listOverallBySplitId(
+    db: DbType,
     splitId: string,
   ): Promise<PlayerStatOverallDto[]> {
     return db
@@ -271,6 +281,7 @@ export class PlayerStatsQuery {
   }
 
   static listChampionPicksBySplitId(
+    db: DbType,
     splitId: string,
   ): Promise<ChampionPickRecord[]> {
     return db
@@ -292,9 +303,10 @@ export class PlayerStatsQuery {
 
   // For PlayerStatRecord
   static listCreepScorePerMinuteRecordsBySplitId(
+    db: DbType,
     splitId: string,
   ): Promise<PlayerStatRecordCreepScorePerMinuteDto[]> {
-    return playerStatRecordBaseQuery(splitId)
+    return playerStatRecordBaseQuery(db, splitId)
       .select(['ps.creepScorePerMinute', 'ps.creepScore'])
       .orderBy('ps.creepScorePerMinute', 'desc')
       .limit(RECORD_LIMIT)
@@ -302,9 +314,10 @@ export class PlayerStatsQuery {
   }
 
   static listDamageDealtPerMinuteRecordsBySplitId(
+    db: DbType,
     splitId: string,
   ): Promise<PlayerStatRecordDamageDealtPerMinuteDto[]> {
-    return playerStatRecordBaseQuery(splitId)
+    return playerStatRecordBaseQuery(db, splitId)
       .select([
         'ps.damageDealtPerMinute',
         'ps.totalDamageToChamps as damageDealt',
@@ -315,9 +328,10 @@ export class PlayerStatsQuery {
   }
 
   static listVisionScorePerMinuteRecordsBySplitId(
+    db: DbType,
     splitId: string,
   ): Promise<PlayerStatRecordVisionScorePerMinuteDto[]> {
-    return playerStatRecordBaseQuery(splitId)
+    return playerStatRecordBaseQuery(db, splitId)
       .select(['ps.visionScorePerMinute', 'ps.visionScore'])
       .orderBy('ps.visionScorePerMinute', 'desc')
       .limit(RECORD_LIMIT)
@@ -325,9 +339,10 @@ export class PlayerStatsQuery {
   }
 
   static listKillsAt15RecordsBySplitId(
+    db: DbType,
     splitId: string,
   ): Promise<PlayerStatRecordKillsAt15Dto[]> {
-    return playerStatRecordBaseQuery(splitId)
+    return playerStatRecordBaseQuery(db, splitId)
       .select('ps.killsAt15')
       .orderBy('ps.killsAt15', 'desc')
       .limit(RECORD_LIMIT)
@@ -335,9 +350,10 @@ export class PlayerStatsQuery {
   }
 
   static listDamageAt15RecordsBySplitId(
+    db: DbType,
     splitId: string,
   ): Promise<PlayerStatRecordDamageAt15Dto[]> {
-    return playerStatRecordBaseQuery(splitId)
+    return playerStatRecordBaseQuery(db, splitId)
       .select(['ps.damageAt15', 'ps.damageDiff15'])
       .orderBy('ps.damageAt15', 'desc')
       .limit(RECORD_LIMIT)
@@ -345,9 +361,10 @@ export class PlayerStatsQuery {
   }
 
   static listGoldAt15RecordsBySplitId(
+    db: DbType,
     splitId: string,
   ): Promise<PlayerStatRecordGoldAt15Dto[]> {
-    return playerStatRecordBaseQuery(splitId)
+    return playerStatRecordBaseQuery(db, splitId)
       .select(['ps.goldAt15', 'ps.goldDiff15'])
       .orderBy('ps.goldAt15', 'desc')
       .limit(RECORD_LIMIT)
@@ -355,9 +372,10 @@ export class PlayerStatsQuery {
   }
 
   static listCsAt15RecordsBySplitId(
+    db: DbType,
     splitId: string,
   ): Promise<PlayerStatRecordCsAt15Dto[]> {
-    return playerStatRecordBaseQuery(splitId)
+    return playerStatRecordBaseQuery(db, splitId)
       .select(['ps.csAt15', 'ps.csDiff15'])
       .orderBy('ps.csAt15', 'desc')
       .limit(RECORD_LIMIT)
@@ -366,7 +384,12 @@ export class PlayerStatsQuery {
 
   // -- UPDATE (not updateable)
 
-  static setTeamId(gameId: string, side: LeagueSide, teamId: string) {
+  static setTeamId(
+    db: DbType,
+    gameId: string,
+    side: LeagueSide,
+    teamId: string,
+  ) {
     return db
       .updateTable(PLAYER_STATS)
       .where('leagueGameId', '=', gameId)
@@ -377,7 +400,10 @@ export class PlayerStatsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<PlayerStatRow | undefined> {
+  static deleteById(
+    db: DbType,
+    id: string,
+  ): Promise<PlayerStatRow | undefined> {
     return db
       .deleteFrom(PLAYER_STATS)
       .where('id', '=', id)

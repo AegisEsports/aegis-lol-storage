@@ -1,12 +1,12 @@
 import { GAME_EVENTS } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import { type InsertGameEvent, type GameEventRow } from '@/database/schema.js';
 import type { LeagueSide } from '@/database/shared.js';
+import type { DbType } from '@/database/types.js';
 
 export class GameEventsQuery {
   // -- INSERT
 
-  static insert(values: InsertGameEvent): Promise<GameEventRow> {
+  static insert(db: DbType, values: InsertGameEvent): Promise<GameEventRow> {
     return db
       .insertInto(GAME_EVENTS)
       .values(values)
@@ -16,7 +16,7 @@ export class GameEventsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<GameEventRow | undefined> {
+  static selectById(db: DbType, id: string): Promise<GameEventRow | undefined> {
     return db
       .selectFrom(GAME_EVENTS)
       .selectAll()
@@ -24,7 +24,7 @@ export class GameEventsQuery {
       .executeTakeFirst();
   }
 
-  static listByGameId(gameId: string): Promise<GameEventRow[]> {
+  static listByGameId(db: DbType, gameId: string): Promise<GameEventRow[]> {
     return db
       .selectFrom(GAME_EVENTS)
       .selectAll()
@@ -35,7 +35,12 @@ export class GameEventsQuery {
 
   // -- UPDATE (Not updateable)
 
-  static async setTeamId(gameId: string, side: LeagueSide, teamId: string) {
+  static async setTeamId(
+    db: DbType,
+    gameId: string,
+    side: LeagueSide,
+    teamId: string,
+  ) {
     await db
       .updateTable(GAME_EVENTS)
       .where('leagueGameId', '=', gameId)
@@ -46,7 +51,7 @@ export class GameEventsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<GameEventRow | undefined> {
+  static deleteById(db: DbType, id: string): Promise<GameEventRow | undefined> {
     return db
       .deleteFrom(GAME_EVENTS)
       .where('id', '=', id)

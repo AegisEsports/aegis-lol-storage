@@ -1,15 +1,18 @@
 import { ROSTER_REQUESTS, TEAMS } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertRosterRequest,
   type RosterRequestRow,
   type UpdateRosterRequest,
 } from '@/database/schema.js';
+import type { DbType } from '@/database/types.js';
 
 export class RosterRequestsQuery {
   // -- INSERT
 
-  static insert(values: InsertRosterRequest): Promise<RosterRequestRow> {
+  static insert(
+    db: DbType,
+    values: InsertRosterRequest,
+  ): Promise<RosterRequestRow> {
     return db
       .insertInto(ROSTER_REQUESTS)
       .values(values)
@@ -19,7 +22,10 @@ export class RosterRequestsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<RosterRequestRow | undefined> {
+  static selectById(
+    db: DbType,
+    id: string,
+  ): Promise<RosterRequestRow | undefined> {
     return db
       .selectFrom(ROSTER_REQUESTS)
       .selectAll()
@@ -27,7 +33,10 @@ export class RosterRequestsQuery {
       .executeTakeFirst();
   }
 
-  static listBySplitId(splitId: string): Promise<RosterRequestRow[]> {
+  static listBySplitId(
+    db: DbType,
+    splitId: string,
+  ): Promise<RosterRequestRow[]> {
     return db
       .selectFrom(`${ROSTER_REQUESTS} as rr`)
       .innerJoin(`${TEAMS} as t`, 't.id', 'rr.teamId')
@@ -37,7 +46,7 @@ export class RosterRequestsQuery {
       .execute();
   }
 
-  static listByTeamId(teamId: string): Promise<RosterRequestRow[]> {
+  static listByTeamId(db: DbType, teamId: string): Promise<RosterRequestRow[]> {
     return db
       .selectFrom(ROSTER_REQUESTS)
       .selectAll()
@@ -48,6 +57,7 @@ export class RosterRequestsQuery {
   // -- UPDATE
 
   static updateById(
+    db: DbType,
     id: string,
     update: UpdateRosterRequest,
   ): Promise<RosterRequestRow | undefined> {
@@ -60,6 +70,7 @@ export class RosterRequestsQuery {
   }
 
   static setApproval(
+    db: DbType,
     approved: boolean,
     rosterRequestId: string,
     userReviewedById: string,
@@ -78,7 +89,10 @@ export class RosterRequestsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<RosterRequestRow | undefined> {
+  static deleteById(
+    db: DbType,
+    id: string,
+  ): Promise<RosterRequestRow | undefined> {
     return db
       .deleteFrom(ROSTER_REQUESTS)
       .where('id', '=', id)

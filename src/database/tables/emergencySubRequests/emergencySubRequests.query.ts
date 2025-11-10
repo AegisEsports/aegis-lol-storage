@@ -1,15 +1,16 @@
 import { EMERGENCY_SUB_REQUESTS, TEAMS } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertEmergencySubRequest,
   type EmergencySubRequestRow,
   type UpdateEmergencySubRequest,
 } from '@/database/schema.js';
+import type { DbType } from '@/database/types.js';
 
 export class EmergencySubRequestsQuery {
   // -- INSERT
 
   static insert(
+    db: DbType,
     values: InsertEmergencySubRequest,
   ): Promise<EmergencySubRequestRow> {
     return db
@@ -21,7 +22,10 @@ export class EmergencySubRequestsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<EmergencySubRequestRow | undefined> {
+  static selectById(
+    db: DbType,
+    id: string,
+  ): Promise<EmergencySubRequestRow | undefined> {
     return db
       .selectFrom(EMERGENCY_SUB_REQUESTS)
       .selectAll()
@@ -29,7 +33,10 @@ export class EmergencySubRequestsQuery {
       .executeTakeFirst();
   }
 
-  static listBySplitId(splitId: string): Promise<EmergencySubRequestRow[]> {
+  static listBySplitId(
+    db: DbType,
+    splitId: string,
+  ): Promise<EmergencySubRequestRow[]> {
     return db
       .selectFrom(`${EMERGENCY_SUB_REQUESTS} as esb`)
       .innerJoin(`${TEAMS} as t`, 't.id', 'esb.teamId')
@@ -39,7 +46,10 @@ export class EmergencySubRequestsQuery {
       .execute();
   }
 
-  static listByTeamId(teamId: string): Promise<EmergencySubRequestRow[]> {
+  static listByTeamId(
+    db: DbType,
+    teamId: string,
+  ): Promise<EmergencySubRequestRow[]> {
     return db
       .selectFrom(EMERGENCY_SUB_REQUESTS)
       .selectAll()
@@ -50,6 +60,7 @@ export class EmergencySubRequestsQuery {
   // -- UPDATE
 
   static updateById(
+    db: DbType,
     id: string,
     update: UpdateEmergencySubRequest,
   ): Promise<EmergencySubRequestRow | undefined> {
@@ -62,6 +73,7 @@ export class EmergencySubRequestsQuery {
   }
 
   static setApproval(
+    db: DbType,
     approved: boolean,
     emergencySubRequestId: string,
     userReviewedById: string,
@@ -80,7 +92,10 @@ export class EmergencySubRequestsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<EmergencySubRequestRow | undefined> {
+  static deleteById(
+    db: DbType,
+    id: string,
+  ): Promise<EmergencySubRequestRow | undefined> {
     return db
       .deleteFrom(EMERGENCY_SUB_REQUESTS)
       .where('id', '=', id)

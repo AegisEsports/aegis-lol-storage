@@ -12,26 +12,27 @@ import {
 import { validateBody, validateParams } from '@/util/validate.js';
 
 export const matchRouter = Router();
+const matchController = new MatchController();
 
-matchRouter.post('/', validateBody(postMatchBody), MatchController.createMatch);
+matchRouter.post('/', validateBody(postMatchBody), matchController.createMatch);
 matchRouter.get(
   '/:matchId',
   validateParams(getMatchParams),
-  MatchController.readMatch,
+  matchController.readMatch,
 );
 matchRouter.put(
   '/:matchId',
   validateParams(putMatchParams),
   validateBody(putMatchBody),
-  MatchController.updateMatch,
+  matchController.updateMatch,
 );
 matchRouter.patch(
   '/:matchId/:side/:teamId',
   validateParams(patchMatchTeamParams),
-  MatchController.assignTeamToMatch,
+  matchController.assignTeamToMatch,
 );
 matchRouter.delete(
   '/:matchId',
   validateParams(deleteMatchParams),
-  MatchController.deleteMatch,
+  matchController.deleteMatch,
 );

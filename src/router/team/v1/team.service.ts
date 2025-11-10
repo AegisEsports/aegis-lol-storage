@@ -1,3 +1,6 @@
+import type { Kysely } from 'kysely';
+
+import type { Database } from '@/database/database.js';
 import {
   BannedChampsQuery,
   DiscordAccountsQuery,
@@ -34,19 +37,21 @@ import type {
 import type { CreateTeamRoster } from './team.zod.js';
 
 export class TeamService {
+  constructor(private db: Kysely<Database>) {}
+
   /**
    * Helper function to turn TeamRosterRow[] -> Record<string, PlayerDto>
    */
-  private static createRosterRecord = async (
+  private createRosterRecord = async (
     roster: TeamRosterRow[],
   ): Promise<Record<string, PlayerDto>> => {
     const playerEntries = await Promise.all(
       roster.map(async (r) => {
         const [user, riotAccounts, discordAccounts] = r.userId
           ? await Promise.all([
-              UsersQuery.selectById(r.userId),
-              RiotAccountsQuery.listByUserId(r.userId),
-              DiscordAccountsQuery.listByUserId(r.userId),
+              UsersQuery.selectById(this.db, r.userId),
+              RiotAccountsQuery.listByUserId(this.db, r.userId),
+              DiscordAccountsQuery.listByUserId(this.db, r.userId),
             ])
           : [null, [], []];
         const playerDto: PlayerDto = {
@@ -66,12 +71,12 @@ export class TeamService {
    * Creates a singular entry of a team competing in a split and its team
    *   rosters (if no user is present, team roster will be initialized as null).
    */
-  public static create = async (
+  public create = async (
     teamData: InsertTeam,
     rosterData: CreateTeamRoster,
   ): Promise<TeamDto> => {
-    const insertedTeam = await TeamsQuery.insert(teamData);
-    const getSplit = await SplitsQuery.selectById(teamData.splitId);
+    const insertedTeam = await TeamsQuery.insert(this.db, teamData);
+    const getSplit = await SplitsQuery.selectById(this.db, teamData.splitId);
     // For the roles not listed in 'roster', create default ones.
     const unfulfilledRoles = (() => {
       const used = new Set<RosterRole>(rosterData?.map((r) => r.role));
@@ -82,7 +87,7 @@ export class TeamService {
     });
     const insertedRoster = await Promise.all(
       rosterData.map(async (r) => {
-        return await TeamRostersQuery.insert({
+        return await TeamRostersQuery.insert(this.db, {
           teamId: insertedTeam.id,
           userId: r.userId,
           role: r.role,
@@ -109,10 +114,13 @@ export class TeamService {
   /**
    * Creates a singular entry of a roster request from a team.
    */
-  public static createRosterRequest = async (
+  public createRosterRequest = async (
     data: InsertRosterRequest,
   ): Promise<RosterRequestDto> => {
-    const insertedRosterRequest = await RosterRequestsQuery.insert(data);
+    const insertedRosterRequest = await RosterRequestsQuery.insert(
+      this.db,
+      data,
+    );
 
     return {
       rosterRequest: insertedRosterRequest,
@@ -122,10 +130,13 @@ export class TeamService {
   /**
    * Creates a singular entry of an emergency sub request from a team.
    */
-  public static createEmergencySubRequest = async (
+  public createEmergencySubRequest = async (
     data: InsertEmergencySubRequest,
   ): Promise<EmergencySubRequestDto> => {
-    const insertedESubRequest = await EmergencySubRequestsQuery.insert(data);
+    const insertedESubRequest = await EmergencySubRequestsQuery.insert(
+      this.db,
+      data,
+    );
 
     return {
       emergencySubRequest: insertedESubRequest,
@@ -135,29 +146,39 @@ export class TeamService {
   /**
    * Retrieves a singular entry of a team.
    */
-  public static findById = async (teamId: string): Promise<TeamDto> => {
-    const getTeam = await TeamsQuery.selectById(teamId);
+  public findById = async (teamId: string): Promise<TeamDto> => {
+    const getTeam = await TeamsQuery.selectById(this.db, teamId);
     if (!getTeam) {
       throw new ControllerError(404, 'NotFound', 'Team not found', {
         teamId,
       });
     }
-    const getSplit = await SplitsQuery.selectById(getTeam.splitId);
-    const getTeamRoster = await TeamRostersQuery.listByTeamId(teamId);
+    const getSplit = await SplitsQuery.selectById(this.db, getTeam.splitId);
+    const getTeamRoster = await TeamRostersQuery.listByTeamId(this.db, teamId);
     const rosterRecord = await this.createRosterRecord(getTeamRoster);
-    const getChampionPicks =
-      await PlayerStatsQuery.selectCountPicksByTeamId(teamId);
-    const getChampionBansBy =
-      await BannedChampsQuery.selectCountByTeamId(teamId);
+    const getChampionPicks = await PlayerStatsQuery.selectCountPicksByTeamId(
+      this.db,
+      teamId,
+    );
+    const getChampionBansBy = await BannedChampsQuery.selectCountByTeamId(
+      this.db,
+      teamId,
+    );
     const getChampionBansAgainst =
-      await BannedChampsQuery.selectCountAgainstByTeamId(teamId);
-    const getRosterRequests = await RosterRequestsQuery.listByTeamId(teamId);
+      await BannedChampsQuery.selectCountAgainstByTeamId(this.db, teamId);
+    const getRosterRequests = await RosterRequestsQuery.listByTeamId(
+      this.db,
+      teamId,
+    );
     const getEmergencySubRequests =
-      await EmergencySubRequestsQuery.listByTeamId(teamId);
+      await EmergencySubRequestsQuery.listByTeamId(this.db, teamId);
     // Build matches object with the nested array of games played
-    const getMatches = await LeagueMatchesQuery.listByTeamId(teamId);
+    const getMatches = await LeagueMatchesQuery.listByTeamId(this.db, teamId);
     for (const match of getMatches) {
-      const leagueGameStats = await LeagueGamesQuery.listByMatchId(match.id);
+      const leagueGameStats = await LeagueGamesQuery.listByMatchId(
+        this.db,
+        match.id,
+      );
       match.games = await Promise.all(
         leagueGameStats.map(async (game) => {
           const side = game.blueTeamId === teamId ? 'Blue' : 'Red';
@@ -165,8 +186,13 @@ export class TeamService {
           return {
             ...game,
             side,
-            stats: await TeamStatsQuery.selectByGameAndTeam(game.id, teamId),
+            stats: await TeamStatsQuery.selectByGameAndTeam(
+              this.db,
+              game.id,
+              teamId,
+            ),
             players: await PlayerStatsQuery.selectByGameAndTeam(
+              this.db,
               game.id,
               teamId,
             ),
@@ -193,11 +219,11 @@ export class TeamService {
   /**
    * Updates a singular entry of a team.
    */
-  public static replaceById = async (
+  public replaceById = async (
     teamId: string,
     teamData: UpdateTeam,
   ): Promise<TeamTableDto> => {
-    const updatedTeam = await TeamsQuery.updateById(teamId, teamData);
+    const updatedTeam = await TeamsQuery.updateById(this.db, teamId, teamData);
     if (!updatedTeam) {
       throw new ControllerError(404, 'NotFound', 'Team not found', {
         teamId,
@@ -212,11 +238,12 @@ export class TeamService {
   /**
    * Updates a singular entry of the team’s roster.
    */
-  public static replaceTeamRosterById = async (
+  public replaceTeamRosterById = async (
     teamRosterId: string,
     teamRosterData: UpdateTeamRoster,
   ): Promise<TeamRosterDto> => {
     const updatedTeamRoster = await TeamRostersQuery.updateById(
+      this.db,
       teamRosterId,
       teamRosterData,
     );
@@ -234,11 +261,12 @@ export class TeamService {
   /**
    * Assigns an organization to the team.
    */
-  public static updateOrganizationById = async (
+  public updateOrganizationById = async (
     teamId: string,
     organizationId: string,
   ): Promise<TeamTableDto> => {
     const patchedTeam = await TeamsQuery.setOrganizationId(
+      this.db,
       teamId,
       organizationId,
     );
@@ -256,12 +284,13 @@ export class TeamService {
   /**
    * Approves/denies a roster request by a user (by an admin).
    */
-  public static updateApprovalInRosterRequest = async (
+  public updateApprovalInRosterRequest = async (
     approval: boolean,
     rosterRequestId: string,
     userReviewedById: string,
   ): Promise<RosterRequestDto> => {
     const patchedRosterRequest = await RosterRequestsQuery.setApproval(
+      this.db,
       approval,
       rosterRequestId,
       userReviewedById,
@@ -280,13 +309,14 @@ export class TeamService {
   /**
    * Approves/denies an emergency sub request by a user (by an admin).
    */
-  public static updateApprovalInEmergencySubRequest = async (
+  public updateApprovalInEmergencySubRequest = async (
     approval: boolean,
     emergencySubRequestId: string,
     userReviewedById: string,
   ): Promise<EmergencySubRequestDto> => {
     const patchedEmergencySubRequest =
       await EmergencySubRequestsQuery.setApproval(
+        this.db,
         approval,
         emergencySubRequestId,
         userReviewedById,
@@ -310,8 +340,8 @@ export class TeamService {
   /**
    * Deletes a singular entry of a team.
    */
-  public static removeById = async (teamId: string): Promise<TeamTableDto> => {
-    const deletedTeam = await TeamsQuery.deleteById(teamId);
+  public removeById = async (teamId: string): Promise<TeamTableDto> => {
+    const deletedTeam = await TeamsQuery.deleteById(this.db, teamId);
     if (!deletedTeam) {
       throw new ControllerError(404, 'NotFound', 'Team not found', {
         teamId,

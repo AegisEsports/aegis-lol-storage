@@ -2,18 +2,21 @@ import { DatabaseError } from 'pg';
 import { PostgresError } from 'pg-error-enum';
 
 import { RIOT_ACCOUNTS } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertRiotAccount,
   type RiotAccountRow,
   type UpdateRiotAccount,
 } from '@/database/schema.js';
+import type { DbType } from '@/database/types.js';
 import ControllerError from '@/util/errors/controllerError.js';
 
 export class RiotAccountsQuery {
   // -- INSERT
 
-  static insert(values: InsertRiotAccount): Promise<RiotAccountRow> {
+  static insert(
+    db: DbType,
+    values: InsertRiotAccount,
+  ): Promise<RiotAccountRow> {
     return db
       .insertInto(RIOT_ACCOUNTS)
       .values(values)
@@ -23,7 +26,10 @@ export class RiotAccountsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<RiotAccountRow | undefined> {
+  static selectById(
+    db: DbType,
+    id: string,
+  ): Promise<RiotAccountRow | undefined> {
     return db
       .selectFrom(RIOT_ACCOUNTS)
       .selectAll()
@@ -31,7 +37,10 @@ export class RiotAccountsQuery {
       .executeTakeFirst();
   }
 
-  static selectByPuuid(puuid: string): Promise<RiotAccountRow | undefined> {
+  static selectByPuuid(
+    db: DbType,
+    puuid: string,
+  ): Promise<RiotAccountRow | undefined> {
     return db
       .selectFrom(RIOT_ACCOUNTS)
       .selectAll()
@@ -39,7 +48,7 @@ export class RiotAccountsQuery {
       .executeTakeFirst();
   }
 
-  static listByUserId(userId: string): Promise<RiotAccountRow[]> {
+  static listByUserId(db: DbType, userId: string): Promise<RiotAccountRow[]> {
     return db
       .selectFrom(RIOT_ACCOUNTS)
       .selectAll()
@@ -50,6 +59,7 @@ export class RiotAccountsQuery {
   // -- UPDATE
 
   static updateById(
+    db: DbType,
     id: string,
     update: UpdateRiotAccount,
   ): Promise<RiotAccountRow | undefined> {
@@ -62,6 +72,7 @@ export class RiotAccountsQuery {
   }
 
   static setWithUserId(
+    db: DbType,
     riotAccountId: string,
     userId: string,
   ): Promise<RiotAccountRow | undefined> {
@@ -88,7 +99,10 @@ export class RiotAccountsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<RiotAccountRow | undefined> {
+  static deleteById(
+    db: DbType,
+    id: string,
+  ): Promise<RiotAccountRow | undefined> {
     return db
       .deleteFrom(RIOT_ACCOUNTS)
       .where('id', '=', id)

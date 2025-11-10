@@ -5,18 +5,18 @@ import {
   TEAM_ROSTERS,
   TEAMS,
 } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertTeam,
   type TeamRow,
   type UpdateTeam,
 } from '@/database/schema.js';
+import type { DbType } from '@/database/types.js';
 import type { TeamPlayedInDto } from '@/router/user/v1/user.dto.js';
 
 export class TeamsQuery {
   // -- INSERT
 
-  static insert(values: InsertTeam): Promise<TeamRow> {
+  static insert(db: DbType, values: InsertTeam): Promise<TeamRow> {
     return db
       .insertInto(TEAMS)
       .values(values)
@@ -26,7 +26,7 @@ export class TeamsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<TeamRow | undefined> {
+  static selectById(db: DbType, id: string): Promise<TeamRow | undefined> {
     return db
       .selectFrom(TEAMS)
       .selectAll()
@@ -34,7 +34,7 @@ export class TeamsQuery {
       .executeTakeFirst();
   }
 
-  static listBySplitId(splitId: string): Promise<TeamRow[]> {
+  static listBySplitId(db: DbType, splitId: string): Promise<TeamRow[]> {
     return db
       .selectFrom(`${TEAMS}`)
       .selectAll()
@@ -43,6 +43,7 @@ export class TeamsQuery {
   }
 
   static async listPlayedInByUserId(
+    db: DbType,
     userId: string,
   ): Promise<TeamPlayedInDto[]> {
     // Distinct teams the user has appeared on.
@@ -147,6 +148,7 @@ export class TeamsQuery {
   // -- UPDATE
 
   static updateById(
+    db: DbType,
     id: string,
     update: UpdateTeam,
   ): Promise<TeamRow | undefined> {
@@ -159,6 +161,7 @@ export class TeamsQuery {
   }
 
   static setOrganizationId(
+    db: DbType,
     teamId: string,
     organizationId: string,
   ): Promise<TeamRow | undefined> {
@@ -172,7 +175,7 @@ export class TeamsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<TeamRow | undefined> {
+  static deleteById(db: DbType, id: string): Promise<TeamRow | undefined> {
     return db
       .deleteFrom(TEAMS)
       .where('id', '=', id)

@@ -1,16 +1,16 @@
 import { LEAGUE_BANS, USERS } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertLeagueBan,
   type LeagueBanRow,
   type UpdateLeagueBan,
 } from '@/database/schema.js';
+import type { DbType } from '@/database/types.js';
 import type { UsersBannedInLeagueDto } from '@/router/league/v1/league.dto.js';
 
 export class LeagueBansQuery {
   // -- INSERT
 
-  static insert(values: InsertLeagueBan): Promise<LeagueBanRow> {
+  static insert(db: DbType, values: InsertLeagueBan): Promise<LeagueBanRow> {
     return db
       .insertInto(LEAGUE_BANS)
       .values(values)
@@ -20,7 +20,7 @@ export class LeagueBansQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<LeagueBanRow | undefined> {
+  static selectById(db: DbType, id: string): Promise<LeagueBanRow | undefined> {
     return db
       .selectFrom(LEAGUE_BANS)
       .selectAll()
@@ -28,7 +28,7 @@ export class LeagueBansQuery {
       .executeTakeFirst();
   }
 
-  static listByUserId(userId: string): Promise<LeagueBanRow[]> {
+  static listByUserId(db: DbType, userId: string): Promise<LeagueBanRow[]> {
     return db
       .selectFrom(LEAGUE_BANS)
       .selectAll()
@@ -36,7 +36,10 @@ export class LeagueBansQuery {
       .execute();
   }
 
-  static listByLeagueId(leagueId: string): Promise<UsersBannedInLeagueDto[]> {
+  static listByLeagueId(
+    db: DbType,
+    leagueId: string,
+  ): Promise<UsersBannedInLeagueDto[]> {
     return db
       .selectFrom(`${LEAGUE_BANS} as lb`)
       .innerJoin(`${USERS} as u`, 'u.id', 'lb.userIdBanned')
@@ -51,6 +54,7 @@ export class LeagueBansQuery {
   // -- UPDATE
 
   static updateById(
+    db: DbType,
     id: string,
     update: UpdateLeagueBan,
   ): Promise<LeagueBanRow | undefined> {
@@ -64,7 +68,7 @@ export class LeagueBansQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<LeagueBanRow | undefined> {
+  static deleteById(db: DbType, id: string): Promise<LeagueBanRow | undefined> {
     return db
       .deleteFrom(LEAGUE_BANS)
       .where('id', '=', id)

@@ -1,9 +1,11 @@
+import type { Kysely } from 'kysely';
 import { RegionGroups } from 'twisted/dist/constants/regions.js';
 import type {
   MatchV5DTOs,
   MatchV5TimelineDTOs,
 } from 'twisted/dist/models-dto/index.js';
 
+import type { Database } from '@/database/database.js';
 import {
   BannedChampsQuery,
   GameEventsQuery,
@@ -58,10 +60,12 @@ type StatCounter = {
 };
 
 export class GameService {
+  constructor(private db: Kysely<Database>) {}
+
   /**
    * Maps a MatchV5DTOs.Position to our own defined role.
    */
-  private static readonly ROLE_MAP: Record<MatchV5DTOs.Position, LeagueRole> = {
+  readonly ROLE_MAP: Record<MatchV5DTOs.Position, LeagueRole> = {
     TOP: 'Top',
     JUNGLE: 'Jungle',
     MIDDLE: 'Middle',
@@ -73,7 +77,7 @@ export class GameService {
   /**
    * Maps a MatchV5TimelineDTOs.TowerType to our own defined tower type.
    */
-  private static readonly TOWER_TYPE_MAP: Record<
+  readonly TOWER_TYPE_MAP: Record<
     MatchV5TimelineDTOs.TowerType,
     ObjectiveSubtype
   > = {
@@ -85,7 +89,7 @@ export class GameService {
   /**
    * Maps a MatchV5TimelineDTOs.MonsterType to our own defined objective type.
    */
-  private static readonly MONSTER_TYPE_MAP: Record<string, EventType> = {
+  readonly MONSTER_TYPE_MAP: Record<string, EventType> = {
     DRAGON: 'Dragon',
     BARON_NASHOR: 'Baron_Nashor',
     RIFTHERALD: 'Rift_Herald',
@@ -95,7 +99,7 @@ export class GameService {
   /**
    * Maps a MatchV5TimelineDTOs.SubMonsterType to our own defined dragon type.
    */
-  private static readonly DRAGON_TYPE_MAP: Record<string, ObjectiveSubtype> = {
+  readonly DRAGON_TYPE_MAP: Record<string, ObjectiveSubtype> = {
     CHEMTECH_DRAGON: 'Chemtech_Dragon',
     AIR_DRAGON: 'Cloud_Dragon',
     HEXTECH_DRAGON: 'Hextech_Dragon',
@@ -107,10 +111,7 @@ export class GameService {
   /**
    * Maps a MatchV5TimelineDTOs.LaneType to our own defined lane type.
    */
-  private static readonly LANE_TYPE_MAP: Record<
-    MatchV5TimelineDTOs.LaneType,
-    LeagueLane
-  > = {
+  readonly LANE_TYPE_MAP: Record<MatchV5TimelineDTOs.LaneType, LeagueLane> = {
     TOP_LANE: 'Top',
     MID_LANE: 'Middle',
     BOT_LANE: 'Bottom',
@@ -118,7 +119,7 @@ export class GameService {
   /**
    * Maps a MatchV5TimelineDTOs.SkillSlot to the skill keyboard.
    */
-  private static readonly SKILL_SLOT_MAP: Record<number, SkillSlots> = {
+  readonly SKILL_SLOT_MAP: Record<number, SkillSlots> = {
     1: 'Q',
     2: 'W',
     3: 'E',
@@ -129,7 +130,7 @@ export class GameService {
    * Maps a MatchV5TimelineDTOs.LevelUpType to our own defined skill
    *  level up type.
    */
-  private static readonly LEVEL_UP_TYPE_MAP: Record<
+  readonly LEVEL_UP_TYPE_MAP: Record<
     MatchV5TimelineDTOs.LevelUpType,
     SkillLevelUpTypes
   > = {
@@ -145,7 +146,7 @@ export class GameService {
    * Additionally, the service will create a Riot account if the puuid is not
    *  present.
    */
-  public static create = async (
+  public create = async (
     leagueMatchId: string | null,
     blueTeamUuid: string,
     redTeamUuid: string,
@@ -171,7 +172,7 @@ export class GameService {
     const { frames } = timelineInfo;
 
     // Insert into league_games table in order to generate a parent id
-    const insertedGameData = await LeagueGamesQuery.insert({
+    const insertedGameData = await LeagueGamesQuery.insert(this.db, {
       riotMatchId,
       leagueMatchId,
       gameNumber: 0,
@@ -188,9 +189,12 @@ export class GameService {
 
     // Update gameNumber after insertion if a leagueMatchId exists
     if (leagueMatchId) {
-      await LeagueGamesQuery.setGameNumbersByMatchId(leagueMatchId);
+      await LeagueGamesQuery.setGameNumbersByMatchId(this.db, leagueMatchId);
     }
-    const getGameData = await LeagueGamesQuery.selectById(leagueGameId);
+    const getGameData = await LeagueGamesQuery.selectById(
+      this.db,
+      leagueGameId,
+    );
 
     /**
      * Compute team golds at a specific minute mark (i.e. 10 or 15).
@@ -1089,9 +1093,12 @@ export class GameService {
     // Insert into riot_accounts table if puuid does not exist.
     for (const player of participants) {
       const { puuid, riotIdGameName, riotIdTagline } = player;
-      const existingAccount = await RiotAccountsQuery.selectByPuuid(puuid);
+      const existingAccount = await RiotAccountsQuery.selectByPuuid(
+        this.db,
+        puuid,
+      );
       if (!existingAccount) {
-        await RiotAccountsQuery.insert({
+        await RiotAccountsQuery.insert(this.db, {
           riotPuuid: puuid!,
           mainAccount: true,
           gameName: riotIdGameName!,
@@ -1114,7 +1121,7 @@ export class GameService {
           //  the 'pickTurn' field is incorrect. So we manually correct it here.
           const banOrders =
             side === 'Blue' ? [1, 3, 5, 8, 10] : [2, 4, 6, 7, 9];
-          return await BannedChampsQuery.insert({
+          return await BannedChampsQuery.insert(this.db, {
             leagueGameId,
             banOrder: banOrders[idx] ?? 0,
             sideBannedBy: side,
@@ -1138,13 +1145,13 @@ export class GameService {
 
     // Insert into player_stats table
     const getPlayerStats = await Promise.all(
-      playerStatList.map((ps) => PlayerStatsQuery.insert(ps)),
+      playerStatList.map((ps) => PlayerStatsQuery.insert(this.db, ps)),
     );
     const playerStatsData: PlayerStatDto[] = await Promise.all(
       removeBaseFields(getPlayerStats).map(async (ps) => {
         return {
           ...ps,
-          username: await UsersQuery.selectByPuuid(ps.riotPuuid).then(
+          username: await UsersQuery.selectByPuuid(this.db, ps.riotPuuid).then(
             (u) => u?.username || null,
           ),
         };
@@ -1153,13 +1160,13 @@ export class GameService {
 
     // Insert into team_stats table
     const getTeamStats = await Promise.all(
-      teamStatsList.map((ts) => TeamStatsQuery.insert(ts)),
+      teamStatsList.map((ts) => TeamStatsQuery.insert(this.db, ts)),
     );
     const teamStatsData: TeamStatDto[] = await Promise.all(
       removeBaseFields(getTeamStats).map(async (ts) => {
         return {
           ...ts,
-          teamName: await TeamsQuery.selectById(ts.teamId).then(
+          teamName: await TeamsQuery.selectById(this.db, ts.teamId).then(
             (t) => t?.name || null,
           ),
         };
@@ -1168,22 +1175,24 @@ export class GameService {
 
     // Insert into game_events table
     const gameEventsData = await Promise.all(
-      gameEventList.map((event) => GameEventsQuery.insert(event)),
+      gameEventList.map((event) => GameEventsQuery.insert(this.db, event)),
     );
 
     // Insert into game_team_golds table
     const teamGoldTimelineData = await Promise.all(
-      teamGoldList.map((tg) => GameTeamGoldsQuery.insert(tg)),
+      teamGoldList.map((tg) => GameTeamGoldsQuery.insert(this.db, tg)),
     );
 
     // Insert into game_store_actions table
     const storeActionsData = await Promise.all(
-      storeActionList.map((sa) => GameStoreActionsQuery.insert(sa)),
+      storeActionList.map((sa) => GameStoreActionsQuery.insert(this.db, sa)),
     );
 
     // Insert into game_skill_level_ups table
     const skillLevelUpsData = await Promise.all(
-      skillLevelUpList.map((slu) => GameSkillLevelUpsQuery.insert(slu)),
+      skillLevelUpList.map((slu) =>
+        GameSkillLevelUpsQuery.insert(this.db, slu),
+      ),
     );
 
     return {
@@ -1201,20 +1210,32 @@ export class GameService {
   /**
    * Retrieves a singular entry of a game.
    */
-  public static findById = async (gameId: string): Promise<GameDto> => {
-    const getGame = await LeagueGamesQuery.selectById(gameId);
+  public findById = async (gameId: string): Promise<GameDto> => {
+    const getGame = await LeagueGamesQuery.selectById(this.db, gameId);
     if (!getGame) {
       throw new ControllerError(404, 'NotFound', 'Game not found', {
         gameId,
       });
     }
-    const getBannedChamps = await BannedChampsQuery.listByGameId(gameId);
-    const getTeamStats = await TeamStatsQuery.listByGameId(gameId);
-    const getPlayerStats = await PlayerStatsQuery.listByGameId(gameId);
-    const getGameEvents = await GameEventsQuery.listByGameId(gameId);
-    const getTeamGoldTimeline = await GameTeamGoldsQuery.listByGameId(gameId);
-    const getStoreActions = await GameStoreActionsQuery.listByGameId(gameId);
-    const getSkillLevelUps = await GameSkillLevelUpsQuery.listByGameId(gameId);
+    const getBannedChamps = await BannedChampsQuery.listByGameId(
+      this.db,
+      gameId,
+    );
+    const getTeamStats = await TeamStatsQuery.listByGameId(this.db, gameId);
+    const getPlayerStats = await PlayerStatsQuery.listByGameId(this.db, gameId);
+    const getGameEvents = await GameEventsQuery.listByGameId(this.db, gameId);
+    const getTeamGoldTimeline = await GameTeamGoldsQuery.listByGameId(
+      this.db,
+      gameId,
+    );
+    const getStoreActions = await GameStoreActionsQuery.listByGameId(
+      this.db,
+      gameId,
+    );
+    const getSkillLevelUps = await GameSkillLevelUpsQuery.listByGameId(
+      this.db,
+      gameId,
+    );
 
     return {
       game: getGame,
@@ -1231,11 +1252,15 @@ export class GameService {
   /**
    * Assigns a match to the game.
    */
-  public static updateMatchIdInGame = async (
+  public updateMatchIdInGame = async (
     gameId: string,
     matchId: string,
   ): Promise<GameTableDto> => {
-    const patchedGame = await LeagueGamesQuery.setMatchId(gameId, matchId);
+    const patchedGame = await LeagueGamesQuery.setMatchId(
+      this.db,
+      gameId,
+      matchId,
+    );
     if (!patchedGame) {
       throw new ControllerError(404, 'NotFound', 'Game not found', {
         gameId,
@@ -1245,9 +1270,9 @@ export class GameService {
     // Update game numbers for all games in the match
     const { leagueMatchId } = patchedGame;
     if (leagueMatchId) {
-      await LeagueGamesQuery.setGameNumbersByMatchId(leagueMatchId);
+      await LeagueGamesQuery.setGameNumbersByMatchId(this.db, leagueMatchId);
     }
-    const getGame = await LeagueGamesQuery.selectById(gameId);
+    const getGame = await LeagueGamesQuery.selectById(this.db, gameId);
 
     return {
       game: getGame!,
@@ -1257,11 +1282,15 @@ export class GameService {
   /**
    * Assigns a draft link to the game.
    */
-  public static updateDraftLinkInGame = async (
+  public updateDraftLinkInGame = async (
     gameId: string,
     draftLink: string | null,
   ): Promise<GameTableDto> => {
-    const patchedGame = await LeagueGamesQuery.setDraftLink(gameId, draftLink);
+    const patchedGame = await LeagueGamesQuery.setDraftLink(
+      this.db,
+      gameId,
+      draftLink,
+    );
     if (!patchedGame) {
       throw new ControllerError(404, 'NotFound', 'Game not found', {
         gameId,
@@ -1276,15 +1305,15 @@ export class GameService {
   /**
    * Assigns a team to the specified side in the game.
    */
-  public static updateTeamInGame = async (
+  public updateTeamInGame = async (
     gameId: string,
     side: string,
     teamId: string,
   ): Promise<GameTableDto> => {
     const patchedGame =
       side === 'blue'
-        ? await LeagueGamesQuery.setBlueTeam(gameId, teamId)
-        : await LeagueGamesQuery.setRedTeam(gameId, teamId);
+        ? await LeagueGamesQuery.setBlueTeam(this.db, gameId, teamId)
+        : await LeagueGamesQuery.setRedTeam(this.db, gameId, teamId);
     if (!patchedGame) {
       throw new ControllerError(404, 'NotFound', 'Game not found', {
         gameId,
@@ -1293,11 +1322,11 @@ export class GameService {
 
     // Also update all the respective game stats tables to reflect the new team
     const setTeamOnStatsTables = async (side: LeagueSide) => {
-      await TeamStatsQuery.setTeamId(gameId, side, teamId);
-      await PlayerStatsQuery.setTeamId(gameId, side, teamId);
-      await BannedChampsQuery.setTeamId(gameId, side, teamId);
-      await GameEventsQuery.setTeamId(gameId, side, teamId);
-      await GameTeamGoldsQuery.setTeamId(gameId, side, teamId);
+      await TeamStatsQuery.setTeamId(this.db, gameId, side, teamId);
+      await PlayerStatsQuery.setTeamId(this.db, gameId, side, teamId);
+      await BannedChampsQuery.setTeamId(this.db, gameId, side, teamId);
+      await GameEventsQuery.setTeamId(this.db, gameId, side, teamId);
+      await GameTeamGoldsQuery.setTeamId(this.db, gameId, side, teamId);
     };
     if (side === 'blue') {
       await setTeamOnStatsTables('Blue');
@@ -1313,8 +1342,8 @@ export class GameService {
   /**
    * Deletes a singular entry of a game.
    */
-  public static removeById = async (gameId: string): Promise<GameTableDto> => {
-    const deletedGame = await LeagueGamesQuery.deleteById(gameId);
+  public removeById = async (gameId: string): Promise<GameTableDto> => {
+    const deletedGame = await LeagueGamesQuery.deleteById(this.db, gameId);
     if (!deletedGame) {
       throw new ControllerError(404, 'NotFound', 'Game not found', {
         gameId,

@@ -1,3 +1,6 @@
+import type { Kysely } from 'kysely';
+
+import type { Database } from '@/database/database.js';
 import {
   BannedChampsQuery,
   LeagueGamesQuery,
@@ -23,12 +26,14 @@ import type {
 import ControllerError from '@/util/errors/controllerError.js';
 
 export class MatchService {
-  private static getTeamNamesFromMatch = async (match: LeagueMatchRow) => {
+  constructor(private db: Kysely<Database>) {}
+
+  private getTeamNamesFromMatch = async (match: LeagueMatchRow) => {
     const homeTeam = match.homeTeamId
-      ? await TeamsQuery.selectById(match.homeTeamId)
+      ? await TeamsQuery.selectById(this.db, match.homeTeamId)
       : null;
     const awayTeam = match.awayTeamId
-      ? await TeamsQuery.selectById(match.awayTeamId)
+      ? await TeamsQuery.selectById(this.db, match.awayTeamId)
       : null;
     return {
       homeTeamName: homeTeam ? homeTeam.name : null,
@@ -36,12 +41,12 @@ export class MatchService {
     };
   };
 
-  private static getTeamNamesFromGame = async (match: LeagueGameRow) => {
+  private getTeamNamesFromGame = async (match: LeagueGameRow) => {
     const blueTeam = match.blueTeamId
-      ? await TeamsQuery.selectById(match.blueTeamId)
+      ? await TeamsQuery.selectById(this.db, match.blueTeamId)
       : null;
     const redTeam = match.redTeamId
-      ? await TeamsQuery.selectById(match.redTeamId)
+      ? await TeamsQuery.selectById(this.db, match.redTeamId)
       : null;
     return {
       blueTeamName: blueTeam ? blueTeam.name : null,
@@ -52,10 +57,8 @@ export class MatchService {
   /**
    * Creates a singular entry of a match.
    */
-  public static create = async (
-    matchData: InsertLeagueMatch,
-  ): Promise<MatchDto> => {
-    const insertedMatch = await LeagueMatchesQuery.insert(matchData);
+  public create = async (matchData: InsertLeagueMatch): Promise<MatchDto> => {
+    const insertedMatch = await LeagueMatchesQuery.insert(this.db, matchData);
     const { homeTeamName, awayTeamName } =
       await this.getTeamNamesFromMatch(insertedMatch);
 
@@ -72,8 +75,8 @@ export class MatchService {
   /**
    * Retrieves a singular entry of a match.
    */
-  public static findById = async (matchId: string): Promise<MatchDto> => {
-    const getMatch = await LeagueMatchesQuery.selectById(matchId);
+  public findById = async (matchId: string): Promise<MatchDto> => {
+    const getMatch = await LeagueMatchesQuery.selectById(this.db, matchId);
     if (!getMatch) {
       throw new ControllerError(404, 'NotFound', 'Match not found', {
         matchId,
@@ -81,21 +84,25 @@ export class MatchService {
     }
     const { homeTeamName, awayTeamName } =
       await this.getTeamNamesFromMatch(getMatch);
-    const getGames = await LeagueGamesQuery.listByMatchId(getMatch.id);
+    const getGames = await LeagueGamesQuery.listByMatchId(this.db, getMatch.id);
     const games: MatchGameDto[] = await Promise.all(
       getGames.map(async (game) => {
         const { blueTeamName, redTeamName } =
           await this.getTeamNamesFromGame(game);
         const blueTeamStats = await TeamStatsQuery.selectByGameAndSide(
+          this.db,
           game.id,
           'Blue',
         );
         const redTeamStats = await TeamStatsQuery.selectByGameAndSide(
+          this.db,
           game.id,
           'Red',
         );
-        const bannedChampRows = await BannedChampsQuery.listByGameId(game.id);
-
+        const bannedChampRows = await BannedChampsQuery.listByGameId(
+          this.db,
+          game.id,
+        );
         return {
           leagueGameId: game.id,
           gameNumber: game.gameNumber,
@@ -107,6 +114,7 @@ export class MatchService {
               .map((r) => r.champId)
               .filter((id) => id),
             champPickIds: await PlayerStatsQuery.listChampIdsByGameAndSide(
+              this.db,
               game.id,
               'Blue',
             ),
@@ -123,6 +131,7 @@ export class MatchService {
               .map((r) => r.champId)
               .filter((id) => id),
             champPickIds: await PlayerStatsQuery.listChampIdsByGameAndSide(
+              this.db,
               game.id,
               'Red',
             ),
@@ -150,11 +159,12 @@ export class MatchService {
   /**
    * Updates a singular entry of a match.
    */
-  public static replaceById = async (
+  public replaceById = async (
     matchId: string,
     matchData: UpdateLeagueMatch,
   ): Promise<MatchTableDto> => {
     const updatedMatch = await LeagueMatchesQuery.updateById(
+      this.db,
       matchId,
       matchData,
     );
@@ -172,7 +182,7 @@ export class MatchService {
   /**
    * Assigns a team based on either 'away' (left) or 'home' (right).
    */
-  public static updateTeamInMatch = async (
+  public updateTeamInMatch = async (
     matchId: string,
     side: string,
     teamId: string,
@@ -180,10 +190,18 @@ export class MatchService {
     let patchedMatch = null;
     if (side === MATCH_SIDES[0].toLowerCase()) {
       // Away
-      patchedMatch = await LeagueMatchesQuery.setAwayTeamId(matchId, teamId);
+      patchedMatch = await LeagueMatchesQuery.setAwayTeamId(
+        this.db,
+        matchId,
+        teamId,
+      );
     } else {
       // Home
-      patchedMatch = await LeagueMatchesQuery.setHomeTeamId(matchId, teamId);
+      patchedMatch = await LeagueMatchesQuery.setHomeTeamId(
+        this.db,
+        matchId,
+        teamId,
+      );
     }
     if (!patchedMatch) {
       throw new ControllerError(404, 'NotFound', 'Match not found', {
@@ -200,10 +218,8 @@ export class MatchService {
   /**
    * Deletes a singular entry of a match.
    */
-  public static removeById = async (
-    matchId: string,
-  ): Promise<MatchTableDto> => {
-    const deletedMatch = await LeagueMatchesQuery.deleteById(matchId);
+  public removeById = async (matchId: string): Promise<MatchTableDto> => {
+    const deletedMatch = await LeagueMatchesQuery.deleteById(this.db, matchId);
     if (!deletedMatch) {
       throw new ControllerError(404, 'NotFound', 'Match not found', {
         matchId,

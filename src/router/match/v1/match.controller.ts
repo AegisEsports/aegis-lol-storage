@@ -1,5 +1,6 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
+import { db } from '@/database/database.js';
 import { MatchService } from '@/router/match/v1/match.service.js';
 import type {
   CreateMatchBody,
@@ -7,10 +8,12 @@ import type {
 } from '@/router/match/v1/match.zod.js';
 
 export class MatchController {
+  private match: MatchService = new MatchService(db);
+
   /**
    * POST - /
    */
-  public static createMatch: RequestHandler = async (
+  public createMatch: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -18,7 +21,7 @@ export class MatchController {
     try {
       const { match } = req.body as CreateMatchBody;
 
-      res.status(201).json(await MatchService.create(match));
+      res.status(201).json(await this.match.create(match));
     } catch (err) {
       next(err);
     }
@@ -27,7 +30,7 @@ export class MatchController {
   /**
    * GET - /{matchId}
    */
-  public static readMatch: RequestHandler = async (
+  public readMatch: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -35,7 +38,7 @@ export class MatchController {
     try {
       const { matchId } = req.params;
 
-      res.status(200).json(await MatchService.findById(matchId!));
+      res.status(200).json(await this.match.findById(matchId!));
     } catch (err) {
       next(err);
     }
@@ -44,7 +47,7 @@ export class MatchController {
   /**
    * PUT - /{matchId}
    */
-  public static updateMatch: RequestHandler = async (
+  public updateMatch: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -53,7 +56,7 @@ export class MatchController {
       const { matchId } = req.params;
       const { match } = req.body as UpdateMatchBody;
 
-      res.status(200).json(await MatchService.replaceById(matchId!, match));
+      res.status(200).json(await this.match.replaceById(matchId!, match));
     } catch (err) {
       next(err);
     }
@@ -62,7 +65,7 @@ export class MatchController {
   /**
    * PATCH - /{matchId}/{side}/{teamId}
    */
-  public static assignTeamToMatch: RequestHandler = async (
+  public assignTeamToMatch: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -72,7 +75,7 @@ export class MatchController {
 
       res
         .status(200)
-        .json(await MatchService.updateTeamInMatch(matchId!, side!, teamId!));
+        .json(await this.match.updateTeamInMatch(matchId!, side!, teamId!));
     } catch (err) {
       next(err);
     }
@@ -81,7 +84,7 @@ export class MatchController {
   /**
    * DELETE - /{matchId}
    */
-  public static deleteMatch: RequestHandler = async (
+  public deleteMatch: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -89,7 +92,7 @@ export class MatchController {
     try {
       const { matchId } = req.params;
 
-      res.status(200).json(await MatchService.removeById(matchId!));
+      res.status(200).json(await this.match.removeById(matchId!));
     } catch (err) {
       next(err);
     }

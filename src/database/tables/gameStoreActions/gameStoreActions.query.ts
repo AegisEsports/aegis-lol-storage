@@ -1,14 +1,17 @@
 import { GAME_STORE_ACTIONS } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertGameStoreAction,
   type GameStoreActionRow,
 } from '@/database/schema.js';
+import type { DbType } from '@/database/types.js';
 
 export class GameStoreActionsQuery {
   // -- INSERT
 
-  static insert(values: InsertGameStoreAction): Promise<GameStoreActionRow> {
+  static insert(
+    db: DbType,
+    values: InsertGameStoreAction,
+  ): Promise<GameStoreActionRow> {
     return db
       .insertInto(GAME_STORE_ACTIONS)
       .values(values)
@@ -18,7 +21,10 @@ export class GameStoreActionsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<GameStoreActionRow | undefined> {
+  static selectById(
+    db: DbType,
+    id: string,
+  ): Promise<GameStoreActionRow | undefined> {
     return db
       .selectFrom(GAME_STORE_ACTIONS)
       .selectAll()
@@ -26,7 +32,10 @@ export class GameStoreActionsQuery {
       .executeTakeFirst();
   }
 
-  static listByGameId(gameId: string): Promise<GameStoreActionRow[]> {
+  static listByGameId(
+    db: DbType,
+    gameId: string,
+  ): Promise<GameStoreActionRow[]> {
     return db
       .selectFrom(GAME_STORE_ACTIONS)
       .selectAll()
@@ -39,7 +48,10 @@ export class GameStoreActionsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<GameStoreActionRow | undefined> {
+  static deleteById(
+    db: DbType,
+    id: string,
+  ): Promise<GameStoreActionRow | undefined> {
     return db
       .deleteFrom(GAME_STORE_ACTIONS)
       .where('id', '=', id)

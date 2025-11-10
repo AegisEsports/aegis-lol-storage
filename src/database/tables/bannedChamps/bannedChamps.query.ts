@@ -3,19 +3,22 @@ import {
   LEAGUE_GAMES,
   LEAGUE_MATCHES,
 } from '@/database/const.js';
-import { db } from '@/database/database.js';
 import {
   type InsertBannedChamp,
   type BannedChampRow,
 } from '@/database/schema.js';
 import type { LeagueSide } from '@/database/shared.js';
+import type { DbType } from '@/database/types.js';
 import type { ChampionBanRecord } from '@/router/split/v1/split.dto.js';
 import type { ChampionBanStatDto } from '@/router/team/v1/team.dto.js';
 
 export class BannedChampsQuery {
   // -- INSERT
 
-  static insert(values: InsertBannedChamp): Promise<BannedChampRow> {
+  static insert(
+    db: DbType,
+    values: InsertBannedChamp,
+  ): Promise<BannedChampRow> {
     return db
       .insertInto(BANNED_CHAMPS)
       .values(values)
@@ -25,7 +28,10 @@ export class BannedChampsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<BannedChampRow | undefined> {
+  static selectById(
+    db: DbType,
+    id: string,
+  ): Promise<BannedChampRow | undefined> {
     return db
       .selectFrom(BANNED_CHAMPS)
       .selectAll()
@@ -33,7 +39,10 @@ export class BannedChampsQuery {
       .executeTakeFirst();
   }
 
-  static selectCountByTeamId(teamId: string): Promise<ChampionBanStatDto[]> {
+  static selectCountByTeamId(
+    db: DbType,
+    teamId: string,
+  ): Promise<ChampionBanStatDto[]> {
     return db
       .selectFrom(`${BANNED_CHAMPS} as bc`)
       .where('bc.teamIdBanned', '=', teamId)
@@ -46,6 +55,7 @@ export class BannedChampsQuery {
   }
 
   static selectCountAgainstByTeamId(
+    db: DbType,
     teamId: string,
   ): Promise<ChampionBanStatDto[]> {
     return db
@@ -59,7 +69,7 @@ export class BannedChampsQuery {
       .execute();
   }
 
-  static listByGameId(gameId: string): Promise<BannedChampRow[]> {
+  static listByGameId(db: DbType, gameId: string): Promise<BannedChampRow[]> {
     return db
       .selectFrom(BANNED_CHAMPS)
       .selectAll()
@@ -69,6 +79,7 @@ export class BannedChampsQuery {
   }
 
   static listChampionBansBySplitId(
+    db: DbType,
     splitId: string,
   ): Promise<ChampionBanRecord[]> {
     return db
@@ -89,7 +100,12 @@ export class BannedChampsQuery {
 
   // -- UPDATE (updateable)
 
-  static async setTeamId(gameId: string, side: LeagueSide, teamId: string) {
+  static async setTeamId(
+    db: DbType,
+    gameId: string,
+    side: LeagueSide,
+    teamId: string,
+  ) {
     await db
       .updateTable(BANNED_CHAMPS)
       .where('leagueGameId', '=', gameId)
@@ -107,7 +123,10 @@ export class BannedChampsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<BannedChampRow | undefined> {
+  static deleteById(
+    db: DbType,
+    id: string,
+  ): Promise<BannedChampRow | undefined> {
     return db
       .deleteFrom(BANNED_CHAMPS)
       .where('id', '=', id)

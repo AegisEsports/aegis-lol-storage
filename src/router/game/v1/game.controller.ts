@@ -1,13 +1,16 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
+import { db } from '@/database/database.js';
 import { GameService } from './game.service.js';
 import type { CreateGameBody, PatchGameDraftLinkBody } from './game.zod.js';
 
 export class GameController {
+  private game: GameService = new GameService(db);
+
   /**
    * POST - /
    */
-  public static createGame: RequestHandler = async (
+  public createGame: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -19,7 +22,7 @@ export class GameController {
       res
         .status(201)
         .json(
-          await GameService.create(
+          await this.game.create(
             leagueMatchId,
             blueTeamId,
             redTeamId,
@@ -35,7 +38,7 @@ export class GameController {
   /**
    * GET - /{gameId}
    */
-  public static readGame: RequestHandler = async (
+  public readGame: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -43,7 +46,7 @@ export class GameController {
     try {
       const { gameId } = req.params;
 
-      res.status(200).json(await GameService.findById(gameId!));
+      res.status(200).json(await this.game.findById(gameId!));
     } catch (err) {
       next(err);
     }
@@ -52,7 +55,7 @@ export class GameController {
   /**
    * PATCH - /{gameId}/{matchId}
    */
-  public static assignMatchToGame: RequestHandler = async (
+  public assignMatchToGame: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -62,7 +65,7 @@ export class GameController {
 
       res
         .status(200)
-        .json(await GameService.updateMatchIdInGame(gameId!, matchId!));
+        .json(await this.game.updateMatchIdInGame(gameId!, matchId!));
     } catch (err) {
       next(err);
     }
@@ -71,7 +74,7 @@ export class GameController {
   /**
    * PATCH - /{gameId}/{draftLinkUrl}
    */
-  public static assignDraftLinkToGame: RequestHandler = async (
+  public assignDraftLinkToGame: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -82,7 +85,7 @@ export class GameController {
 
       res
         .status(200)
-        .json(await GameService.updateDraftLinkInGame(gameId!, draftLink));
+        .json(await this.game.updateDraftLinkInGame(gameId!, draftLink));
     } catch (err) {
       next(err);
     }
@@ -91,7 +94,7 @@ export class GameController {
   /**
    * PATCH - /team/{gameId}/{side}/{teamId}
    */
-  public static assignTeamToGame: RequestHandler = async (
+  public assignTeamToGame: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -101,7 +104,7 @@ export class GameController {
 
       res
         .status(200)
-        .json(await GameService.updateTeamInGame(gameId!, side!, teamId!));
+        .json(await this.game.updateTeamInGame(gameId!, side!, teamId!));
     } catch (err) {
       next(err);
     }
@@ -110,7 +113,7 @@ export class GameController {
   /**
    * DELETE - /{gameId}
    */
-  public static deleteGame: RequestHandler = async (
+  public deleteGame: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -118,7 +121,7 @@ export class GameController {
     try {
       const { gameId } = req.params;
 
-      res.status(200).json(await GameService.removeById(gameId!));
+      res.status(200).json(await this.game.removeById(gameId!));
     } catch (err) {
       next(err);
     }

@@ -1,5 +1,6 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
+import { db } from '@/database/database.js';
 import { UserService } from '@/router/user/v1/user.service.js';
 import type {
   CreateDiscordAccountBody,
@@ -11,10 +12,12 @@ import type {
 } from './user.zod.js';
 
 export class UserController {
+  private user: UserService = new UserService(db);
+
   /**
    * POST - /
    */
-  public static createUser: RequestHandler = async (
+  public createUser: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -28,9 +31,7 @@ export class UserController {
 
       res
         .status(201)
-        .json(
-          await UserService.initialize(user, riotAccounts, discordAccounts),
-        );
+        .json(await this.user.create(user, riotAccounts, discordAccounts));
     } catch (err) {
       next(err);
     }
@@ -41,7 +42,7 @@ export class UserController {
    *
    * Creates a singular entry of a Riot account.
    */
-  public static createRiotAccount: RequestHandler = async (
+  public createRiotAccount: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -49,7 +50,7 @@ export class UserController {
     try {
       const { riotAccount } = req.body as CreateRiotAccountBody;
 
-      res.status(201).json(await UserService.createRiotAccount(riotAccount));
+      res.status(201).json(await this.user.createRiotAccount(riotAccount));
     } catch (err) {
       next(err);
     }
@@ -58,7 +59,7 @@ export class UserController {
   /**
    * POST - /discord-account
    */
-  public static createDiscordAccount: RequestHandler = async (
+  public createDiscordAccount: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -68,7 +69,7 @@ export class UserController {
 
       res
         .status(201)
-        .json(await UserService.createDiscordAccount(discordAccount));
+        .json(await this.user.createDiscordAccount(discordAccount));
     } catch (err) {
       next(err);
     }
@@ -77,7 +78,7 @@ export class UserController {
   /**
    * GET - /{userId}
    */
-  public static readUser: RequestHandler = async (
+  public readUser: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -85,7 +86,7 @@ export class UserController {
     try {
       const { userId } = req.params;
 
-      res.status(200).json(await UserService.findById(userId!));
+      res.status(200).json(await this.user.findById(userId!));
     } catch (err) {
       next(err);
     }
@@ -94,7 +95,7 @@ export class UserController {
   /**
    * GET - /riot-account/{riotAccountId}
    */
-  public static readRiotAccount: RequestHandler = async (
+  public readRiotAccount: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -102,9 +103,7 @@ export class UserController {
     try {
       const { riotAccountId } = req.params;
 
-      res
-        .status(200)
-        .json(await UserService.findRiotAccountById(riotAccountId!));
+      res.status(200).json(await this.user.findRiotAccountById(riotAccountId!));
     } catch (err) {
       next(err);
     }
@@ -113,7 +112,7 @@ export class UserController {
   /**
    * GET - /riot-account/by-puuid/{riotPuuid}
    */
-  public static readRiotAccountByPuuid: RequestHandler = async (
+  public readRiotAccountByPuuid: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -121,9 +120,7 @@ export class UserController {
     try {
       const { riotPuuid } = req.params;
 
-      res
-        .status(200)
-        .json(await UserService.findRiotAccountByPuuid(riotPuuid!));
+      res.status(200).json(await this.user.findRiotAccountByPuuid(riotPuuid!));
     } catch (err) {
       next(err);
     }
@@ -132,7 +129,7 @@ export class UserController {
   /**
    * PUT - /{userId}
    */
-  public static updateUser: RequestHandler = async (
+  public updateUser: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -141,7 +138,7 @@ export class UserController {
       const { userId } = req.params;
       const { user } = req.body as UpdateUserBody;
 
-      res.status(200).json(await UserService.replaceById(userId!, user));
+      res.status(200).json(await this.user.replaceById(userId!, user));
     } catch (err) {
       next(err);
     }
@@ -150,7 +147,7 @@ export class UserController {
   /**
    * PUT - /riot-account/{riotAccountId}
    */
-  public static updateRiotAccount: RequestHandler = async (
+  public updateRiotAccount: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -162,7 +159,7 @@ export class UserController {
       res
         .status(200)
         .json(
-          await UserService.replaceRiotAccountById(riotAccountId!, riotAccount),
+          await this.user.replaceRiotAccountById(riotAccountId!, riotAccount),
         );
     } catch (err) {
       next(err);
@@ -172,7 +169,7 @@ export class UserController {
   /**
    * PUT - /discord-account/{discordAccountId}
    */
-  public static updateDiscordAccount: RequestHandler = async (
+  public updateDiscordAccount: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -184,7 +181,7 @@ export class UserController {
       res
         .status(200)
         .json(
-          await UserService.replaceDiscordAccountById(
+          await this.user.replaceDiscordAccountById(
             discordAccountId!,
             discordAccount,
           ),
@@ -197,7 +194,7 @@ export class UserController {
   /**
    * PATCH - /riot-account/{riotAccountId}/{userId}
    */
-  public static assignUserToRiotAccount: RequestHandler = async (
+  public assignUserToRiotAccount: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -207,9 +204,7 @@ export class UserController {
 
       res
         .status(200)
-        .json(
-          await UserService.updateUserInRiotAccount(riotAccountId!, userId!),
-        );
+        .json(await this.user.updateUserInRiotAccount(riotAccountId!, userId!));
     } catch (err) {
       next(err);
     }
@@ -218,7 +213,7 @@ export class UserController {
   /**
    * PATCH - /discord-account/{discordAccountId}/{userId}
    */
-  public static assignUserToDiscordAccount: RequestHandler = async (
+  public assignUserToDiscordAccount: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -229,7 +224,7 @@ export class UserController {
       res
         .status(200)
         .json(
-          await UserService.updateUserInDiscordAccount(
+          await this.user.updateUserInDiscordAccount(
             discordAccountId!,
             userId!,
           ),
@@ -242,7 +237,7 @@ export class UserController {
   /**
    * DELETE - /{userId}
    */
-  public static deleteUser: RequestHandler = async (
+  public deleteUser: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -250,7 +245,7 @@ export class UserController {
     try {
       const { userId } = req.params;
 
-      res.status(200).json(await UserService.removeById(userId!));
+      res.status(200).json(await this.user.removeById(userId!));
     } catch (err) {
       next(err);
     }

@@ -1,5 +1,7 @@
+import type { Kysely } from 'kysely';
+
 import { USERS } from '@/database/const.js';
-import { db } from '@/database/database.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertUser,
   type UpdateUser,
@@ -9,7 +11,7 @@ import {
 export class UsersQuery {
   // -- INSERT
 
-  static insert(values: InsertUser): Promise<UserRow> {
+  static insert(db: Kysely<Database>, values: InsertUser): Promise<UserRow> {
     return db
       .insertInto(USERS)
       .values(values)
@@ -19,7 +21,10 @@ export class UsersQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<UserRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<UserRow | undefined> {
     return db
       .selectFrom(USERS)
       .selectAll()
@@ -27,7 +32,10 @@ export class UsersQuery {
       .executeTakeFirst();
   }
 
-  static selectByPuuid(puuid: string): Promise<UserRow | undefined> {
+  static selectByPuuid(
+    db: Kysely<Database>,
+    puuid: string,
+  ): Promise<UserRow | undefined> {
     return db
       .selectFrom(USERS)
       .innerJoin('riotAccounts as ra', 'ra.userId', 'users.id')
@@ -39,6 +47,7 @@ export class UsersQuery {
   // -- UPDATE
 
   static updateById(
+    db: Kysely<Database>,
     id: string,
     update: UpdateUser,
   ): Promise<UserRow | undefined> {
@@ -52,7 +61,10 @@ export class UsersQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<UserRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<UserRow | undefined> {
     return db
       .deleteFrom(USERS)
       .where('id', '=', id)

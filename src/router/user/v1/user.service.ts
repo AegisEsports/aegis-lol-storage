@@ -1,3 +1,6 @@
+import type { Kysely } from 'kysely';
+
+import type { Database } from '@/database/database.js';
 import {
   DiscordAccountsQuery,
   LeagueBansQuery,
@@ -24,39 +27,54 @@ import type {
 import ControllerError from '@/util/errors/controllerError.js';
 
 export class UserService {
+  constructor(private db: Kysely<Database>) {}
+
   /**
    * Creates a singular entry of a user, along with its listed Riot + Discord
    *   accounts.
    */
-  public static initialize = async (
+  public create = async (
     userData: InsertUser,
     riotAccounts: InsertRiotAccount[],
     discordAccounts: InsertDiscordAccount[],
   ): Promise<UserDto> => {
-    const insertedUser = await UsersQuery.insert(userData);
-    const [insertedRiotAccounts, insertedDiscordAccounts] = await Promise.all([
-      Promise.all(riotAccounts.map(RiotAccountsQuery.insert)),
-      Promise.all(discordAccounts.map(DiscordAccountsQuery.insert)),
-    ]);
+    return await this.db.transaction().execute(async (trx) => {
+      const insertedUser = await UsersQuery.insert(trx, userData);
+      const [insertedRiotAccounts, insertedDiscordAccounts] = await Promise.all(
+        [
+          Promise.all(
+            riotAccounts.map((account) =>
+              RiotAccountsQuery.insert(trx, account),
+            ),
+          ),
+          Promise.all(
+            discordAccounts.map((account) =>
+              DiscordAccountsQuery.insert(trx, account),
+            ),
+          ),
+        ],
+      );
 
-    return {
-      user: insertedUser,
-      teams: [],
-      games: [],
-      riotAccounts: insertedRiotAccounts,
-      discordAccounts: insertedDiscordAccounts,
-      organizationsOwn: [],
-      leagueBans: [],
-    };
+      return {
+        user: insertedUser,
+        teams: [],
+        games: [],
+        riotAccounts: insertedRiotAccounts,
+        discordAccounts: insertedDiscordAccounts,
+        organizationsOwn: [],
+        leagueBans: [],
+      };
+    });
   };
 
   /**
    * Creates a singular entry of a Riot account.
    */
-  public static createRiotAccount = async (
+  public createRiotAccount = async (
     riotAccount: InsertRiotAccount,
   ): Promise<RiotAccountDto> => {
     const insertedRiotAccount = await RiotAccountsQuery.insert(
+      this.db,
       riotAccount satisfies InsertRiotAccount,
     );
 
@@ -68,10 +86,11 @@ export class UserService {
   /**
    * Creates a singular entry of a Discord account.
    */
-  public static createDiscordAccount = async (
+  public createDiscordAccount = async (
     discordAccount: InsertDiscordAccount,
   ): Promise<DiscordAccountDto> => {
     const insertedDiscordAccount = await DiscordAccountsQuery.insert(
+      this.db,
       discordAccount satisfies InsertDiscordAccount,
     );
 
@@ -83,19 +102,31 @@ export class UserService {
   /**
    * Retrieves a singular entry of a user.
    */
-  public static findById = async (userId: string): Promise<UserDto> => {
-    const getUser = await UsersQuery.selectById(userId);
+  public findById = async (userId: string): Promise<UserDto> => {
+    const getUser = await UsersQuery.selectById(this.db, userId);
     if (!getUser) {
       throw new ControllerError(404, 'NotFound', 'User not found', {
         userId,
       });
     }
-    const getTeams = await TeamsQuery.listPlayedInByUserId(userId);
-    const getGames = await LeagueGamesQuery.listPlayedInByUserId(userId);
-    const getRiotAccounts = await RiotAccountsQuery.listByUserId(userId);
-    const getDiscordAccounts = await DiscordAccountsQuery.listByUserId(userId);
-    const getOrganizations = await OrganizationsQuery.listByUserId(userId);
-    const getLeagueBans = await LeagueBansQuery.listByUserId(userId);
+    const getTeams = await TeamsQuery.listPlayedInByUserId(this.db, userId);
+    const getGames = await LeagueGamesQuery.listPlayedInByUserId(
+      this.db,
+      userId,
+    );
+    const getRiotAccounts = await RiotAccountsQuery.listByUserId(
+      this.db,
+      userId,
+    );
+    const getDiscordAccounts = await DiscordAccountsQuery.listByUserId(
+      this.db,
+      userId,
+    );
+    const getOrganizations = await OrganizationsQuery.listByUserId(
+      this.db,
+      userId,
+    );
+    const getLeagueBans = await LeagueBansQuery.listByUserId(this.db, userId);
 
     return {
       user: getUser,
@@ -111,10 +142,13 @@ export class UserService {
   /**
    * Retrieves a singular entry of a Riot account by its id
    */
-  public static findRiotAccountById = async (
+  public findRiotAccountById = async (
     riotAccountId: string,
   ): Promise<RiotAccountDto> => {
-    const getRiotAccount = await RiotAccountsQuery.selectById(riotAccountId);
+    const getRiotAccount = await RiotAccountsQuery.selectById(
+      this.db,
+      riotAccountId,
+    );
     if (!getRiotAccount) {
       throw new ControllerError(404, 'NotFound', 'Riot account not found', {
         riotAccountId,
@@ -129,10 +163,13 @@ export class UserService {
   /**
    * Retrieves a singular entry of a Riot account by its puuid
    */
-  public static findRiotAccountByPuuid = async (
+  public findRiotAccountByPuuid = async (
     riotPuuid: string,
   ): Promise<RiotAccountDto> => {
-    const getRiotAccount = await RiotAccountsQuery.selectByPuuid(riotPuuid);
+    const getRiotAccount = await RiotAccountsQuery.selectByPuuid(
+      this.db,
+      riotPuuid,
+    );
     if (!getRiotAccount) {
       throw new ControllerError(
         404,
@@ -152,11 +189,11 @@ export class UserService {
   /**
    * Updates a singular entry of a user.
    */
-  public static replaceById = async (
+  public replaceById = async (
     userId: string,
     userData: UpdateUser,
   ): Promise<UserTableDto> => {
-    const updatedUser = await UsersQuery.updateById(userId, userData);
+    const updatedUser = await UsersQuery.updateById(this.db, userId, userData);
     if (!updatedUser) {
       throw new ControllerError(404, 'NotFound', 'User not found', {
         userId,
@@ -172,11 +209,12 @@ export class UserService {
    * Updates a singular entry to the Riot account. Used for updating
    *   information after retrieving it from the Riot API.
    */
-  public static replaceRiotAccountById = async (
+  public replaceRiotAccountById = async (
     riotAccountId: string,
     riotAccountData: UpdateRiotAccount,
   ): Promise<RiotAccountDto> => {
     const updatedAccount = await RiotAccountsQuery.updateById(
+      this.db,
       riotAccountId,
       riotAccountData,
     );
@@ -195,11 +233,12 @@ export class UserService {
    * Updates a singular entry to the Discord account. Used for updating
    *   information after retrieving it from the Discord API.
    */
-  public static replaceDiscordAccountById = async (
+  public replaceDiscordAccountById = async (
     discordAccountId: string,
     discordAccountData: UpdateDiscordAccount,
   ): Promise<DiscordAccountDto> => {
     const updatedAccount = await DiscordAccountsQuery.updateById(
+      this.db,
       discordAccountId,
       discordAccountData,
     );
@@ -217,11 +256,12 @@ export class UserService {
   /**
    * Assigns a user to the Riot account.
    */
-  public static updateUserInRiotAccount = async (
+  public updateUserInRiotAccount = async (
     riotAccountId: string,
     userId: string,
   ): Promise<RiotAccountDto> => {
     const patchedRiotAccount = await RiotAccountsQuery.setWithUserId(
+      this.db,
       riotAccountId!,
       userId!,
     );
@@ -239,11 +279,12 @@ export class UserService {
   /**
    * Assigns a user to the Discord account.
    */
-  public static updateUserInDiscordAccount = async (
+  public updateUserInDiscordAccount = async (
     discordAccountId: string,
     userId: string,
   ): Promise<DiscordAccountDto> => {
     const patchedDiscordAccount = await DiscordAccountsQuery.setWithUserId(
+      this.db,
       discordAccountId!,
       userId!,
     );
@@ -261,8 +302,8 @@ export class UserService {
   /**
    * Deletes a singular entry of a user.
    */
-  public static removeById = async (userId: string): Promise<UserTableDto> => {
-    const deletedUser = await UsersQuery.deleteById(userId);
+  public removeById = async (userId: string): Promise<UserTableDto> => {
+    const deletedUser = await UsersQuery.deleteById(this.db, userId);
     if (!deletedUser) {
       throw new ControllerError(404, 'NotFound', 'User not found', {
         userId,

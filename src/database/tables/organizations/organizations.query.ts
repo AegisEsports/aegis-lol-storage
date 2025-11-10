@@ -1,5 +1,7 @@
+import type { Kysely } from 'kysely';
+
 import { ORGANIZATIONS } from '@/database/const.js';
-import { db } from '@/database/database.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertOrganization,
   type OrganizationRow,
@@ -9,7 +11,10 @@ import {
 export class OrganizationsQuery {
   // -- INSERT
 
-  static insert(values: InsertOrganization): Promise<OrganizationRow> {
+  static insert(
+    db: Kysely<Database>,
+    values: InsertOrganization,
+  ): Promise<OrganizationRow> {
     return db
       .insertInto(ORGANIZATIONS)
       .values(values)
@@ -19,7 +24,10 @@ export class OrganizationsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<OrganizationRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<OrganizationRow | undefined> {
     return db
       .selectFrom(ORGANIZATIONS)
       .selectAll()
@@ -27,7 +35,10 @@ export class OrganizationsQuery {
       .executeTakeFirst();
   }
 
-  static listByUserId(userId: string): Promise<OrganizationRow[]> {
+  static listByUserId(
+    db: Kysely<Database>,
+    userId: string,
+  ): Promise<OrganizationRow[]> {
     return db
       .selectFrom(ORGANIZATIONS)
       .selectAll()
@@ -38,6 +49,7 @@ export class OrganizationsQuery {
   // -- UPDATE
 
   static updateById(
+    db: Kysely<Database>,
     id: string,
     update: UpdateOrganization,
   ): Promise<OrganizationRow | undefined> {
@@ -51,7 +63,10 @@ export class OrganizationsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<OrganizationRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<OrganizationRow | undefined> {
     return db
       .deleteFrom(ORGANIZATIONS)
       .where('id', '=', id)

@@ -1,3 +1,6 @@
+import type { Kysely } from 'kysely';
+
+import type { Database } from '@/database/database.js';
 import {
   LeagueBansQuery,
   LeaguesQuery,
@@ -17,13 +20,13 @@ import type {
 import ControllerError from '@/util/errors/controllerError.js';
 
 export class LeagueService {
+  constructor(private db: Kysely<Database>) {}
+
   /**
    * Creates a singular entry of a league.
    */
-  public static create = async (
-    leagueData: InsertLeague,
-  ): Promise<LeagueDto> => {
-    const insertedLeague = await LeaguesQuery.insert(leagueData);
+  public create = async (leagueData: InsertLeague): Promise<LeagueDto> => {
+    const insertedLeague = await LeaguesQuery.insert(this.db, leagueData);
 
     return {
       league: insertedLeague,
@@ -35,10 +38,13 @@ export class LeagueService {
   /**
    * Creates a singular entry of a user banned from a league (due to a competitive ruling).
    */
-  public static createLeagueBan = async (
+  public createLeagueBan = async (
     leagueBanData: InsertLeagueBan,
   ): Promise<LeagueBanDto> => {
-    const insertedLeagueBan = await LeagueBansQuery.insert(leagueBanData);
+    const insertedLeagueBan = await LeagueBansQuery.insert(
+      this.db,
+      leagueBanData,
+    );
 
     return {
       leagueBan: insertedLeagueBan,
@@ -48,15 +54,18 @@ export class LeagueService {
   /**
    * Retrieves a singular entry of a league.
    */
-  public static findById = async (leagueId: string): Promise<LeagueDto> => {
-    const getLeague = await LeaguesQuery.selectById(leagueId);
+  public findById = async (leagueId: string): Promise<LeagueDto> => {
+    const getLeague = await LeaguesQuery.selectById(this.db, leagueId);
     if (!getLeague) {
       throw new ControllerError(404, 'NotFound', 'League not found', {
         leagueId,
       });
     }
-    const getSplits = await SplitsQuery.listByLeagueId(leagueId);
-    const getUsersBanned = await LeagueBansQuery.listByLeagueId(leagueId);
+    const getSplits = await SplitsQuery.listByLeagueId(this.db, leagueId);
+    const getUsersBanned = await LeagueBansQuery.listByLeagueId(
+      this.db,
+      leagueId,
+    );
 
     return {
       league: getLeague,
@@ -68,11 +77,15 @@ export class LeagueService {
   /**
    * Updates a singular entry of a league.
    */
-  public static replaceById = async (
+  public replaceById = async (
     leagueId: string,
     leagueData: UpdateLeague,
   ): Promise<LeagueTableDto> => {
-    const updatedLeague = await LeaguesQuery.updateById(leagueId!, leagueData);
+    const updatedLeague = await LeaguesQuery.updateById(
+      this.db,
+      leagueId!,
+      leagueData,
+    );
     if (!updatedLeague) {
       throw new ControllerError(404, 'NotFound', 'League not found', {
         leagueId,
@@ -87,11 +100,12 @@ export class LeagueService {
   /**
    * Updates a singular entry of a league ban.
    */
-  public static replaceLeagueBanById = async (
+  public replaceLeagueBanById = async (
     leagueBanId: string,
     leagueBanData: UpdateLeagueBan,
   ): Promise<LeagueBanDto> => {
     const updatedLeagueBan = await LeagueBansQuery.updateById(
+      this.db,
       leagueBanId!,
       leagueBanData,
     );
@@ -109,10 +123,13 @@ export class LeagueService {
   /**
    * Deletes a singular entry of a league.
    */
-  public static removeLeagueBanById = async (
+  public removeLeagueBanById = async (
     leagueBanId: string,
   ): Promise<LeagueBanDto> => {
-    const deletedLeagueBan = await LeagueBansQuery.deleteById(leagueBanId);
+    const deletedLeagueBan = await LeagueBansQuery.deleteById(
+      this.db,
+      leagueBanId,
+    );
     if (!deletedLeagueBan) {
       throw new ControllerError(404, 'NotFound', 'League ban not found', {
         leagueBanId,

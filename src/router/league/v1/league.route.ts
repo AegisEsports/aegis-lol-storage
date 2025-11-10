@@ -15,41 +15,42 @@ import {
 } from './league.zod.js';
 
 export const leagueRouter = Router();
+const leagueController = new LeagueController();
 
 leagueRouter.post(
   '/',
   validateBody(postLeagueBody),
-  LeagueController.createLeague,
+  leagueController.createLeague,
 );
 leagueRouter.post(
   '/league-ban',
   validateBody(postLeagueBanBody),
-  LeagueController.createLeagueBan,
+  leagueController.createLeagueBan,
 );
 leagueRouter.get(
   '/:leagueId',
   validateParams(getLeagueParams),
-  LeagueController.readLeague,
+  leagueController.readLeague,
 );
 leagueRouter.put(
   '/:leagueId',
   validateParams(putLeagueParams),
   validateBody(putLeagueBody),
-  LeagueController.updateLeague,
+  leagueController.updateLeague,
 );
 leagueRouter.put(
   '/league-ban/:leagueBanId',
   validateParams(putLeagueBanParams),
   validateBody(putLeagueBanBody),
-  LeagueController.updateLeagueBan,
+  leagueController.updateLeagueBan,
 );
 // leagueRouter.delete(
 //   '/:leagueId',
 //   validateParams(deleteLeagueParams),
-//   LeagueController.deleteLeague,
+//   leagueController.deleteLeague,
 // );
 leagueRouter.delete(
   '/league-ban/:leagueBanId',
   validateParams(deleteLeagueBanParams),
-  LeagueController.deleteLeagueBan,
+  leagueController.deleteLeagueBan,
 );

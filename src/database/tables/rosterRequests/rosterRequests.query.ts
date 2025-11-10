@@ -1,5 +1,7 @@
+import type { Kysely } from 'kysely';
+
 import { ROSTER_REQUESTS, TEAMS } from '@/database/const.js';
-import { db } from '@/database/database.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertRosterRequest,
   type RosterRequestRow,
@@ -9,7 +11,10 @@ import {
 export class RosterRequestsQuery {
   // -- INSERT
 
-  static insert(values: InsertRosterRequest): Promise<RosterRequestRow> {
+  static insert(
+    db: Kysely<Database>,
+    values: InsertRosterRequest,
+  ): Promise<RosterRequestRow> {
     return db
       .insertInto(ROSTER_REQUESTS)
       .values(values)
@@ -19,7 +24,10 @@ export class RosterRequestsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<RosterRequestRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<RosterRequestRow | undefined> {
     return db
       .selectFrom(ROSTER_REQUESTS)
       .selectAll()
@@ -27,7 +35,10 @@ export class RosterRequestsQuery {
       .executeTakeFirst();
   }
 
-  static listBySplitId(splitId: string): Promise<RosterRequestRow[]> {
+  static listBySplitId(
+    db: Kysely<Database>,
+    splitId: string,
+  ): Promise<RosterRequestRow[]> {
     return db
       .selectFrom(`${ROSTER_REQUESTS} as rr`)
       .innerJoin(`${TEAMS} as t`, 't.id', 'rr.teamId')
@@ -37,7 +48,10 @@ export class RosterRequestsQuery {
       .execute();
   }
 
-  static listByTeamId(teamId: string): Promise<RosterRequestRow[]> {
+  static listByTeamId(
+    db: Kysely<Database>,
+    teamId: string,
+  ): Promise<RosterRequestRow[]> {
     return db
       .selectFrom(ROSTER_REQUESTS)
       .selectAll()
@@ -48,6 +62,7 @@ export class RosterRequestsQuery {
   // -- UPDATE
 
   static updateById(
+    db: Kysely<Database>,
     id: string,
     update: UpdateRosterRequest,
   ): Promise<RosterRequestRow | undefined> {
@@ -60,6 +75,7 @@ export class RosterRequestsQuery {
   }
 
   static setApproval(
+    db: Kysely<Database>,
     approved: boolean,
     rosterRequestId: string,
     userReviewedById: string,
@@ -78,7 +94,10 @@ export class RosterRequestsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<RosterRequestRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<RosterRequestRow | undefined> {
     return db
       .deleteFrom(ROSTER_REQUESTS)
       .where('id', '=', id)

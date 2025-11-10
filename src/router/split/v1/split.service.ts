@@ -1,3 +1,6 @@
+import type { Kysely } from 'kysely';
+
+import type { Database } from '@/database/database.js';
 import {
   BannedChampsQuery,
   EmergencySubRequestsQuery,
@@ -21,11 +24,13 @@ import type {
 import ControllerError from '@/util/errors/controllerError.js';
 
 export class SplitService {
+  constructor(private db: Kysely<Database>) {}
+
   /**
    * Creates a singular entry of a split.
    */
-  public static create = async (splitData: InsertSplit): Promise<SplitDto> => {
-    const insertedSplit = await SplitsQuery.insert(splitData);
+  public create = async (splitData: InsertSplit): Promise<SplitDto> => {
+    const insertedSplit = await SplitsQuery.insert(this.db, splitData);
 
     return {
       split: insertedSplit,
@@ -43,88 +48,129 @@ export class SplitService {
   /**
    * Retrieves a singular entry of a split.
    */
-  public static findById = async (splitId: string): Promise<SplitDto> => {
-    const getSplit = await SplitsQuery.selectById(splitId);
+  public findById = async (splitId: string): Promise<SplitDto> => {
+    const getSplit = await SplitsQuery.selectById(this.db, splitId);
     if (!getSplit) {
       throw new ControllerError(404, 'NotFound', 'Split not found', {
         splitId,
       });
     }
-    const getTeams = await TeamsQuery.listBySplitId(splitId);
-    const getRosterRequests = await RosterRequestsQuery.listBySplitId(splitId);
+    const getTeams = await TeamsQuery.listBySplitId(this.db, splitId);
+    const getRosterRequests = await RosterRequestsQuery.listBySplitId(
+      this.db,
+      splitId,
+    );
     const getEmergencySubRequests =
-      await EmergencySubRequestsQuery.listBySplitId(splitId);
-    const getSidesStats = await LeagueGamesQuery.selectSidesBySplitId(splitId);
-    const getDragonStats =
-      await LeagueGamesQuery.selectDragonsBySplitId(splitId);
+      await EmergencySubRequestsQuery.listBySplitId(this.db, splitId);
+    const getSidesStats = await LeagueGamesQuery.selectSidesBySplitId(
+      this.db,
+      splitId,
+    );
+    const getDragonStats = await LeagueGamesQuery.selectDragonsBySplitId(
+      this.db,
+      splitId,
+    );
     const getSingleGameRecords = {
       totalKills:
-        (await LeagueGamesQuery.listTotalKillsRecordsBySplitId(splitId)) ??
-        null,
+        (await LeagueGamesQuery.listTotalKillsRecordsBySplitId(
+          this.db,
+          splitId,
+        )) ?? null,
       totalKillsAt15:
-        (await LeagueGamesQuery.listTotalKillsAt15RecordsBySplitId(splitId)) ??
-        null,
+        (await LeagueGamesQuery.listTotalKillsAt15RecordsBySplitId(
+          this.db,
+          splitId,
+        )) ?? null,
       creepScorePerMinute:
         (await LeagueGamesQuery.listCreepScorePerMinuteRecordsBySplitId(
+          this.db,
           splitId,
         )) ?? null,
       goldPerMinute:
-        (await LeagueGamesQuery.listGoldPerMinuteRecordsBySplitId(splitId)) ??
-        null,
+        (await LeagueGamesQuery.listGoldPerMinuteRecordsBySplitId(
+          this.db,
+          splitId,
+        )) ?? null,
       damagePerMinute:
-        (await LeagueGamesQuery.listDamagePerMinuteRecordsBySplitId(splitId)) ??
-        null,
+        (await LeagueGamesQuery.listDamagePerMinuteRecordsBySplitId(
+          this.db,
+          splitId,
+        )) ?? null,
       visionScorePerMinute:
         (await LeagueGamesQuery.listVisionScorePerMinuteRecordsBySplitId(
+          this.db,
           splitId,
         )) ?? null,
     };
     const getTeamStatRecords = {
       firstTowerTimestamp:
         (await TeamStatsQuery.listFirstTowerTimestampRecordsBySplitId(
+          this.db,
           splitId,
         )) ?? null,
       firstBloodTimestamp:
         (await TeamStatsQuery.listFirstBloodTimestampRecordsBySplitId(
+          this.db,
           splitId,
         )) ?? null,
       firstInhibitorTimestamp:
         (await TeamStatsQuery.listFirstInhibitorTimestampRecordsBySplitId(
+          this.db,
           splitId,
         )) ?? null,
       killsAt15:
-        (await TeamStatsQuery.listKillsAt15RecordsBySplitId(splitId)) ?? null,
+        (await TeamStatsQuery.listKillsAt15RecordsBySplitId(
+          this.db,
+          splitId,
+        )) ?? null,
       goldDiff15:
-        (await TeamStatsQuery.listGoldAt15RecordsBySplitId(splitId)) ?? null,
+        (await TeamStatsQuery.listGoldAt15RecordsBySplitId(this.db, splitId)) ??
+        null,
       damageDiff15:
-        (await TeamStatsQuery.listDamageAt15RecordsBySplitId(splitId)) ?? null,
+        (await TeamStatsQuery.listDamageAt15RecordsBySplitId(
+          this.db,
+          splitId,
+        )) ?? null,
       wardsPlacedDiff15:
-        (await TeamStatsQuery.listWardsPlacedAt15RecordsBySplitId(splitId)) ??
-        null,
+        (await TeamStatsQuery.listWardsPlacedAt15RecordsBySplitId(
+          this.db,
+          splitId,
+        )) ?? null,
       wardsClearedDiff15:
-        (await TeamStatsQuery.listWardsClearedAt15RecordsBySplitId(splitId)) ??
-        null,
+        (await TeamStatsQuery.listWardsClearedAt15RecordsBySplitId(
+          this.db,
+          splitId,
+        )) ?? null,
     };
     const getPlayerStatRecords = {
       creepScorePerMinute:
         (await PlayerStatsQuery.listCreepScorePerMinuteRecordsBySplitId(
+          this.db,
           splitId,
         )) ?? null,
       damageDealtPerMinute:
         (await PlayerStatsQuery.listDamageDealtPerMinuteRecordsBySplitId(
+          this.db,
           splitId,
         )) ?? null,
       visionScorePerMinute:
         (await PlayerStatsQuery.listVisionScorePerMinuteRecordsBySplitId(
+          this.db,
           splitId,
         )) ?? null,
       damageAt15:
-        (await PlayerStatsQuery.listDamageAt15RecordsBySplitId(splitId)) ??
-        null,
+        (await PlayerStatsQuery.listDamageAt15RecordsBySplitId(
+          this.db,
+          splitId,
+        )) ?? null,
       goldAt15:
-        (await PlayerStatsQuery.listGoldAt15RecordsBySplitId(splitId)) ?? null,
+        (await PlayerStatsQuery.listGoldAt15RecordsBySplitId(
+          this.db,
+          splitId,
+        )) ?? null,
       csAt15:
-        (await PlayerStatsQuery.listCsAt15RecordsBySplitId(splitId)) ?? null,
+        (await PlayerStatsQuery.listCsAt15RecordsBySplitId(this.db, splitId)) ??
+        null,
     };
 
     return {
@@ -143,16 +189,19 @@ export class SplitService {
   /**
    * Retrieves player stats for a singular split.
    */
-  public static findPlayerStatsBySplitId = async (
+  public findPlayerStatsBySplitId = async (
     splitId: string,
   ): Promise<PlayerStatsSplitDto> => {
-    const getSplit = await SplitsQuery.selectById(splitId);
+    const getSplit = await SplitsQuery.selectById(this.db, splitId);
     if (!getSplit) {
       throw new ControllerError(404, 'NotFound', 'Split not found', {
         splitId,
       });
     }
-    const getPlayerStats = await PlayerStatsQuery.listOverallBySplitId(splitId);
+    const getPlayerStats = await PlayerStatsQuery.listOverallBySplitId(
+      this.db,
+      splitId,
+    );
 
     return {
       players: getPlayerStats,
@@ -162,16 +211,19 @@ export class SplitService {
   /**
    * Retrieves team stats for a singular split.
    */
-  public static findTeamStatsBySplitId = async (
+  public findTeamStatsBySplitId = async (
     splitId: string,
   ): Promise<TeamStatsSplitDto> => {
-    const getSplit = await SplitsQuery.selectById(splitId);
+    const getSplit = await SplitsQuery.selectById(this.db, splitId);
     if (!getSplit) {
       throw new ControllerError(404, 'NotFound', 'Split not found', {
         splitId,
       });
     }
-    const getTeamStats = await TeamStatsQuery.listOverallBySplitId(splitId);
+    const getTeamStats = await TeamStatsQuery.listOverallBySplitId(
+      this.db,
+      splitId,
+    );
 
     return {
       teams: getTeamStats,
@@ -181,17 +233,17 @@ export class SplitService {
   /**
    * Retrieves games for a singular split.
    */
-  public static findGamesBySplitId = async (
+  public findGamesBySplitId = async (
     splitId: string,
   ): Promise<GamesSplitDto> => {
-    const getSplit = await SplitsQuery.selectById(splitId);
+    const getSplit = await SplitsQuery.selectById(this.db, splitId);
     if (!getSplit) {
       throw new ControllerError(404, 'NotFound', 'Split not found', {
         splitId,
       });
     }
 
-    const getGames = await LeagueGamesQuery.listBySplitId(splitId);
+    const getGames = await LeagueGamesQuery.listBySplitId(this.db, splitId);
     return {
       games: getGames,
     };
@@ -200,10 +252,10 @@ export class SplitService {
   /**
    * Retrieves champion stats for a singular split.
    */
-  public static findChampionStatsBySplitId = async (
+  public findChampionStatsBySplitId = async (
     splitId: string,
   ): Promise<ChampionStatsSplitDto> => {
-    const getSplit = await SplitsQuery.selectById(splitId);
+    const getSplit = await SplitsQuery.selectById(this.db, splitId);
     if (!getSplit) {
       throw new ControllerError(404, 'NotFound', 'Split not found', {
         splitId,
@@ -276,8 +328,10 @@ export class SplitService {
       presenceMap.get(leagueMatchId)!.add(champId);
     };
     // Process champion picks
-    const getChampionPicks =
-      await PlayerStatsQuery.listChampionPicksBySplitId(splitId);
+    const getChampionPicks = await PlayerStatsQuery.listChampionPicksBySplitId(
+      this.db,
+      splitId,
+    );
     for (const pick of getChampionPicks) {
       if (!championStatMap.has(pick.champId)) {
         championStatMap.set(
@@ -301,8 +355,10 @@ export class SplitService {
       );
     }
     // Process champion bans
-    const getChampionBans =
-      await BannedChampsQuery.listChampionBansBySplitId(splitId);
+    const getChampionBans = await BannedChampsQuery.listChampionBansBySplitId(
+      this.db,
+      splitId,
+    );
     for (const ban of getChampionBans) {
       if (!championStatMap.has(ban.champId)) {
         championStatMap.set(ban.champId, initChampionStatOverall(ban.champId));
@@ -354,11 +410,15 @@ export class SplitService {
   /**
    * Updates a singular entry of a split.
    */
-  public static replaceById = async (
+  public replaceById = async (
     splitId: string,
     splitData: UpdateSplit,
   ): Promise<SplitTableDto> => {
-    const updatedSplit = await SplitsQuery.updateById(splitId!, splitData);
+    const updatedSplit = await SplitsQuery.updateById(
+      this.db,
+      splitId!,
+      splitData,
+    );
     if (!updatedSplit) {
       throw new ControllerError(404, 'NotFound', 'Split not found', {
         splitId,
@@ -373,10 +433,8 @@ export class SplitService {
   /**
    * Deletes a singular entry of a split.
    */
-  public static removeById = async (
-    splitId: string,
-  ): Promise<SplitTableDto> => {
-    const deletedSplit = await SplitsQuery.deleteById(splitId);
+  public removeById = async (splitId: string): Promise<SplitTableDto> => {
+    const deletedSplit = await SplitsQuery.deleteById(this.db, splitId);
     if (!deletedSplit) {
       throw new ControllerError(404, 'NotFound', 'Split not found', {
         splitId,

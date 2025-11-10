@@ -1,5 +1,7 @@
+import type { Kysely } from 'kysely';
+
 import { GAME_STORE_ACTIONS } from '@/database/const.js';
-import { db } from '@/database/database.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertGameStoreAction,
   type GameStoreActionRow,
@@ -8,7 +10,10 @@ import {
 export class GameStoreActionsQuery {
   // -- INSERT
 
-  static insert(values: InsertGameStoreAction): Promise<GameStoreActionRow> {
+  static insert(
+    db: Kysely<Database>,
+    values: InsertGameStoreAction,
+  ): Promise<GameStoreActionRow> {
     return db
       .insertInto(GAME_STORE_ACTIONS)
       .values(values)
@@ -18,7 +23,10 @@ export class GameStoreActionsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<GameStoreActionRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<GameStoreActionRow | undefined> {
     return db
       .selectFrom(GAME_STORE_ACTIONS)
       .selectAll()
@@ -26,7 +34,10 @@ export class GameStoreActionsQuery {
       .executeTakeFirst();
   }
 
-  static listByGameId(gameId: string): Promise<GameStoreActionRow[]> {
+  static listByGameId(
+    db: Kysely<Database>,
+    gameId: string,
+  ): Promise<GameStoreActionRow[]> {
     return db
       .selectFrom(GAME_STORE_ACTIONS)
       .selectAll()
@@ -39,7 +50,10 @@ export class GameStoreActionsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<GameStoreActionRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<GameStoreActionRow | undefined> {
     return db
       .deleteFrom(GAME_STORE_ACTIONS)
       .where('id', '=', id)

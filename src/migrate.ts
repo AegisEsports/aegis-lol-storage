@@ -52,6 +52,7 @@ const migrateToLatest = async () => {
   const migrator = new Migrator({
     db,
     provider: new UrlAwareMigrationProvider(migrationsPath),
+    disableTransactions: true, // Migrations are responsible for managing transactions when needed; the service layer handles transactions for runtime operations
   });
 
   const { error, results } = await migrator.migrateToLatest();

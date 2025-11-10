@@ -1,12 +1,17 @@
+import type { Kysely } from 'kysely';
+
 import { GAME_EVENTS } from '@/database/const.js';
-import { db } from '@/database/database.js';
+import type { Database } from '@/database/database.js';
 import { type InsertGameEvent, type GameEventRow } from '@/database/schema.js';
 import type { LeagueSide } from '@/database/shared.js';
 
 export class GameEventsQuery {
   // -- INSERT
 
-  static insert(values: InsertGameEvent): Promise<GameEventRow> {
+  static insert(
+    db: Kysely<Database>,
+    values: InsertGameEvent,
+  ): Promise<GameEventRow> {
     return db
       .insertInto(GAME_EVENTS)
       .values(values)
@@ -16,7 +21,10 @@ export class GameEventsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<GameEventRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<GameEventRow | undefined> {
     return db
       .selectFrom(GAME_EVENTS)
       .selectAll()
@@ -24,7 +32,10 @@ export class GameEventsQuery {
       .executeTakeFirst();
   }
 
-  static listByGameId(gameId: string): Promise<GameEventRow[]> {
+  static listByGameId(
+    db: Kysely<Database>,
+    gameId: string,
+  ): Promise<GameEventRow[]> {
     return db
       .selectFrom(GAME_EVENTS)
       .selectAll()
@@ -35,7 +46,12 @@ export class GameEventsQuery {
 
   // -- UPDATE (Not updateable)
 
-  static async setTeamId(gameId: string, side: LeagueSide, teamId: string) {
+  static async setTeamId(
+    db: Kysely<Database>,
+    gameId: string,
+    side: LeagueSide,
+    teamId: string,
+  ) {
     await db
       .updateTable(GAME_EVENTS)
       .where('leagueGameId', '=', gameId)
@@ -46,7 +62,10 @@ export class GameEventsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<GameEventRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<GameEventRow | undefined> {
     return db
       .deleteFrom(GAME_EVENTS)
       .where('id', '=', id)

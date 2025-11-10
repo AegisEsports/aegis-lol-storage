@@ -15,41 +15,42 @@ import {
 import { validateBody, validateParams } from '@/util/validate.js';
 
 export const splitRouter = Router();
+const splitController = new SplitController();
 
-splitRouter.post('/', validateBody(postSplitBody), SplitController.createSplit);
+splitRouter.post('/', validateBody(postSplitBody), splitController.createSplit);
 splitRouter.get(
   '/:splitId',
   validateParams(getSplitParams),
-  SplitController.readSplit,
+  splitController.readSplit,
 );
 splitRouter.get(
   '/players/:splitId',
   validateParams(getSplitPlayerStatsParams),
-  SplitController.readSplitPlayerStats,
+  splitController.readSplitPlayerStats,
 );
 splitRouter.get(
   '/teams/:splitId',
   validateParams(getSplitTeamStatsParams),
-  SplitController.readTeamPlayerStats,
+  splitController.readTeamPlayerStats,
 );
 splitRouter.get(
   '/games/:splitId',
   validateParams(getSplitGamesParams),
-  SplitController.readSplitGames,
+  splitController.readSplitGames,
 );
 splitRouter.get(
   '/champs/:splitId',
   validateParams(getSplitChampionStatsParams),
-  SplitController.readSplitChampionStats,
+  splitController.readSplitChampionStats,
 );
 splitRouter.put(
   '/:splitId',
   validateParams(putSplitParams),
   validateBody(putSplitBody),
-  SplitController.updateSplit,
+  splitController.updateSplit,
 );
 splitRouter.delete(
   '/:splitId',
   validateParams(deleteSplitParams),
-  SplitController.deleteSplit,
+  splitController.deleteSplit,
 );

@@ -1,5 +1,6 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
+import { db } from '@/database/database.js';
 import { SplitService } from '@/router/split/v1/split.service.js';
 import type {
   CreateSplitBody,
@@ -7,10 +8,12 @@ import type {
 } from '@/router/split/v1/split.zod.js';
 
 export class SplitController {
+  private split: SplitService = new SplitService(db);
+
   /**
    * POST - /
    */
-  public static createSplit: RequestHandler = async (
+  public createSplit: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -18,7 +21,7 @@ export class SplitController {
     try {
       const { split } = req.body as CreateSplitBody;
 
-      res.status(201).json(await SplitService.create(split));
+      res.status(201).json(await this.split.create(split));
     } catch (err) {
       next(err);
     }
@@ -27,7 +30,7 @@ export class SplitController {
   /**
    * GET - /{splitId}
    */
-  public static readSplit: RequestHandler = async (
+  public readSplit: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -35,7 +38,7 @@ export class SplitController {
     try {
       const { splitId } = req.params;
 
-      res.status(200).json(await SplitService.findById(splitId!));
+      res.status(200).json(await this.split.findById(splitId!));
     } catch (err) {
       next(err);
     }
@@ -44,7 +47,7 @@ export class SplitController {
   /**
    * GET - /players/{splitId}
    */
-  public static readSplitPlayerStats: RequestHandler = async (
+  public readSplitPlayerStats: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -52,9 +55,7 @@ export class SplitController {
     try {
       const { splitId } = req.params;
 
-      res
-        .status(200)
-        .json(await SplitService.findPlayerStatsBySplitId(splitId!));
+      res.status(200).json(await this.split.findPlayerStatsBySplitId(splitId!));
     } catch (err) {
       next(err);
     }
@@ -63,7 +64,7 @@ export class SplitController {
   /**
    * GET - /teams/{splitId}
    */
-  public static readTeamPlayerStats: RequestHandler = async (
+  public readTeamPlayerStats: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -71,7 +72,7 @@ export class SplitController {
     try {
       const { splitId } = req.params;
 
-      res.status(200).json(await SplitService.findTeamStatsBySplitId(splitId!));
+      res.status(200).json(await this.split.findTeamStatsBySplitId(splitId!));
     } catch (err) {
       next(err);
     }
@@ -80,7 +81,7 @@ export class SplitController {
   /**
    * GET - /games/{splitId}
    */
-  public static readSplitGames: RequestHandler = async (
+  public readSplitGames: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -88,7 +89,7 @@ export class SplitController {
     try {
       const { splitId } = req.params;
 
-      res.status(200).json(await SplitService.findGamesBySplitId(splitId!));
+      res.status(200).json(await this.split.findGamesBySplitId(splitId!));
     } catch (err) {
       next(err);
     }
@@ -97,7 +98,7 @@ export class SplitController {
   /**
    * GET - /champs/{splitId}
    */
-  public static readSplitChampionStats: RequestHandler = async (
+  public readSplitChampionStats: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -107,7 +108,7 @@ export class SplitController {
 
       res
         .status(200)
-        .json(await SplitService.findChampionStatsBySplitId(splitId!));
+        .json(await this.split.findChampionStatsBySplitId(splitId!));
     } catch (err) {
       next(err);
     }
@@ -116,7 +117,7 @@ export class SplitController {
   /**
    * PUT - /{splitId}
    */
-  public static updateSplit: RequestHandler = async (
+  public updateSplit: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -125,7 +126,7 @@ export class SplitController {
       const { splitId } = req.params;
       const { split } = req.body as UpdateSplitBody;
 
-      res.status(200).json(await SplitService.replaceById(splitId!, split));
+      res.status(200).json(await this.split.replaceById(splitId!, split));
     } catch (err) {
       next(err);
     }
@@ -134,7 +135,7 @@ export class SplitController {
   /**
    * DELETE - /{splitId}
    */
-  public static deleteSplit: RequestHandler = async (
+  public deleteSplit: RequestHandler = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -142,7 +143,7 @@ export class SplitController {
     try {
       const { splitId } = req.params;
 
-      res.status(200).json(await SplitService.removeById(splitId!));
+      res.status(200).json(await this.split.removeById(splitId!));
     } catch (err) {
       next(err);
     }

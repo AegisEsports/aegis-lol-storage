@@ -1,5 +1,7 @@
+import type { Kysely } from 'kysely';
+
 import { LEAGUES } from '@/database/const.js';
-import { db } from '@/database/database.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertLeague,
   type LeagueRow,
@@ -9,7 +11,10 @@ import {
 export class LeaguesQuery {
   // -- INSERT
 
-  static insert(values: InsertLeague): Promise<LeagueRow> {
+  static insert(
+    db: Kysely<Database>,
+    values: InsertLeague,
+  ): Promise<LeagueRow> {
     return db
       .insertInto(LEAGUES)
       .values(values)
@@ -19,7 +24,10 @@ export class LeaguesQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<LeagueRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<LeagueRow | undefined> {
     return db
       .selectFrom(LEAGUES)
       .selectAll()
@@ -30,6 +38,7 @@ export class LeaguesQuery {
   // -- UPDATE
 
   static updateById(
+    db: Kysely<Database>,
     id: string,
     update: UpdateLeague,
   ): Promise<LeagueRow | undefined> {
@@ -43,7 +52,10 @@ export class LeaguesQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<LeagueRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<LeagueRow | undefined> {
     return db
       .deleteFrom(LEAGUES)
       .where('id', '=', id)

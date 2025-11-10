@@ -1,5 +1,7 @@
+import type { Kysely } from 'kysely';
+
 import { SPLITS } from '@/database/const.js';
-import { db } from '@/database/database.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertSplit,
   type SplitRow,
@@ -9,7 +11,7 @@ import {
 export class SplitsQuery {
   // -- INSERT
 
-  static insert(values: InsertSplit): Promise<SplitRow> {
+  static insert(db: Kysely<Database>, values: InsertSplit): Promise<SplitRow> {
     return db
       .insertInto(SPLITS)
       .values(values)
@@ -19,7 +21,10 @@ export class SplitsQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<SplitRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<SplitRow | undefined> {
     return db
       .selectFrom(SPLITS)
       .selectAll()
@@ -27,7 +32,10 @@ export class SplitsQuery {
       .executeTakeFirst();
   }
 
-  static listByLeagueId(leagueId: string): Promise<SplitRow[]> {
+  static listByLeagueId(
+    db: Kysely<Database>,
+    leagueId: string,
+  ): Promise<SplitRow[]> {
     return db
       .selectFrom(SPLITS)
       .selectAll()
@@ -38,6 +46,7 @@ export class SplitsQuery {
   // -- UPDATE
 
   static updateById(
+    db: Kysely<Database>,
     id: string,
     update: UpdateSplit,
   ): Promise<SplitRow | undefined> {
@@ -51,7 +60,10 @@ export class SplitsQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<SplitRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<SplitRow | undefined> {
     return db
       .deleteFrom(SPLITS)
       .where('id', '=', id)

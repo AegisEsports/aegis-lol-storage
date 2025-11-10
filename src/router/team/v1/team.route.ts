@@ -20,62 +20,63 @@ import {
 import { validateBody, validateParams } from '@/util/validate.js';
 
 export const teamRouter = Router();
+const teamController = new TeamController();
 
-teamRouter.post('/', validateBody(postTeamBody), TeamController.createTeam);
+teamRouter.post('/', validateBody(postTeamBody), teamController.createTeam);
 teamRouter.post(
   '/roster-request',
   validateBody(postRosterRequestBody),
-  TeamController.createRosterRequest,
+  teamController.createRosterRequest,
 );
 teamRouter.post(
   '/emergency-sub-request',
   validateBody(postEmergencySubRequestBody),
-  TeamController.createEmergencySubRequest,
+  teamController.createEmergencySubRequest,
 );
 teamRouter.get(
   '/:teamId',
   validateParams(getTeamParams),
-  TeamController.readTeam,
+  teamController.readTeam,
 );
 teamRouter.put(
   '/:teamId',
   validateParams(putTeamParams),
   validateBody(putTeamBody),
-  TeamController.updateTeam,
+  teamController.updateTeam,
 );
 teamRouter.put(
   '/team-roster/:teamRosterId',
   validateParams(putTeamRosterParams),
   validateBody(putTeamRosterBody),
-  TeamController.updateTeamRoster,
+  teamController.updateTeamRoster,
 );
 teamRouter.patch(
   '/:teamId/:organizationId',
   validateParams(patchTeamOrganizationParams),
-  TeamController.assignOrganizationToTeam,
+  teamController.assignOrganizationToTeam,
 );
 teamRouter.patch(
   '/roster-request/approve/:rosterRequestId/:reviewedUserId',
   validateParams(patchApproveRosterRequestParams),
-  TeamController.approveRosterRequest,
+  teamController.approveRosterRequest,
 );
 teamRouter.patch(
   '/roster-request/deny/:rosterRequestId/:reviewedUserId',
   validateParams(patchDenyRosterRequestParams),
-  TeamController.denyRosterRequest,
+  teamController.denyRosterRequest,
 );
 teamRouter.patch(
   '/emergency-sub-request/approve/:emergencySubRequestId/:reviewedUserId',
   validateParams(patchApproveEmergencySubRequestParams),
-  TeamController.approveEmergencySubRequest,
+  teamController.approveEmergencySubRequest,
 );
 teamRouter.patch(
   '/emergency-sub-request/deny/:emergencySubRequestId/:reviewedUserId',
   validateParams(patchDenyEmergencySubRequestParams),
-  TeamController.denyEmergencySubRequest,
+  teamController.denyEmergencySubRequest,
 );
 teamRouter.delete(
   '/:teamId',
   validateParams(deleteTeamParams),
-  TeamController.deleteTeam,
+  teamController.deleteTeam,
 );

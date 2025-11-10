@@ -1,4 +1,4 @@
-import { sql } from 'kysely';
+import { Kysely, sql } from 'kysely';
 
 import {
   EMERGENCY_SUB_REQUESTS,
@@ -11,7 +11,7 @@ import {
   TEAM_STATS,
   TEAMS,
 } from '@/database/const.js';
-import { db } from '@/database/database.js';
+import type { Database } from '@/database/database.js';
 import {
   type InsertLeagueGame,
   type LeagueGameRow,
@@ -46,6 +46,7 @@ type NumericTeamStatKey = {
  * Helper function to build the base query for team stat records (used in multiple places).
  */
 const gameStatsRecordBaseQuery = (
+  db: Kysely<Database>,
   splitId: string,
   statColumn: NumericTeamStatKey,
 ) => {
@@ -79,7 +80,10 @@ const gameStatsRecordBaseQuery = (
 export class LeagueGamesQuery {
   // -- INSERT
 
-  static insert(values: InsertLeagueGame): Promise<LeagueGameRow> {
+  static insert(
+    db: Kysely<Database>,
+    values: InsertLeagueGame,
+  ): Promise<LeagueGameRow> {
     return db
       .insertInto(LEAGUE_GAMES)
       .values(values)
@@ -89,7 +93,10 @@ export class LeagueGamesQuery {
 
   // -- SELECT
 
-  static selectById(id: string): Promise<LeagueGameRow | undefined> {
+  static selectById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<LeagueGameRow | undefined> {
     return db
       .selectFrom(LEAGUE_GAMES)
       .selectAll()
@@ -98,6 +105,7 @@ export class LeagueGamesQuery {
   }
 
   static async listPlayedInByUserId(
+    db: Kysely<Database>,
     userId: string,
   ): Promise<PlayerGamePlayedInDto[]> {
     return await db
@@ -173,7 +181,10 @@ export class LeagueGamesQuery {
       .execute();
   }
 
-  static listByMatchId(matchId: string): Promise<LeagueGameRow[]> {
+  static listByMatchId(
+    db: Kysely<Database>,
+    matchId: string,
+  ): Promise<LeagueGameRow[]> {
     return db
       .selectFrom(LEAGUE_GAMES)
       .selectAll()
@@ -182,7 +193,10 @@ export class LeagueGamesQuery {
       .execute();
   }
 
-  static async listBySplitId(splitId: string): Promise<GameDetailDto[]> {
+  static async listBySplitId(
+    db: Kysely<Database>,
+    splitId: string,
+  ): Promise<GameDetailDto[]> {
     const rows = await db
       .selectFrom(`${LEAGUE_GAMES} as g`)
       .leftJoin(`${TEAMS} as tb`, 'tb.id', 'g.blueTeamId')
@@ -334,6 +348,7 @@ export class LeagueGamesQuery {
   }
 
   static selectSidesBySplitId(
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<SidesStatsDto | undefined> {
     return db
@@ -352,6 +367,7 @@ export class LeagueGamesQuery {
   }
 
   static selectDragonsBySplitId(
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<DragonStatsDto | undefined> {
     return db
@@ -389,54 +405,60 @@ export class LeagueGamesQuery {
   // For GameStatRecords
 
   static listTotalKillsRecordsBySplitId(
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordTotalKillsDto[]> {
-    return gameStatsRecordBaseQuery(splitId, 'totalKills')
+    return gameStatsRecordBaseQuery(db, splitId, 'totalKills')
       .orderBy('t.totalKills', 'desc')
       .limit(RECORD_LIMIT)
       .execute();
   }
 
   static listTotalKillsAt15RecordsBySplitId(
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordTotalKillsAt15Dto[]> {
-    return gameStatsRecordBaseQuery(splitId, 'killsAt15')
+    return gameStatsRecordBaseQuery(db, splitId, 'killsAt15')
       .orderBy('t.killsAt15', 'desc')
       .limit(RECORD_LIMIT)
       .execute();
   }
 
   static listCreepScorePerMinuteRecordsBySplitId(
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordCreepScorePerMinuteDto[]> {
-    return gameStatsRecordBaseQuery(splitId, 'creepScorePerMinute')
+    return gameStatsRecordBaseQuery(db, splitId, 'creepScorePerMinute')
       .orderBy('t.creepScorePerMinute', 'desc')
       .limit(RECORD_LIMIT)
       .execute();
   }
 
   static listGoldPerMinuteRecordsBySplitId(
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordGoldPerMinuteDto[]> {
-    return gameStatsRecordBaseQuery(splitId, 'goldPerMinute')
+    return gameStatsRecordBaseQuery(db, splitId, 'goldPerMinute')
       .orderBy('t.goldPerMinute', 'desc')
       .limit(RECORD_LIMIT)
       .execute();
   }
 
   static listDamagePerMinuteRecordsBySplitId(
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordDamagePerMinuteDto[]> {
-    return gameStatsRecordBaseQuery(splitId, 'damageDealtPerMinute')
+    return gameStatsRecordBaseQuery(db, splitId, 'damageDealtPerMinute')
       .orderBy('t.damageDealtPerMinute', 'desc')
       .limit(RECORD_LIMIT)
       .execute();
   }
 
   static listVisionScorePerMinuteRecordsBySplitId(
+    db: Kysely<Database>,
     splitId: string,
   ): Promise<GameStatRecordVisionScorePerMinuteDto[]> {
-    return gameStatsRecordBaseQuery(splitId, 'visionScorePerMinute')
+    return gameStatsRecordBaseQuery(db, splitId, 'visionScorePerMinute')
       .orderBy('t.visionScorePerMinute', 'desc')
       .limit(RECORD_LIMIT)
       .execute();
@@ -445,6 +467,7 @@ export class LeagueGamesQuery {
   // -- UPDATE
 
   static updateById(
+    db: Kysely<Database>,
     id: string,
     update: UpdateLeagueGame,
   ): Promise<LeagueGameRow | undefined> {
@@ -457,6 +480,7 @@ export class LeagueGamesQuery {
   }
 
   static setMatchId(
+    db: Kysely<Database>,
     gameId: string,
     matchId: string,
   ): Promise<LeagueGameRow | undefined> {
@@ -469,6 +493,7 @@ export class LeagueGamesQuery {
   }
 
   static setDraftLink(
+    db: Kysely<Database>,
     gameId: string,
     draftLink: string | null,
   ): Promise<LeagueGameRow | undefined> {
@@ -481,6 +506,7 @@ export class LeagueGamesQuery {
   }
 
   static setBlueTeam(
+    db: Kysely<Database>,
     gameId: string,
     teamId: string,
   ): Promise<LeagueGameRow | undefined> {
@@ -493,6 +519,7 @@ export class LeagueGamesQuery {
   }
 
   static setRedTeam(
+    db: Kysely<Database>,
     gameId: string,
     teamId: string,
   ): Promise<LeagueGameRow | undefined> {
@@ -509,7 +536,10 @@ export class LeagueGamesQuery {
    * Returns the number of games updated.
    * Must be called after every insertion/update to leagueMatchId
    */
-  static async setGameNumbersByMatchId(matchId: string): Promise<number> {
+  static async setGameNumbersByMatchId(
+    db: Kysely<Database>,
+    matchId: string,
+  ): Promise<number> {
     const ids: { id: string }[] = await db
       .selectFrom(LEAGUE_GAMES)
       .select(['id'])
@@ -531,7 +561,10 @@ export class LeagueGamesQuery {
 
   // -- DELETE
 
-  static deleteById(id: string): Promise<LeagueGameRow | undefined> {
+  static deleteById(
+    db: Kysely<Database>,
+    id: string,
+  ): Promise<LeagueGameRow | undefined> {
     return db
       .deleteFrom(LEAGUE_GAMES)
       .where('id', '=', id)

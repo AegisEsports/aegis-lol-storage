@@ -136,10 +136,10 @@ export type SplitDto = {
     firstBloodTimestamp: TeamStatRecordFirstBloodTimestampDto[] | null;
     firstInhibitorTimestamp: TeamStatRecordFirstInhibitorTimestampDto[] | null;
     killsAt15: TeamStatRecordKillsAt15Dto[] | null;
-    goldDiff15: TeamStatRecordGoldAt15Dto[] | null;
-    damageDiff15: TeamStatRecordDamageAt15Dto[] | null;
-    wardsPlacedDiff15: TeamStatRecordWardsPlacedAt15Dto[] | null;
-    wardsClearedDiff15: TeamStatRecordWardsClearedAt15Dto[] | null;
+    goldAt15: TeamStatRecordGoldAt15Dto[] | null;
+    damageAt15: TeamStatRecordDamageAt15Dto[] | null;
+    wardsPlacedAt15: TeamStatRecordWardsPlacedAt15Dto[] | null;
+    wardsClearedAt15: TeamStatRecordWardsClearedAt15Dto[] | null;
   } | null;
   playerStatRecords: {
     creepScorePerMinute: PlayerStatRecordCreepScorePerMinuteDto[] | null;

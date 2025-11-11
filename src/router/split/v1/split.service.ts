@@ -123,20 +123,20 @@ export class SplitService {
           this.db,
           splitId,
         )) ?? null,
-      goldDiff15:
+      goldAt15:
         (await TeamStatsQuery.listGoldAt15RecordsBySplitId(this.db, splitId)) ??
         null,
-      damageDiff15:
+      damageAt15:
         (await TeamStatsQuery.listDamageAt15RecordsBySplitId(
           this.db,
           splitId,
         )) ?? null,
-      wardsPlacedDiff15:
+      wardsPlacedAt15:
         (await TeamStatsQuery.listWardsPlacedAt15RecordsBySplitId(
           this.db,
           splitId,
         )) ?? null,
-      wardsClearedDiff15:
+      wardsClearedAt15:
         (await TeamStatsQuery.listWardsClearedAt15RecordsBySplitId(
           this.db,
           splitId,

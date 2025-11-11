@@ -298,8 +298,9 @@ export class TeamStatsQuery {
     splitId: string,
   ): Promise<TeamStatRecordFirstTowerTimestampDto[]> {
     return teamStatRecordBaseQuery(db, splitId)
+      .where('ts.firstTowerTimestamp', 'is not', null)
       .select('ts.firstTowerTimestamp')
-      .orderBy('ts.firstTowerTimestamp', 'desc')
+      .orderBy('ts.firstTowerTimestamp', 'asc')
       .limit(RECORD_LIMIT)
       .execute();
   }
@@ -309,8 +310,9 @@ export class TeamStatsQuery {
     splitId: string,
   ): Promise<TeamStatRecordFirstBloodTimestampDto[]> {
     return teamStatRecordBaseQuery(db, splitId)
+      .where('ts.firstBloodTimestamp', 'is not', null)
       .select('ts.firstBloodTimestamp')
-      .orderBy('ts.firstBloodTimestamp', 'desc')
+      .orderBy('ts.firstBloodTimestamp', 'asc')
       .limit(RECORD_LIMIT)
       .execute();
   }
@@ -320,8 +322,9 @@ export class TeamStatsQuery {
     splitId: string,
   ): Promise<TeamStatRecordFirstInhibitorTimestampDto[]> {
     return teamStatRecordBaseQuery(db, splitId)
+      .where('ts.firstInhibitorTimestamp', 'is not', null)
       .select('ts.firstInhibitorTimestamp')
-      .orderBy('ts.firstInhibitorTimestamp', 'desc')
+      .orderBy('ts.firstInhibitorTimestamp', 'asc')
       .limit(RECORD_LIMIT)
       .execute();
   }

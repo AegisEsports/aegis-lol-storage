@@ -377,25 +377,25 @@ export class LeagueGamesQuery {
       .where('m.splitId', '=', splitId)
       .where((eb) => eb('g.invalidated', '=', eb.val(false)))
       .select((eb) => [
-        sql<number>`count(*) filter (where ${eb.ref('e.eventType')} = 'Cloud_Drake')`.as(
+        sql<number>`count(*) filter (where ${eb.ref('e.objectiveSubType')} = 'Cloud_Dragon')`.as(
           'cloud',
         ),
-        sql<number>`count(*) filter (where ${eb.ref('e.eventType')} = 'Ocean_Drake')`.as(
+        sql<number>`count(*) filter (where ${eb.ref('e.objectiveSubType')} = 'Ocean_Dragon')`.as(
           'ocean',
         ),
-        sql<number>`count(*) filter (where ${eb.ref('e.eventType')} = 'Infernal_Drake')`.as(
+        sql<number>`count(*) filter (where ${eb.ref('e.objectiveSubType')} = 'Infernal_Dragon')`.as(
           'infernal',
         ),
-        sql<number>`count(*) filter (where ${eb.ref('e.eventType')} = 'Mountain_Drake')`.as(
+        sql<number>`count(*) filter (where ${eb.ref('e.objectiveSubType')} = 'Mountain_Dragon')`.as(
           'mountain',
         ),
-        sql<number>`count(*) filter (where ${eb.ref('e.eventType')} = 'Hextech_Drake')`.as(
+        sql<number>`count(*) filter (where ${eb.ref('e.objectiveSubType')} = 'Hextech_Dragon')`.as(
           'hextech',
         ),
-        sql<number>`count(*) filter (where ${eb.ref('e.eventType')} = 'Chemtech_Drake')`.as(
+        sql<number>`count(*) filter (where ${eb.ref('e.objectiveSubType')} = 'Chemtech_Dragon')`.as(
           'chemtech',
         ),
-        sql<number>`count(*) filter (where ${eb.ref('e.eventType')} = 'Elder_Drake')`.as(
+        sql<number>`count(*) filter (where ${eb.ref('e.objectiveSubType')} = 'Elder_Dragon')`.as(
           'elder',
         ),
       ])

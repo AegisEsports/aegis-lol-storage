@@ -14,10 +14,14 @@ concurrency:
 
 env:
   # Defaults for compose + migrations in CI
+  NODE_ENV: development
+  SERVER_PORT: 3000
   DB_USER: postgres
-  DB_PASSWORD: postgres
+  DB_PASSWORD: password
+  DB_PORT: 5432
   DB_NAME: aegis_lol_storage
   DB_HOST: localhost
+  DB_MAX_HOSTS: 10
   DOCKER_BUILDKIT: '1'
 
 jobs:
@@ -28,11 +32,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node 20
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: 'lts/*' # always use current LTS
+          cache: 'npm'
+          check-latest: true
 
       - name: Install deps
         run: |
@@ -53,11 +57,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node 20 (for tsx migration script)
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: 'lts/*' # always use current LTS
+          cache: 'npm'
+          check-latest: true
 
       - name: Install deps
         run: |
@@ -109,10 +113,17 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: 'lts/*' # always use current LTS
+          cache: 'npm'
+          check-latest: true
+
       - name: Install deps
         run: |
-          if [ -f package-lock.json ]; t
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi

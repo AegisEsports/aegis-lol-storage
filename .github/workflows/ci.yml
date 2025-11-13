@@ -14,14 +14,17 @@ concurrency:
 
 env:
   # Defaults for compose + migrations in CI
-  NODE_ENV: development
-  SERVER_PORT: 3000
-  DB_USER: postgres
-  DB_PASSWORD: password
-  DB_PORT: 5432
-  DB_NAME: aegis_lol_storage
-  DB_HOST: localhost
-  DB_MAX_HOSTS: 10
+  DB_USER: ${{ vars.DB_USER }}
+  DB_NAME: ${{ vars.DB_NAME }}
+  DB_PASSWORD: ${{ vars.DB_PASSWORD }}
+  DB_PORT: ${{ vars.DB_PORT }}
+  DB_HOST: ${{ vars.DB_HOST }}
+  DB_MAX_HOSTS: ${{ vars.DB_MAX_HOSTS }}
+  LOG_DIR: ${{ vars.LOG_DIR }}
+  LOG_FORMAT: ${{ vars.LOG_FORMAT }}
+  ORIGIN: ${{ vars.ORIGIN }}
+  CREDENTIALS: ${{ vars.CREDENTIALS }}
+  RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
   DOCKER_BUILDKIT: '1'
 
 jobs:
@@ -71,12 +74,19 @@ jobs:
         # docker-compose.yml references env_file: .env for the server service; create one so compose doesn't fail.
         run: |
           cat > .env <<'EOF'
-          DB_USER=${DB_USER}
-          DB_PASSWORD=${DB_PASSWORD}
-          DB_NAME=${DB_NAME}
-          DB_HOST=db
           NODE_ENV=development
           PORT=3000
+          DB_USER=${DB_USER}
+          DB_NAME=${DB_NAME}
+          DB_PASSWORD=${DB_PASSWORD}
+          DB_HOST=${DB_HOST}
+          DB_PORT=${DB_PORT}
+          DB_MAX_HOSTS=${DB_MAX_HOSTS}
+          LOG_DIR=${LOG_DIR}
+          LOG_FORMAT=${LOG_FORMAT}
+          ORIGIN=${ORIGIN}
+          CREDENTIALS=${CREDENTIALS}
+          RIOT_API_KEY=${RIOT_API_KEY}
           EOF
 
       - name: Show Docker/Compose versions

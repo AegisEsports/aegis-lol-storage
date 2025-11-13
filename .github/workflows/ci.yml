@@ -48,7 +48,7 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
-        # Your script is "eslint ." which uses the flat config you committed. :contentReference[oaicite:0]{index=0}
+        # Your script is "eslint ." which uses the flat config you committed.
 
   # 2) “Develop” Docker build + reset (compose up + db-init)
   docker-develop:
@@ -74,7 +74,7 @@ jobs:
       - name: Create minimal .env for compose
         # docker-compose.yml references env_file: .env for the server service; create one so compose doesn't fail.
         run: |
-          cat > .env <<'EOF'
+          cat > .env << EOF
           NODE_ENV=development
           SERVER_PORT=${SERVER_PORT}
           DB_USER=${DB_USER}

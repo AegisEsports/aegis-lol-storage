@@ -138,3 +138,6 @@ jobs:
           else
             npm i
           fi
+
+      - name: Run TypeScript type-check
+        run: npx tsc --noEmit

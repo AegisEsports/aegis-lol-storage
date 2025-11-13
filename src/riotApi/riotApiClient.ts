@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { LolApi } from 'twisted';
 import type { RegionGroups } from 'twisted/dist/constants/regions.js';
 import type {

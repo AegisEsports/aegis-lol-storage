@@ -204,12 +204,12 @@ export class LeagueGamesQuery {
       .leftJoin(`${TEAM_STATS} as tsb`, (join) =>
         join
           .onRef('tsb.leagueGameId', '=', 'g.id')
-          .on('tsb.side', '=', sql.lit('Blue')),
+          .on('tsb.side', '=', 'Blue' as const),
       )
       .leftJoin(`${TEAM_STATS} as tsr`, (join) =>
         join
           .onRef('tsr.leagueGameId', '=', 'g.id')
-          .on('tsr.side', '=', sql.lit('Red')),
+          .on('tsr.side', '=', 'Red' as const),
       )
       // ---- LATERAL: Blue dragons
       .leftJoinLateral(

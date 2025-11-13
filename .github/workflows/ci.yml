@@ -1,0 +1,143 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Defaults for compose + migrations in CI
+  SERVER_PORT: ${{ vars.SERVER_PORT }}
+  DB_USER: ${{ vars.DB_USER }}
+  DB_NAME: ${{ vars.DB_NAME }}
+  DB_PASSWORD: ${{ vars.DB_PASSWORD }}
+  DB_PORT: ${{ vars.DB_PORT }}
+  DB_HOST: ${{ vars.DB_HOST }}
+  DB_MAX_HOSTS: ${{ vars.DB_MAX_HOSTS }}
+  LOG_DIR: ${{ vars.LOG_DIR }}
+  LOG_FORMAT: ${{ vars.LOG_FORMAT }}
+  ORIGIN: ${{ vars.ORIGIN }}
+  CREDENTIALS: ${{ vars.CREDENTIALS }}
+  RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
+  DOCKER_BUILDKIT: '1'
+
+jobs:
+  # 1) Lint (ESLint/Prettier)
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*' # always use current LTS
+          cache: 'npm'
+          check-latest: true
+
+      - name: Install deps
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm i; fi
+
+      - name: Run ESLint
+        run: npm run lint
+        # Your script is "eslint ." which uses the flat config you committed.
+
+  # 2) “Develop” Docker build + reset (compose up + db-init)
+  docker-develop:
+    name: Docker (develop reset)
+    runs-on: ubuntu-latest
+    needs: [lint] # keep builds clean
+    if: |
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')) ||
+      (github.event_name == 'pull_request' && github.base_ref == 'main')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*' # always use current LTS
+          cache: 'npm'
+          check-latest: true
+
+      - name: Install deps
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm i; fi
+
+      - name: Create minimal .env for compose
+        # docker-compose.yml references env_file: .env for the server service; create one so compose doesn't fail.
+        run: |
+          cat > .env << EOF
+          NODE_ENV=development
+          SERVER_PORT=${SERVER_PORT}
+          DB_USER=${DB_USER}
+          DB_NAME=${DB_NAME}
+          DB_PASSWORD=${DB_PASSWORD}
+          DB_HOST=${DB_HOST}
+          DB_PORT=${DB_PORT}
+          DB_MAX_HOSTS=${DB_MAX_HOSTS}
+          LOG_DIR=${LOG_DIR}
+          LOG_FORMAT=${LOG_FORMAT}
+          ORIGIN=${ORIGIN}
+          CREDENTIALS=${CREDENTIALS}
+          RIOT_API_KEY=${RIOT_API_KEY}
+          EOF
+
+      - name: Show Docker/Compose versions
+        run: |
+          docker --version
+          docker compose version
+
+      - name: Run docker:reset
+        # docker:reset = clean → wipe volumes → up → db-init (tsx src/migrate.ts)
+        run: npm run docker:reset
+
+      - name: Snapshot Compose status
+        if: always()
+        run: |
+          docker compose ps
+          docker compose logs --no-color > docker-logs.txt || true
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-logs
+          path: docker-logs.txt
+          if-no-files-found: ignore
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v --remove-orphans
+
+  # 3) Type-check (fast, no emit)
+  typecheck:
+    name: Type-check (tsc --noEmit)
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*' # always use current LTS
+          cache: 'npm'
+          check-latest: true
+
+      - name: Install deps
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi
+
+      - name: Run TypeScript type-check
+        run: npx tsc --noEmit

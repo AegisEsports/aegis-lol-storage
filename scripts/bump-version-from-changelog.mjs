@@ -122,5 +122,5 @@ const newFileContents = [
 
 fs.writeFileSync(CHANGELOG_PATH, newFileContents, 'utf8');
 
-// 7) Print new version for GitHub Actions
-console.log(newVersion);
+// Just for logs
+console.log(`Bumped to ${newVersion}`);

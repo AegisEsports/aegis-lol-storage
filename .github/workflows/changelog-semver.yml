@@ -48,23 +48,24 @@ jobs:
             {print}
           ' CHANGELOG.md)
 
-          # Optional: Require at least one bullet in the Template when it changes
+          # Require at least one bullet in the Template when it changes
           if ! printf "%s\n" "$TEMPLATE_BLOCK" | grep -q "^- "; then
             echo "Template must contain at least one bullet ('- something') when CHANGELOG is modified."
             exit 1
           fi
 
-      - name: Bump version and rewrite CHANGELOG
-        id: bump
+      - name: Bump version + rewrite CHANGELOG + package files
         run: |
-          NEW_VERSION=$(node scripts/bump-version-from-changelog.mjs)
-          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          node scripts/bump-version-from-changelog.mjs
 
       - name: Commit updated files back to PR
-        if: steps.bump.outputs.version != ''
-        env:
-          NEW_VERSION: ${{ steps.bump.outputs.version }}
         run: |
+          # If nothing changed, skip commit
+          if git diff --quiet; then
+            echo "No version-related changes detected; skipping commit."
+            exit 0
+          fi
+
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -72,7 +73,8 @@ jobs:
           if [ -f package.json ]; then git add package.json; fi
           if [ -f package-lock.json ]; then git add package-lock.json; fi
 
-          git commit -m "chore(release): v${NEW_VERSION}"
+          # Read version from package.json for commit message
+          NEW_VERSION=$(node -p "require('./package.json').version")
 
-          # Push back to the PR branch
+          git commit -m "chore(release): v${NEW_VERSION}"
           git push origin HEAD:${{ github.head_ref }}

@@ -11,7 +11,67 @@ permissions:
   contents: write
 
 jobs:
+  pre_check:
+    name: CHANGELOG pre-check
+    runs-on: ubuntu-latest
+    outputs:
+      skip_semver: ${{ steps.package_check.outputs.skip_semver }}
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0 # need history to diff against base
+
+      - name: Ensure CHANGELOG.md changed vs main
+        run: |
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+
+          # Check if CHANGELOG.md differs between base and this PR
+          CHANGED=$(git diff --name-only "$BASE_SHA" HEAD -- CHANGELOG.md || true)
+
+          if [ -z "$CHANGED" ]; then
+            echo "CHANGELOG.md must be updated in this PR (no changes vs main)."
+            exit 1
+          fi
+
+          echo "CHANGELOG.md has changed in this PR."
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*' # always use current LTS
+          cache: 'npm'
+          check-latest: true
+
+      - name: Check if package.json version already changed vs main
+        id: package_check
+        run: |
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+
+          if git show "$BASE_SHA:package.json" > /tmp/base-package.json 2>/dev/null; then
+            BASE_VERSION=$(cat /tmp/base-package.json | node -pe "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+            HEAD_VERSION=$(node -pe "require('./package.json').version")
+
+            echo "Base package.json version: $BASE_VERSION"
+            echo "Head package.json version: $HEAD_VERSION"
+
+            if [ "$BASE_VERSION" != "$HEAD_VERSION" ]; then
+              echo "Package version already changed in this PR; skipping automatic semver bump."
+              echo "skip_semver=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "Package version not changed in this PR; automatic semver bump will run."
+              echo "skip_semver=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "package.json not present in base branch; will not skip semver bump."
+            echo "skip_semver=false" >> "$GITHUB_OUTPUT"
+          fi
+
   changelog:
+    name: Bump version and update CHANGELOG
+    if: needs.pre_check.outputs.skip_semver != 'true'
     runs-on: ubuntu-latest
 
     steps:

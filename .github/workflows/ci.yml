@@ -29,7 +29,7 @@ env:
   DOCKER_BUILDKIT: '1'
 
 jobs:
-  # 1) Lint (ESLint/Prettier)
+  # Lint (ESLint/Prettier)
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ jobs:
         run: npm run lint
         # Your script is "eslint ." which uses the flat config you committed.
 
-  # 2) “Develop” Docker build + reset (compose up + db-init)
+  # “Develop” Docker build + reset (compose up + db-init)
   docker-develop:
     name: Docker (develop reset)
     runs-on: ubuntu-latest

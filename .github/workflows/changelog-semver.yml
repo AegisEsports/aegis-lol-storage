@@ -65,13 +65,13 @@ jobs:
               echo "skip_semver=false" >> "$GITHUB_OUTPUT"
             fi
           else
-            echo "package.json not present in base branch; will not skip semver bump."
-            echo "skip_semver=false" >> "$GITHUB_OUTPUT"
+            echo "package.json is not present in base branch."
+            exit 1
           fi
 
-  changelog:
+  semver_bump:
     name: Bump version and update CHANGELOG
-    if: ${{ steps.package_check.outputs.skip_semver == 'false' }}
+    if: ${{ needs.pre_check.outputs.skip_semver == 'false' }}
     runs-on: ubuntu-latest
 
     steps:

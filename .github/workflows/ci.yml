@@ -52,7 +52,7 @@ jobs:
 
   # “Develop” Docker build + reset (compose up + db-init)
   docker-develop:
-    name: Docker (develop reset)
+    name: Docker build
     runs-on: ubuntu-latest
     needs: [lint] # keep builds clean
     if: |
@@ -119,7 +119,7 @@ jobs:
 
   # 3) Type-check (fast, no emit)
   typecheck:
-    name: Type-check (tsc --noEmit)
+    name: Typecheck
     runs-on: ubuntu-latest
     needs: [lint]
     steps:

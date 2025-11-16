@@ -1,4 +1,4 @@
-name: Changelog semantic versioning
+name: Versioning
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   pre_check:
-    name: CHANGELOG pre-check
+    name: Pre-Check
     runs-on: ubuntu-latest
     outputs:
       skip_semver: ${{ steps.package_check.outputs.skip_semver }}

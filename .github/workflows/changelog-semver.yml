@@ -111,7 +111,7 @@ jobs:
 
           # Require at least one bullet in the Template when it changes
           if ! printf "%s\n" "$TEMPLATE_BLOCK" | grep -q "^- "; then
-            echo "Template must contain at least one bullet ('- something') when CHANGELOG is modified."
+            echo "CHANGELOG template must contain at least one bullet ('- something') to summarize the changes."
             exit 1
           fi
 

@@ -71,6 +71,7 @@ jobs:
 
   semver_bump:
     name: Bump version and update CHANGELOG
+    needs: pre_check
     if: ${{ needs.pre_check.outputs.skip_semver == 'false' }}
     runs-on: ubuntu-latest
 

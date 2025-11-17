@@ -4,8 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - CHANGELOG.md
 
 permissions:
   contents: write
@@ -81,6 +79,7 @@ jobs:
         with:
           # For pull_request events, head_ref is the source branch name
           ref: ${{ github.head_ref }}
+          token: ${{ secrets.CI_PUSH_TOKEN }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -120,6 +119,8 @@ jobs:
           node scripts/bump-version-from-changelog.mjs
 
       - name: Commit updated files back to PR
+        env:
+          CI_PUSH_TOKEN: ${{ secrets.CI_PUSH_TOKEN }}
         run: |
           # If nothing changed, skip commit
           if git diff --quiet; then

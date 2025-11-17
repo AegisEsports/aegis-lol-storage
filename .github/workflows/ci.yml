@@ -1,9 +1,10 @@
 name: CI
 
 on:
-  pull_request:
-  push:
-    branches: [main]
+  workflow_run:
+    workflows: ['Versioning']
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -50,11 +51,35 @@ jobs:
         run: npm run lint
         # Your script is "eslint ." which uses the flat config you committed.
 
-  # “Develop” Docker build + reset (compose up + db-init)
-  docker-develop:
-    name: Docker build
+  # Type-check (fast, no emit)
+  typecheck:
+    name: Typecheck
     runs-on: ubuntu-latest
-    needs: [lint] # keep builds clean
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*' # always use current LTS
+          cache: 'npm'
+          check-latest: true
+
+      - name: Install deps
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi
+
+      - name: Run TypeScript type-check
+        run: npx tsc --noEmit
+
+  # “Develop” Docker build + reset (compose up + db-init)
+  dev-build:
+    name: Dev Build
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck] # keep builds clean
     if: |
       (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')) ||
       (github.event_name == 'pull_request' && github.base_ref == 'main')
@@ -116,28 +141,3 @@ jobs:
       - name: Cleanup
         if: always()
         run: docker compose down -v --remove-orphans
-
-  # 3) Type-check (fast, no emit)
-  typecheck:
-    name: Typecheck
-    runs-on: ubuntu-latest
-    needs: [lint]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*' # always use current LTS
-          cache: 'npm'
-          check-latest: true
-
-      - name: Install deps
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm i
-          fi
-
-      - name: Run TypeScript type-check
-        run: npx tsc --noEmit

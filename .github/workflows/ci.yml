@@ -4,16 +4,12 @@ on:
   pull_request:
     branches:
       - main
-  workflow_run:
-    workflows: [Versioning]
-    types:
-      - completed
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: ci-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -33,9 +29,144 @@ env:
   DOCKER_BUILDKIT: '1'
 
 jobs:
+  # Pre-Check for CHANGELOG.md and package.json version
+  pre_check:
+    name: Pre-Check
+    runs-on: ubuntu-latest
+    outputs:
+      skip_semver: ${{ steps.package_check.outputs.skip_semver }}
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0 # need history to diff against base
+
+      - name: Ensure CHANGELOG.md changed vs main
+        run: |
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+
+          # Check if CHANGELOG.md differs between base and this PR
+          CHANGED=$(git diff --name-only "$BASE_SHA" HEAD -- CHANGELOG.md || true)
+
+          if [ -z "$CHANGED" ]; then
+            echo "CHANGELOG.md must be updated in this PR (no changes vs main)."
+            exit 1
+          fi
+
+          echo "CHANGELOG.md has changed in this PR."
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*' # always use current LTS
+          cache: 'npm'
+          check-latest: true
+
+      - name: Check if package.json version already changed vs main
+        id: package_check
+        run: |
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+
+          if git show "$BASE_SHA:package.json" > /tmp/base-package.json 2>/dev/null; then
+            BASE_VERSION=$(cat /tmp/base-package.json | node -pe "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+            HEAD_VERSION=$(node -pe "require('./package.json').version")
+
+            echo "Base package.json version: $BASE_VERSION"
+            echo "Head package.json version: $HEAD_VERSION"
+
+            if [ "$BASE_VERSION" != "$HEAD_VERSION" ]; then
+              echo "Package version already changed in this PR; skipping automatic semver bump."
+              echo "skip_semver=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "Package version not changed in this PR; automatic semver bump will run."
+              echo "skip_semver=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "package.json is not present in base branch."
+            exit 1
+          fi
+
+  # Semantic version bump + CHANGELOG rewrite
+  semver_bump:
+    name: Bump version and update CHANGELOG
+    needs: [pre_check]
+    if: ${{ needs.pre_check.outputs.skip_semver == 'false' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          # For pull_request events, head_ref is the source branch name
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.CI_PUSH_TOKEN }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*' # always use current LTS
+          cache: 'npm'
+          check-latest: true
+
+      - name: Lint CHANGELOG template structure
+        run: |
+          if ! grep -q "^# Template" CHANGELOG.md; then
+            echo "CHANGELOG.md must start with '# Template'"
+            exit 1
+          fi
+
+          for h in "Breaking Change" "Add" "Remove" "Fix"; do
+            if ! grep -q "^## $h" CHANGELOG.md; then
+              echo "Missing '## $h' section under Template"
+              exit 1
+            fi
+          done
+
+          # Extract just the Template block (everything before first "# x.y.z")
+          TEMPLATE_BLOCK=$(awk '
+            /^# [0-9]+\.[0-9]+\.[0-9]+/ {exit}
+            {print}
+          ' CHANGELOG.md)
+
+          # Require at least one bullet in the Template when it changes
+          if ! printf "%s\n" "$TEMPLATE_BLOCK" | grep -q "^- "; then
+            echo "CHANGELOG template must contain at least one bullet ('- something') to summarize the changes."
+            exit 1
+          fi
+
+      - name: Bump version + rewrite CHANGELOG + package files
+        run: |
+          node scripts/bump-version-from-changelog.mjs
+
+      - name: Commit updated files back to PR
+        env:
+          CI_PUSH_TOKEN: ${{ secrets.CI_PUSH_TOKEN }}
+        run: |
+          # If nothing changed, skip commit
+          if git diff --quiet; then
+            echo "No version-related changes detected; skipping commit."
+            exit 0
+          fi
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add CHANGELOG.md
+          if [ -f package.json ]; then git add package.json; fi
+          if [ -f package-lock.json ]; then git add package-lock.json; fi
+
+          # Read version from package.json for commit message
+          NEW_VERSION=$(node -p "require('./package.json').version")
+
+          git commit -m "chore(release): bump to v${NEW_VERSION}"
+          git push origin HEAD:${{ github.head_ref }}
+
   # Lint (ESLint/Prettier)
   lint:
     name: Lint
+    if: ${{ needs.pre_check.outputs.skip_semver != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -57,6 +188,7 @@ jobs:
   # Type-check (fast, no emit)
   typecheck:
     name: Typecheck
+    if: ${{ needs.pre_check.outputs.skip_semver != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -1,6 +1,7 @@
 # Template
 ## Breaking Change
 ## Add
+- Began semantic versioning in Github Actions.
 ## Remove
 ## Fix
 

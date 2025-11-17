@@ -31,7 +31,7 @@ env:
 jobs:
   # Pre-Check for CHANGELOG.md and package.json version
   pre_check:
-    name: 01) Version/CHANGELOG Check
+    name: 1) Version/CHANGELOG Check
     runs-on: ubuntu-latest
     outputs:
       skip_semver: ${{ steps.package_check.outputs.skip_semver }}
@@ -90,7 +90,7 @@ jobs:
 
   # Semantic version bump + CHANGELOG rewrite
   semver_bump:
-    name: 02) Bump version and update CHANGELOG
+    name: 1.1) Bump version and update CHANGELOG
     needs: [pre_check]
     if: ${{ needs.pre_check.outputs.skip_semver == 'false' }}
     runs-on: ubuntu-latest
@@ -163,7 +163,7 @@ jobs:
 
   # Lint (ESLint/Prettier)
   lint:
-    name: 03) Lint
+    name: 2) Lint
     needs: [pre_check]
     if: ${{ needs.pre_check.outputs.skip_semver != 'false' }}
     runs-on: ubuntu-latest
@@ -186,7 +186,7 @@ jobs:
 
   # Type-check (fast, no emit)
   typecheck:
-    name: 04) Typecheck
+    name: 3) Typecheck
     needs: [pre_check]
     if: ${{ needs.pre_check.outputs.skip_semver != 'false' }}
     runs-on: ubuntu-latest
@@ -212,7 +212,7 @@ jobs:
 
   # “Develop” Docker build + reset (compose up + db-init)
   dev-build:
-    name: 05) Dev Build
+    name: 4) Dev Build
     runs-on: ubuntu-latest
     needs: [lint, typecheck] # keep builds clean
     steps:

@@ -141,8 +141,6 @@ jobs:
           node scripts/bump-version-from-changelog.mjs
 
       - name: Commit updated files back to PR
-        env:
-          CI_PUSH_TOKEN: ${{ secrets.CI_PUSH_TOKEN }}
         run: |
           # If nothing changed, skip commit
           if git diff --quiet; then

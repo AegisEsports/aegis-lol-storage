@@ -58,6 +58,10 @@ let major = Number(majorStr);
 let minor = Number(minorStr);
 let patch = Number(patchStr);
 
+if (isNaN(major) || isNaN(minor) || isNaN(patch)) {
+  console.error(`Invalid version format in CHANGELOG.md: ${versionMatch[1]}`);
+  process.exit(1);
+}
 if (bump === 'major') {
   major += 1;
   minor = 0;

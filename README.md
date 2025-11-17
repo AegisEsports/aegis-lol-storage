@@ -141,6 +141,17 @@ Though highly unadvised, the hooks can be temporarily disabled by:
 ```
 $ HUSKY=0 git commit ... # To skip pre-commit hook
 ```
+#### Changelog Update
+
+Every PR must involve an update into the top template block of `CHANGELOG.md`. **ONLY** edit the template block; __*never*__ change older version sections further down the file.
+
+At least one bullet is required when updating the changelog. Add one or more bullets under the right heading:
+- **Breaking Change** – backwards-incompatible changes (e.g. remove/rename public API)
+- **Add** – new features, new endpoints, new options
+- **Remove** – removed non-breaking behavior, deprecations, cleanup
+- **Fix** – bug fixes, refactors that don’t change behavior
+
+Once that's done, the Github Action will automatically update the CHANGELOG and will bump the version based on the specified changes.
 
 ### Postman
 

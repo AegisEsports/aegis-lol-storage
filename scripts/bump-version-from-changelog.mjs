@@ -22,7 +22,7 @@ const historyBlock = file.slice(versionMatch.index).trimStart();
 
 // Helper to get bullets from one of the template subsections
 function extractBullets(template, heading) {
-  const sectionRegex = new RegExp(`^## ${heading}[\\s\\S]*?(?=^## |^$)`, 'm');
+  const sectionRegex = new RegExp(`^## ${heading}[\\s\\S]*?(?=^## |$)`, 'm');
   const match = template.match(sectionRegex);
   if (!match) return [];
 

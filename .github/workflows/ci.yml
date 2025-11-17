@@ -166,6 +166,7 @@ jobs:
   # Lint (ESLint/Prettier)
   lint:
     name: Lint
+    needs: [pre_check]
     if: ${{ needs.pre_check.outputs.skip_semver != 'false' }}
     runs-on: ubuntu-latest
     steps:
@@ -188,6 +189,7 @@ jobs:
   # Type-check (fast, no emit)
   typecheck:
     name: Typecheck
+    needs: [pre_check]
     if: ${{ needs.pre_check.outputs.skip_semver != 'false' }}
     runs-on: ubuntu-latest
     steps:

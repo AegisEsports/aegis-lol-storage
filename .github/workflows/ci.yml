@@ -70,7 +70,7 @@ jobs:
           BASE_SHA=${{ github.event.pull_request.base.sha }}
 
           if git show "$BASE_SHA:package.json" > /tmp/base-package.json 2>/dev/null; then
-            BASE_VERSION=$(cat /tmp/base-package.json | node -pe "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+            BASE_VERSION=$(node -pe "require('/tmp/base-package.json').version")
             HEAD_VERSION=$(node -pe "require('./package.json').version")
 
             echo "Base package.json version: $BASE_VERSION"
